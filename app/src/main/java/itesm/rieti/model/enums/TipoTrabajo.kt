@@ -1,0 +1,7 @@
+package itesm.rieti.model.enums
+
+enum class TipoTrabajo {
+    MENDICION_FORZADA, EXPLOTACION_SEXUAL, TRATA_DE_PERSONAS,
+    UTILIZACION_PARA_ACTIVIDADES_ILICITAS,
+    TRABAJO_PELIGROSO, OTRO
+}

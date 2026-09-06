@@ -1,0 +1,6 @@
+package itesm.rieti.model.enums
+
+enum class Status {
+    REGISTRADO, EN_REVISION, EN_SEGUIMIENTO, CANALIZADO,
+    CONCLUIDO, ARCHIVADO, CANCELADO, REINCIDENTE
+}

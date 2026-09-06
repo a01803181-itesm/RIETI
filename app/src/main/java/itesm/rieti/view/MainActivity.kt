@@ -46,102 +46,25 @@ import itesm.rieti.viewModel.MainVM
 
 class MainActivity : ComponentActivity()
 {
-    private val vm: MainVM by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             RIETITheme {
-                RIETIApp(vm)
+                RIETIApp()
             }
         }
     }
 }
 
 @Composable
-fun RIETIApp(rietivm: MainVM, modifier: Modifier = Modifier)
+fun RIETIApp(modifier: Modifier = Modifier)
 {
-    val estado by rietivm.estado.collectAsState() // Suscripcion al estado
-
     Scaffold(
-        topBar = { PPTAppBar() },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
-        Column(
-            modifier = Modifier.padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    Etiqueta("Jugador")
-                    Marcador(estado.puntosJugador)
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    Etiqueta("Android")
-                    Marcador(estado.puntosAndroid)
-                }
-            }
-            // Botones
 
-            Row (
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                BotonElemento(Elemento.Piedra,
-                    onClick = {
-                        pptvm.actualizarElementoJugador(Elemento.Piedra)
-                        pptvm.jugar()
-                    }
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                BotonElemento(Elemento.Papel,
-                    onClick = {
-                        pptvm.actualizarElementoJugador(Elemento.Papel)
-                        pptvm.jugar()
-                    }
-                )
-                BotonElemento(Elemento.Tijeras,
-                    onClick = {
-                        pptvm.actualizarElementoJugador(Elemento.Tijeras)
-                        pptvm.jugar()
-                    }
-                )
-            }
-        }
-        // Resultado del juego individual
-        if (estado.resultadoJuego != null)
-        {
-            val resultado = "${estado.elementoJugador} vs ${estado.elementoAndroid} -> ${estado.resultadoJuego}"
-            Toast.makeText(LocalContext.current, resultado, Toast.LENGTH_SHORT).show()
-        }
-
-        // Resultado de la partida
-        if (estado.resultadoPartida == GanadorPartida.Jugador ||
-            estado.resultadoPartida == GanadorPartida.Android)
-        {
-            ResultadoPartida(estado.resultadoPartida)
-            {
-                pptvm.reset()
-            }
-        }
     }
 }
 
@@ -149,6 +72,6 @@ fun RIETIApp(rietivm: MainVM, modifier: Modifier = Modifier)
 @Composable
 fun GreetingPreview() {
     RIETITheme {
-        Greeting("Android")
+        RIETIApp()
     }
 }
