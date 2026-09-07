@@ -46,7 +46,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             alimentador = null
         ),
         Reporte(
-            folioReporte = "pigtjd946",
+            folioReporte = "20260829COAR24",
             descripcion = "Hay cinco jóvenes como de 15 años vendiendo chicles en la esquina",
             fechaYHora = LocalDateTime.of(2026, 8, 29, 9, 46),
             status = Status.EN_SEGUIMIENTO,

@@ -1,48 +1,23 @@
 package itesm.rieti.view
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.twotone.Info
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import itesm.rieti.ui.theme.RIETITheme
-import itesm.rieti.viewModel.MainVM
 
 class MainActivity : ComponentActivity()
 {
@@ -61,11 +36,53 @@ class MainActivity : ComponentActivity()
 @Composable
 fun RIETIApp(modifier: Modifier = Modifier)
 {
+    val navController = rememberNavController()
     Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
+        content = { innerPadding ->
+            AppNavHost(
+                navController = navController,
+                modifier = modifier.padding(innerPadding)
+            )
+        },
+        bottomBar = { RIETIBottomBar(navController) }
+    )
+}
 
+@Composable
+fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) {
+    BottomAppBar {
+        val pilaNavegacion by navController.currentBackStackEntryAsState()
+        val pantallaActual = pilaNavegacion?.destination
+
+        Pantalla.listaPantallas.forEach { pantalla ->
+            NavigationBarItem(
+                selected = pantallaActual?.route == pantalla.ruta,
+                onClick = {
+                    navController.navigate(pantalla.ruta) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                label = { Text(pantalla.etiqueta) },
+                icon = {
+                    Icon(
+                        pantalla.icono,
+                        pantalla.etiqueta
+                    )
+                },
+                alwaysShowLabel = true
+            )
+        }
     }
+}
+
+@Composable
+fun Inicio() {
+
 }
 
 @Preview(showBackground = true)
