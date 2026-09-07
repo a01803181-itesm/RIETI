@@ -23,11 +23,8 @@ fun registroApp(modifier: Modifier = Modifier) {
 
 }
 
-@Composable
-//fun Titulo(texto : string, modifier: Modifier = Modifier) {
-
-
-}
+// @Composable
+//fun Titulo(texto : string, modifier: Modifier = Modifier) { }
 @Composable
 fun correo(modifier: Modifier = Modifier) {
     OutlinedTextField(

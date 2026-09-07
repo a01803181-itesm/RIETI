@@ -1,6 +1,7 @@
 package itesm.rieti.model.enums
 
-enum class Municipio {
+enum class Municipio
+{
     ATIZAPAN, NAUCALPAN, CUAUTITLAN_IZCALLI, CUAUTITLAN,
     HUIZQUILUCAN, NICOLAS_ROMERO, TLALNEPANTLA, TULTITLAN,
     COACALCO, ECAPTEPEC, NEZAHUALCOYOTL

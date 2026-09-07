@@ -16,7 +16,7 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         startDestination = Pantalla.RUTA_INICIO,
         modifier = modifier.fillMaxSize()
     ) {
-        composable(Pantalla.RUTA_INICIO) { Inicio() }
+        composable(Pantalla.RUTA_INICIO) { NuevoReporte() }
         composable(Pantalla.RUTA_SIPINNA) {  }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) {
             val mockItems: List<Reporte> = ReporteMockups().values.toList()
