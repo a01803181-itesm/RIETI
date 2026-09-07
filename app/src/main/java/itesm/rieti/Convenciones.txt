@@ -1,7 +1,7 @@
 todo es español sin acentos
 
-variables, carpetas y funciones:
+variables, carpetas:
     camelCase ejemplo: camelCase, estaEsUnaVariable
 
-archivos y clases:
+archivos, funciones y clases:
     PascalCase ejemplo: PascalCase, EsteEsUnArchivo
