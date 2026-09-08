@@ -21,15 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import itesm.rieti.view.mockupData.Reporte
 import itesm.rieti.view.mockupData.ReporteMockups
 import itesm.rieti.R
+import itesm.rieti.model.esquemas.Reporte
 
 @Composable
 fun HistorialActivity(mockItems: List<Reporte>, modifier: Modifier = Modifier) {
@@ -60,10 +59,38 @@ fun TarjetaReporte(reporte: Reporte, modifier: Modifier = Modifier) {
         Column(
             modifier = modifier.wrapContentHeight().padding(all = 18.dp)
         ) {
-            Row(
-                modifier = modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            if (reporte.expediente != null) {
+                DosColumnas(
+                    contenidoColumna1 = {
+                        Column(
+                            modifier = modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = reporte.municipio.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                            )
+                            Text(
+                                text = reporte.folioReporte,
+                                fontWeight = FontWeight.Light,
+                                fontSize = 14.sp,
+                            )
+                        }
+                    },
+                    contenidoColumna2 = {
+                        Column(
+                            modifier = modifier.weight(1f),
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            Text(
+                                text = reporte.expediente.status.name,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 18.sp,
+                            )
+                        }
+                    }
+                )
+            } else {
                 Column(
                     modifier = modifier.weight(1f)
                 ) {
@@ -76,16 +103,6 @@ fun TarjetaReporte(reporte: Reporte, modifier: Modifier = Modifier) {
                         text = reporte.folioReporte,
                         fontWeight = FontWeight.Light,
                         fontSize = 14.sp,
-                    )
-                }
-                Column(
-                    modifier = modifier.weight(1f),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = reporte.status.name,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 18.sp,
                     )
                 }
             }
@@ -112,7 +129,7 @@ fun TarjetaReporte(reporte: Reporte, modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.End
                 ) {
                     IconButton(
-                        onClick = {},
+                        onClick = { },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Color.Transparent
                         )
@@ -126,6 +143,17 @@ fun TarjetaReporte(reporte: Reporte, modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @Composable () -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        contenidoColumna1()
+        contenidoColumna2()
     }
 }
 

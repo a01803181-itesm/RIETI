@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import itesm.rieti.view.mockupData.Reporte
+import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.mockupData.ReporteMockups
 
 @Composable
