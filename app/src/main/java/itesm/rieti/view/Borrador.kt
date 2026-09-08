@@ -40,7 +40,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun NuevoReporte(modifier: Modifier = Modifier)
+fun Borrador(modifier: Modifier = Modifier)
 {
     val ancho = 180.dp
     val altura = 90.dp
@@ -302,55 +302,9 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     }
 }
 
-@Composable
-fun Ubicacion(
-    modifier: Modifier = Modifier,
-    posicionInicial: LatLng = LatLng(19.4326, -99.1332), // CDMX
-    onUbicacionSeleccionada: (LatLng) -> Unit
-)
-{
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(posicionInicial, 16f)
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(500.dp)
-    ) {
-        GoogleMap(
-            modifier = Modifier.matchParentSize(),
-            cameraPositionState = cameraPositionState,
-            uiSettings = MapUiSettings(
-                zoomControlsEnabled = false,
-                myLocationButtonEnabled = false
-            )
-        )
-
-        Icon(
-            imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Marcador de ubicación",
-            tint = Color.Red,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(48.dp)
-                .padding(bottom = 24.dp) // ajusta esto para que la PUNTA del pin quede exacto en el centro
-        )
-    }
-
-    // Se dispara cada vez que el usuario suelta el mapa
-    LaunchedEffect(cameraPositionState.isMoving)
-    {
-        if (!cameraPositionState.isMoving)
-        {
-            onUbicacionSeleccionada(cameraPositionState.position.target)
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
-fun ReportePreview()
+fun BorradorPreview()
 {
-    NuevoReporte()
+    Borrador()
 }
