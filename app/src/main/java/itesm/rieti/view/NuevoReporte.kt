@@ -304,7 +304,7 @@ fun Ubicacion(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(500.dp)
     ) {
         GoogleMap(
             modifier = Modifier.matchParentSize(),
@@ -315,7 +315,6 @@ fun Ubicacion(
             )
         )
 
-        // Pin fijo en el centro
         Icon(
             imageVector = Icons.Filled.LocationOn,
             contentDescription = "Marcador de ubicación",
