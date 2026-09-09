@@ -1,6 +1,5 @@
 package itesm.rieti.view
 
-import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,15 +38,15 @@ fun registroApp(modifier: Modifier = Modifier) {
             .background(Color(0xFFE6F0FA))
 
     ) {
-        header()
-        mainApp()
+        encabezado()
+        cuerpoApp()
     }
 
 }
 
 //Contenedor del cuerpo
 @Composable
-fun mainApp(modifier: Modifier = Modifier) {
+fun cuerpoApp(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(16.dp)
@@ -67,7 +66,7 @@ fun mainApp(modifier: Modifier = Modifier) {
 
 //Header
 @Composable
-fun header(modifier: Modifier = Modifier) {
+fun encabezado(modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -117,8 +116,6 @@ fun espacio(distancia: Dp, modifier: Modifier = Modifier) {
     )
 }
 
-// @Composable
-//fun Titulo(texto : string, modifier: Modifier = Modifier) { }
 @Composable
 fun correo(modifier: Modifier = Modifier) {
     Column(
@@ -138,7 +135,6 @@ fun correo(modifier: Modifier = Modifier) {
         )
     }
 }
-
 
 @Composable
 fun contrasenia(modifier: Modifier = Modifier) {
