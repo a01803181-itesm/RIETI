@@ -1,5 +1,6 @@
 package itesm.rieti.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,6 +41,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
+import itesm.rieti.R
 
 @Composable
 fun NuevoReporte(modifier: Modifier = Modifier)
@@ -55,7 +59,8 @@ fun NuevoReporte(modifier: Modifier = Modifier)
         modifier = modifier
             .fillMaxSize()
             .padding(pad)
-    ) {
+    )
+    {
         // Nombre
         Row(modifier = Modifier.fillMaxWidth())
         {
@@ -274,18 +279,18 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 modifier = modifier
                     .fillMaxWidth()
-                    .height(altura*2)
+                    .height(altura)
             )
         }
 
         // ubicacion
         Row(modifier = Modifier.fillMaxWidth())
         {
-            Ubicacion(
-                modifier = Modifier.fillMaxWidth(),
-                onUbicacionSeleccionada = { latLng ->
-                    ubicacion = latLng
-                }
+            Image(
+                painter = painterResource(R.drawable.map_preview),
+                contentDescription = "Static Google Maps preview",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
         }
 
