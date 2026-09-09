@@ -6,7 +6,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.view.mockupData.BorradorMockUps
 import itesm.rieti.view.mockupData.ReporteMockups
 
 @Composable
@@ -19,8 +21,9 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Pantalla.RUTA_INICIO) { NuevoReporte() }
         composable(Pantalla.RUTA_SIPINNA) {  }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) {
-            val mockItems: List<Reporte> = ReporteMockups().values.toList()
-            HistorialActivity(mockItems)
+            val reporteMockups: List<Reporte> = ReporteMockups().values.toList()
+            val borradorMockups: List<Borrador> = BorradorMockUps().values.toList()
+            HistorialActivity(reporteMockups, borradorMockups)
         }
     }
 }
