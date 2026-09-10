@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -54,255 +56,295 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     var error by remember { mutableStateOf(false) }
     var ubicacion by remember { mutableStateOf<LatLng?>(null) }
 
-    // Columna principal
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(pad)
-    )
-    {
-        // Nombre
-        Row(modifier = Modifier.fillMaxWidth())
+    ) {
+        Text(
+            text = "Nuevo Reporte",
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp
+        )
+        Spacer(modifier = modifier.height(16.dp))
+        // Columna principal
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+        )
         {
-            var nombre by remember { mutableStateOf(value = "") }
+            item {
+                // Nombre
+                Row(modifier = Modifier.fillMaxWidth())
+                {
+                    var nombre by remember { mutableStateOf(value = "") }
 
-            OutlinedTextField(
-                value = nombre,
-                onValueChange = {
-                    try {
-                        nombre = it
-                        error = false
-                    } catch (e: NumberFormatException) {
-                        error = true
-                    }
-                },
-                label = { Text("Nombre Completo",
-                    style = MaterialTheme.typography.titleMedium) },
-                textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                isError = error,
-                supportingText = {
-                    if (error)
-                    {
-                        Text("Campo Incorrecto")
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = modifier.fillMaxWidth()
-            )
-        }
+                    OutlinedTextField(
+                        value = nombre,
+                        onValueChange = {
+                            try {
+                                nombre = it
+                                error = false
+                            } catch (e: NumberFormatException) {
+                                error = true
+                            }
+                        },
+                        label = {
+                            Text(
+                                "Nombre Completo",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+                        isError = error,
+                        supportingText = {
+                            if (error) {
+                                Text("Campo Incorrecto")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        modifier = modifier.fillMaxWidth()
+                    )
+                }
 
-        // Cantidad y edad ni;os
-        Row(horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxWidth())
-        {
-            var numNinos by remember { mutableStateOf(value = "") }
-            var edadNinos by remember { mutableStateOf(value = "") }
+                // Cantidad y edad ni;os
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                {
+                    var numNinos by remember { mutableStateOf(value = "") }
+                    var edadNinos by remember { mutableStateOf(value = "") }
 
-            // # ni;os
-            OutlinedTextField(
-                value = numNinos,
-                onValueChange = {
-                    try {
-                        numNinos = it
-                        error = false
-                    } catch (e: NumberFormatException) {
-                        error = true
-                    }
-                },
-                label = { Text("Cantidad Niños",
-                    style = MaterialTheme.typography.titleMedium) },
-                textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                isError = error,
-                supportingText = {
-                    if (error)
-                    {
-                        Text("Campo Incorrecto")
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = modifier
-                    .width(ancho)
-                    .height(altura)
-                    .padding(end = pad)
-            )
+                    // # ni;os
+                    OutlinedTextField(
+                        value = numNinos,
+                        onValueChange = {
+                            try {
+                                numNinos = it
+                                error = false
+                            } catch (e: NumberFormatException) {
+                                error = true
+                            }
+                        },
+                        label = {
+                            Text(
+                                "Cantidad Niños",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+                        isError = error,
+                        supportingText = {
+                            if (error) {
+                                Text("Campo Incorrecto")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = modifier
+                            .width(ancho)
+                            .height(altura)
+                            .padding(end = pad)
+                    )
 
-            // edad
-            OutlinedTextField(
-                value = edadNinos,
-                onValueChange = {
-                    try {
-                        edadNinos = it
-                        error = false
-                    } catch (e: NumberFormatException) {
-                        error = true
-                    }
-                },
-                label = { Text("Edad de los Niños",
-                    style = MaterialTheme.typography.titleMedium) },
-                textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                isError = error,
-                supportingText = {
-                    if (error)
-                    {
-                        Text("Campo Incorrecto")
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = modifier
-                    .width(ancho)
-                    .height(altura)
-                    .padding(start = pad)
-            )
-        }
+                    // edad
+                    OutlinedTextField(
+                        value = edadNinos,
+                        onValueChange = {
+                            try {
+                                edadNinos = it
+                                error = false
+                            } catch (e: NumberFormatException) {
+                                error = true
+                            }
+                        },
+                        label = {
+                            Text(
+                                "Edad de los Niños",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+                        isError = error,
+                        supportingText = {
+                            if (error) {
+                                Text("Campo Incorrecto")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = modifier
+                            .width(ancho)
+                            .height(altura)
+                            .padding(start = pad)
+                    )
+                }
 
-        // tipo de tabajo y horario
-        Row(horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxWidth())
-        {
-            var numNinos by remember { mutableStateOf(value = "") }
-            var edadNinos by remember { mutableStateOf(value = "") }
+                // tipo de tabajo y horario
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                {
+                    var numNinos by remember { mutableStateOf(value = "") }
+                    var edadNinos by remember { mutableStateOf(value = "") }
 
-            // tipo trabajo
-            OutlinedTextField(
-                value = numNinos,
-                onValueChange = {
-                    try {
-                        numNinos = it
-                        error = false
-                    } catch (e: NumberFormatException) {
-                        error = true
-                    }
-                },
-                label = { Text("Tipo Trabajo",
-                    style = MaterialTheme.typography.titleMedium) },
-                textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                isError = error,
-                supportingText = {
-                    if (error)
-                    {
-                        Text("Campo Incorrecto")
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = modifier
-                    .width(ancho)
-                    .height(altura)
-                    .padding(end = pad)
-            )
+                    // tipo trabajo
+                    OutlinedTextField(
+                        value = numNinos,
+                        onValueChange = {
+                            try {
+                                numNinos = it
+                                error = false
+                            } catch (e: NumberFormatException) {
+                                error = true
+                            }
+                        },
+                        label = {
+                            Text(
+                                "Tipo Trabajo",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+                        isError = error,
+                        supportingText = {
+                            if (error) {
+                                Text("Campo Incorrecto")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = modifier
+                            .width(ancho)
+                            .height(altura)
+                            .padding(end = pad)
+                    )
 
-            // horario
-            OutlinedTextField(
-                value = edadNinos,
-                onValueChange = {
-                    try {
-                        edadNinos = it
-                        error = false
-                    } catch (e: NumberFormatException) {
-                        error = true
-                    }
-                },
-                label = { Text("Horario",
-                    style = MaterialTheme.typography.titleMedium) },
-                textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                isError = error,
-                supportingText = {
-                    if (error)
-                    {
-                        Text("Campo Incorrecto")
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = modifier
-                    .width(ancho)
-                    .height(altura)
-                    .padding(start = pad)
-            )
-        }
+                    // horario
+                    OutlinedTextField(
+                        value = edadNinos,
+                        onValueChange = {
+                            try {
+                                edadNinos = it
+                                error = false
+                            } catch (e: NumberFormatException) {
+                                error = true
+                            }
+                        },
+                        label = {
+                            Text(
+                                "Horario",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+                        isError = error,
+                        supportingText = {
+                            if (error) {
+                                Text("Campo Incorrecto")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = modifier
+                            .width(ancho)
+                            .height(altura)
+                            .padding(start = pad)
+                    )
+                }
 
-        // detalles
-        Row(modifier = Modifier.fillMaxWidth())
-        {
-            var detalles by remember { mutableStateOf(value = "") }
+                // detalles
+                Row(modifier = Modifier.fillMaxWidth())
+                {
+                    var detalles by remember { mutableStateOf(value = "") }
 
-            OutlinedTextField(
-                value = detalles,
-                onValueChange = {
-                    try {
-                        detalles = it
-                        error = false
-                    } catch (e: NumberFormatException) {
-                        error = true
-                    }
-                },
-                label = { Text("Detalles",
-                    style = MaterialTheme.typography.titleMedium) },
-                textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                isError = error,
-                supportingText = {
-                    if (error)
-                    {
-                        Text("Campo Incorrecto")
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(altura*2)
-            )
-        }
+                    OutlinedTextField(
+                        value = detalles,
+                        onValueChange = {
+                            try {
+                                detalles = it
+                                error = false
+                            } catch (e: NumberFormatException) {
+                                error = true
+                            }
+                        },
+                        label = {
+                            Text(
+                                "Detalles",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+                        isError = error,
+                        supportingText = {
+                            if (error) {
+                                Text("Campo Incorrecto")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .height(altura * 2)
+                    )
+                }
 
-        // fotos
-        Row(modifier = Modifier.fillMaxWidth())
-        {
-            var foto by remember { mutableStateOf(value = "") }
+                // fotos
+                Row(modifier = Modifier.fillMaxWidth())
+                {
+                    var foto by remember { mutableStateOf(value = "") }
 
-            OutlinedTextField(
-                value = foto,
-                onValueChange = {
-                    try {
-                        foto = it
-                        error = false
-                    } catch (e: NumberFormatException) {
-                        error = true
-                    }
-                },
-                label = { Text("Foto",
-                    style = MaterialTheme.typography.titleMedium) },
-                textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                isError = error,
-                supportingText = {
-                    if (error)
-                    {
-                        Text("Campo Incorrecto")
-                    }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(altura)
-            )
-        }
+                    OutlinedTextField(
+                        value = foto,
+                        onValueChange = {
+                            try {
+                                foto = it
+                                error = false
+                            } catch (e: NumberFormatException) {
+                                error = true
+                            }
+                        },
+                        label = {
+                            Text(
+                                "Foto",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+                        isError = error,
+                        supportingText = {
+                            if (error) {
+                                Text("Campo Incorrecto")
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .height(altura)
+                    )
+                }
 
-        // ubicacion
-        Row(modifier = Modifier.fillMaxWidth())
-        {
-            Image(
-                painter = painterResource(R.drawable.map_preview),
-                contentDescription = "Static Google Maps preview",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-        }
+                // ubicacion
+                Row(modifier = Modifier.fillMaxWidth())
+                {
+                    Image(
+                        painter = painterResource(R.drawable.map_preview),
+                        contentDescription = "Static Google Maps preview",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
 
-        // guarda borrador o manda reporte
-        Row(horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxWidth())
-        {
-            // guardar borrador
-            Button(onClick = {  }) { Text("Guardar Borrador")}
+                // guarda borrador o manda reporte
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                {
+                    // guardar borrador
+                    Button(onClick = { }) { Text("Guardar Borrador") }
 
-            // envira reporte
-            Button(onClick = {  }) { Text("Enviar Reporte")}
+                    // envira reporte
+                    Button(onClick = { }) { Text("Enviar Reporte") }
+                }
+            }
         }
     }
 }
