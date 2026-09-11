@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import itesm.rieti.R
+import itesm.rieti.model.enums.Status
 import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.mockupData.ReporteMockups
@@ -64,11 +66,12 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
             IconButton(
                 onClick = { },
                 modifier = modifier.weight(1f).size(25.dp),
-                enabled = reporte.expediente == null
+                enabled = reporte.expediente != null && reporte.expediente.status == Status.REGISTRADO
             ) {
                 Icon(
                     painter = painterResource(R.drawable.pencil),
-                    contentDescription = "Edit Report Details"
+                    contentDescription = "Edit Report Details",
+                    tint = if (reporte.expediente != null && reporte.expediente.status == Status.REGISTRADO) MaterialTheme.colorScheme.onSurface else Color.Transparent
                 )
             }
         }
