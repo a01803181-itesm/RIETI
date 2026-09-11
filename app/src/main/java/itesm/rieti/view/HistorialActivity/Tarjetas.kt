@@ -29,7 +29,7 @@ import itesm.rieti.view.mockupData.BorradorMockUps
 import itesm.rieti.view.mockupData.ReporteMockups
 
 @Composable
-fun TarjetaReporte(reporte: Reporte, modifier: Modifier = Modifier) {
+fun TarjetaReporte(reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Modifier = Modifier) {
     Card(modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Column(
             modifier = modifier.wrapContentHeight().padding(all = 18.dp)
@@ -106,7 +106,7 @@ fun TarjetaReporte(reporte: Reporte, modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.End
                 ) {
                     IconButton(
-                        onClick = { },
+                        onClick = { onReporte(reporte) },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Color.Transparent
                         )
@@ -212,7 +212,7 @@ fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @C
 @Composable
 fun TarjetaReportePreview() {
     val reporte: Reporte = ReporteMockups().values.toList()[0]
-    TarjetaReporte(reporte)
+    TarjetaReporte(reporte, { })
 }
 
 @Preview

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,8 +33,11 @@ import itesm.rieti.view.mockupData.ReporteMockups
 
 @Composable
 fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Modifier = Modifier) {
+    val estadoScroll = rememberScrollState()
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -88,36 +93,40 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
                 )
             }
         }
-        Spacer(modifier.height(14.dp))
-        Text(
-            text = reporte.descripcion,
-            fontWeight = FontWeight.Normal,
-            fontSize = 18.sp,
-        )
-        Spacer(modifier.height(14.dp))
-        ElementoLista("Fecha:", reporte.fechaYHora.toString())
-        ElementoLista("Número de NNA:", reporte.numeroNNA.toString())
-        ElementoLista("Rango de edad:", reporte.rangoEdad)
-        ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo.name)
-        if (reporte.expediente != null) DetallesExpediente(reporte.expediente)
-        Spacer(modifier.height(14.dp))
-        Text(
-            text = "Ubicación",
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp
-        )
-        Text(
-            text = reporte.municipio.name,
-            fontWeight = FontWeight.Medium,
-            fontSize = 18.sp
-        )
-        Spacer(modifier.height(8.dp))
-        Image(
-            painter = painterResource(R.drawable.map_preview),
-            contentDescription = "Static Google Maps preview",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+        Column(
+            modifier = modifier.verticalScroll(estadoScroll)
+        ) {
+            Spacer(modifier.height(14.dp))
+            Text(
+                text = reporte.descripcion,
+                fontWeight = FontWeight.Normal,
+                fontSize = 18.sp,
+            )
+            Spacer(modifier.height(14.dp))
+            ElementoLista("Fecha:", reporte.fechaYHora.toString())
+            ElementoLista("Número de NNA:", reporte.numeroNNA.toString())
+            ElementoLista("Rango de edad:", reporte.rangoEdad)
+            ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo.name)
+            if (reporte.expediente != null) DetallesExpediente(reporte.expediente)
+            Spacer(modifier.height(14.dp))
+            Text(
+                text = "Ubicación",
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp
+            )
+            Text(
+                text = reporte.municipio.name,
+                fontWeight = FontWeight.Medium,
+                fontSize = 18.sp
+            )
+            Spacer(modifier.height(8.dp))
+            Image(
+                painter = painterResource(R.drawable.map_preview),
+                contentDescription = "Static Google Maps preview",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
     }
 }
 

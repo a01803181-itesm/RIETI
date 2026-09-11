@@ -1,6 +1,7 @@
 package itesm.rieti.view
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -12,10 +13,11 @@ sealed class Pantalla (
     val icono: ImageVector
 ) {
     companion object {
-        var listaPantallas = listOf(inicio, sipinna, historialReportes)
+        var listaPantallas = listOf(inicio, sipinna, historialReportes, cuenta)
         const val RUTA_INICIO = "Inicio"
         const val RUTA_SIPINNA = "SIPINNA"
         const val RUTA_HISTORIAL_REPORTES = "HistorialReportes"
+        const val RUTA_CUENTA = "Cuenta"
     }
 
     private data object inicio:
@@ -26,4 +28,7 @@ sealed class Pantalla (
 
     private data object historialReportes:
             Pantalla(RUTA_HISTORIAL_REPORTES, "Historial", Icons.Default.History)
+
+    private data object cuenta:
+            Pantalla(RUTA_CUENTA, "Cuenta", Icons.Default.AccountCircle)
 }

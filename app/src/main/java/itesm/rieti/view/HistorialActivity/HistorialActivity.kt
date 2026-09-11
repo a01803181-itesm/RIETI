@@ -33,8 +33,18 @@ import itesm.rieti.view.mockupData.BorradorMockUps
 
 @Composable
 fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, modifier: Modifier = Modifier) {
-    var seleccionado by remember { mutableStateOf(0) }
+    var reporteSeleccionado by remember { mutableStateOf<Reporte?>(null) }
+    var opcionSeleccionada by remember { mutableStateOf(0) }
     val opciones = listOf("Reportes", "Borradores")
+    if (reporteSeleccionado == null) {
+        MuestraHistorial(mockupReportes, mockupBorradores, opciones, opcionSeleccionada, { opcionSeleccionada = it }, reporteSeleccionado, { reporteSeleccionado = it }, modifier)
+    } else {
+        DetallesReporteActivity(onClose = { reporteSeleccionado = null }, reporte = reporteSeleccionado!!)
+    }
+}
+
+@Composable
+fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, opciones: List<String>, opcionSeleccionada: Int, onOpcion: (Int) -> Unit, reporteSeleccionado: Reporte?, onReporte: (Reporte) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(all = 14.dp).fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -48,13 +58,13 @@ fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borr
         Spacer(Modifier.height(12.dp))
         GrillaKPIs()
         Spacer(Modifier.height(12.dp))
-        BarraToggle(opciones, seleccionado, { seleccionado = it })
+        BarraToggle(opciones, opcionSeleccionada, { onOpcion(it) })
         Spacer(Modifier.height(6.dp))
         LazyColumn {
-            when (seleccionado) {
+            when (opcionSeleccionada) {
                 0 -> {
                     items(mockupReportes) { reporte ->
-                        TarjetaReporte(reporte)
+                        TarjetaReporte(reporte, onReporte)
                     }
                 }
                 1 -> {
@@ -66,7 +76,6 @@ fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borr
         }
     }
 }
-
 
 @Composable
 fun BarraToggle(opciones: List<String>, seleccionado: Int, onClick: (Int) -> Unit, modifier: Modifier = Modifier) {

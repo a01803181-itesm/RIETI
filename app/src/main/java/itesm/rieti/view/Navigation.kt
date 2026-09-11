@@ -25,5 +25,6 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             val borradorMockups: List<Borrador> = BorradorMockUps().values.toList()
             HistorialActivity(reporteMockups, borradorMockups)
         }
+        composable(Pantalla.RUTA_CUENTA) { }
     }
 }

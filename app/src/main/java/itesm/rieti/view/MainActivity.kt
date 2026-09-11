@@ -60,8 +60,8 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
                 onClick = {
                     navController.navigate(pantalla.ruta) {
                         popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                            inclusive = true
+                            saveState = false
+                            inclusive = false
                         }
                         launchSingleTop = true
                         restoreState = true
@@ -78,11 +78,6 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
             )
         }
     }
-}
-
-@Composable
-fun Inicio() {
-
 }
 
 @Preview(showBackground = true)
