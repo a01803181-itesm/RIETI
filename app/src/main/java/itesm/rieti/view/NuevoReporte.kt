@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
@@ -53,6 +55,8 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     val pad = 16.dp
     val tamLetra = 20.sp
 
+    val estadoScroll = rememberScrollState()
+
     var error by remember { mutableStateOf(false) }
     var ubicacion by remember { mutableStateOf<LatLng?>(null) }
 
@@ -60,6 +64,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
         modifier = modifier
             .fillMaxSize()
             .padding(pad)
+            .verticalScroll(estadoScroll)
     ) {
         Text(
             text = "Nuevo Reporte",
