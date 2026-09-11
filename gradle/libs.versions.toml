@@ -12,6 +12,9 @@ mapsCompose = "8.6.0"
 navigationCompose = "2.10.0"
 playServicesMaps = "20.0.0"
 
+retrofitVer = "3.0.0"
+gsonVer = "3.0.0"
+
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +35,9 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
+
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVer" }
+gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gsonVer" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -21,6 +21,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import itesm.rieti.ui.theme.RIETITheme
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity()
 {
@@ -35,8 +40,11 @@ class MainActivity : ComponentActivity()
             }
         }
     }
-}
 
+    override fun onStart() {
+        super.onStart()
+    }
+}
 @Composable
 fun RIETIApp(modifier: Modifier = Modifier)
 {
