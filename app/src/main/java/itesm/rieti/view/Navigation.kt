@@ -25,6 +25,11 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
             val borradorMockups: List<Borrador> = BorradorMockUps().values.toList()
             HistorialActivity(reporteMockups, borradorMockups)
         }
-        composable(Pantalla.RUTA_CUENTA) { }
+        composable(Pantalla.RUTA_CUENTA) {
+            ConfigApp(correo= "rieti@gmail.com",
+                actualizarCorreo = {},
+                contrasenia= "123455",
+                actualizarContrasenia = {})
+        }
     }
 }
