@@ -18,8 +18,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -37,11 +35,11 @@ fun ConfigApp(
     Column (modifier = modifier.fillMaxSize()
         .padding((18.dp))) {
         Text("Configuración",  style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold )
-        espacio(12.dp)
+        Espacio(12.dp)
         Apariencia()
-        espacio(12.dp)
+        Espacio(12.dp)
         TamanioLetra()
-        espacio(16.dp)
+        Espacio(16.dp)
         Cuenta(correo = correo, actualizarCorreo = actualizarCorreo, contrasenia = contrasenia, actualizarContrasenia = actualizarContrasenia)
 
     }}
@@ -56,7 +54,7 @@ fun Apariencia(modifier: Modifier = Modifier) {
     )
     {
         Text("Apariencia", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        espacio(8.dp)
+        Espacio(8.dp)
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
@@ -101,7 +99,7 @@ fun TamanioLetra(modifier: Modifier = Modifier) {
             .fillMaxWidth()
     ) {
         Text("Tamaño de Letra", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        espacio(8.dp)
+        Espacio(8.dp)
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
@@ -146,7 +144,7 @@ fun TamanioLetra(modifier: Modifier = Modifier) {
 fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: String, actualizarContrasenia:(String)-> Unit, modifier: Modifier = Modifier) {
     Column() {
         Text( "Cuenta", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        espacio(8.dp)
+        Espacio(8.dp)
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
@@ -174,7 +172,7 @@ fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: Strin
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                espacio(8.dp)
+                Espacio(8.dp)
 
 
                 OutlinedTextField(

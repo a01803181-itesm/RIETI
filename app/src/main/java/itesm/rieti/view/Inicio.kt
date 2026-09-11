@@ -29,44 +29,43 @@ import androidx.compose.ui.unit.sp
 
 //Contenedor principal
 @Composable
-fun registroApp(modifier: Modifier = Modifier) {
+fun RegistroApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Column(
-
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFE6F0FA))
 
     ) {
-        encabezado()
-        cuerpoApp()
+        Encabezado()
+        CuerpoApp(onRegistro)
     }
 
 }
 
 //Contenedor del cuerpo
 @Composable
-fun cuerpoApp(modifier: Modifier = Modifier) {
+fun CuerpoApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(16.dp)
     ) {
-        titulosLogin()
-        espacio(24.dp)
-        correo()
-        espacio(24.dp)
-        contrasenia()
-        espacio(24.dp)
-        botonRegistro()
-        espacio(24.dp)
-        botonGoogle()
+        TitulosLogin()
+        Espacio(24.dp)
+        Correo()
+        Espacio(24.dp)
+        Contrasenia()
+        Espacio(24.dp)
+        BotonRegistro(onRegistro)
+        Espacio(24.dp)
+        BotonGoogle(onRegistro)
     }
 
 }
 
 //Header
 @Composable
-fun encabezado(modifier: Modifier = Modifier) {
+fun Encabezado(modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -90,7 +89,7 @@ fun encabezado(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun titulosLogin(modifier: Modifier = Modifier) {
+fun TitulosLogin(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier.fillMaxWidth()
@@ -110,14 +109,14 @@ fun titulosLogin(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun espacio(distancia: Dp, modifier: Modifier = Modifier) {
+fun Espacio(distancia: Dp, modifier: Modifier = Modifier) {
     Spacer(
         modifier = modifier.height(distancia)
     )
 }
 
 @Composable
-fun correo(modifier: Modifier = Modifier) {
+fun Correo(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -137,7 +136,7 @@ fun correo(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun contrasenia(modifier: Modifier = Modifier) {
+fun Contrasenia(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -159,19 +158,18 @@ fun contrasenia(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun botonRegistro(modifier: Modifier = Modifier) {
+fun BotonRegistro(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Button(
-        onClick = {},
+        onClick = { onRegistro() },
         modifier = modifier.fillMaxWidth()
-
     ) { Text("Registro") }
 
 }
 
 @Composable
-fun botonGoogle(modifier: Modifier = Modifier) {
+fun BotonGoogle(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Button(
-        onClick = {},
+        onClick = { onRegistro() },
         modifier = modifier.fillMaxWidth()
     ) { Text("Continuar con Google") }
 
@@ -179,6 +177,6 @@ fun botonGoogle(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun mainAppPreview() {
-    registroApp()
+fun MainAppPreview() {
+    RegistroApp({})
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,8 +19,8 @@ fun AcercaDeApp(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
-        encabezado()
-        espacio(24.dp)
+        Encabezado()
+        Espacio(24.dp)
         CuerpoAcercaDeApp()
     }
 }
