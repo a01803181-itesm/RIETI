@@ -14,6 +14,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,7 +35,7 @@ import itesm.rieti.view.mockupData.BorradorMockUps
 @Composable
 fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, onEditar: () -> Unit, modifier: Modifier = Modifier) {
     var reporteSeleccionado by remember { mutableStateOf<Reporte?>(null) }
-    var opcionSeleccionada by remember { mutableStateOf(0) }
+    var opcionSeleccionada by remember { mutableIntStateOf(0) }
     val opciones = listOf("Reportes", "Borradores")
     if (reporteSeleccionado == null) {
         MuestraHistorial(mockupReportes, mockupBorradores, opciones, opcionSeleccionada, { opcionSeleccionada = it }, reporteSeleccionado, { reporteSeleccionado = it }, onEditar, modifier)

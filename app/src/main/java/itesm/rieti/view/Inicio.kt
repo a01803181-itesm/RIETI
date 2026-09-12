@@ -1,5 +1,6 @@
 package itesm.rieti.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,10 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,26 +21,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import itesm.rieti.R
 
 //Contenedor principal
 @Composable
 fun RegistroApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFE6F0FA))
-
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Encabezado()
         CuerpoApp(onRegistro)
     }
-
 }
 
 //Contenedor del cuerpo
@@ -60,7 +60,6 @@ fun CuerpoApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
         Espacio(24.dp)
         BotonGoogle(onRegistro)
     }
-
 }
 
 //Header
@@ -72,20 +71,14 @@ fun Encabezado(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
-
     ) {
         Text(
             text = "Rieti",
             fontWeight = FontWeight.Bold,
-            fontSize = 32.sp
-        )
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Perfil",
-            modifier = modifier.size(32.dp)
+            fontSize = 32.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
-
 }
 
 @Composable
@@ -97,13 +90,13 @@ fun TitulosLogin(modifier: Modifier = Modifier) {
         Text(
             text = "Iniciar sesion",
             fontSize = 40.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = "Ingresa tus datos para continuar",
             fontSize = 16.sp,
             color = Color.Gray
-
         )
     }
 }
@@ -124,7 +117,8 @@ fun Correo(modifier: Modifier = Modifier) {
         Text(
             text = "Correo electrónico",
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
             value = "",
@@ -144,7 +138,8 @@ fun Contrasenia(modifier: Modifier = Modifier) {
         Text(
             text = "Contraseña",
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
             value = "",
@@ -171,8 +166,19 @@ fun BotonGoogle(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick = { onRegistro() },
         modifier = modifier.fillMaxWidth()
-    ) { Text("Continuar con Google") }
-
+    ) {
+        Row(
+            modifier = modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.google),
+                contentDescription = "Google Login",
+                modifier = modifier.size(18.dp)
+            )
+            Text(text = "Continuar con Google")
+        }
+    }
 }
 
 @Preview(showBackground = true)

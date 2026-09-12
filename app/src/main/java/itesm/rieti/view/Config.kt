@@ -9,14 +9,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,13 +41,16 @@ fun ConfigApp(
     actualizarContrasenia: (String) -> Unit,
     actualizarCorreo: (String) -> Unit,
     modifier: Modifier = Modifier) {
-    Column (modifier = modifier.fillMaxSize()
+    val opciones: List<String> = listOf("Pequeña", "Mediana", "Grande")
+    var seleccionado by remember { mutableIntStateOf(0) }
+    Column (modifier = modifier
+        .fillMaxSize()
         .padding((18.dp))) {
         Text("Configuración",  style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold )
         Espacio(12.dp)
         Apariencia()
         Espacio(12.dp)
-        TamanioLetra()
+        TamanioLetra(opciones, seleccionado, { seleccionado = it })
         Espacio(16.dp)
         Cuenta(correo = correo, actualizarCorreo = actualizarCorreo, contrasenia = contrasenia, actualizarContrasenia = actualizarContrasenia)
 
@@ -58,17 +70,19 @@ fun Apariencia(modifier: Modifier = Modifier) {
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
-            modifier = Modifier.padding()
-                    .fillMaxWidth()
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outline,
-                        shape = MaterialTheme.shapes.medium
-                    )
+            modifier = Modifier
+                .padding()
+                .fillMaxWidth()
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.medium
+                )
             )
          {
             Column (
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(16.dp)
             ) {
                 Button(
@@ -93,9 +107,10 @@ fun Apariencia(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TamanioLetra(modifier: Modifier = Modifier) {
+fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int) -> Unit, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.padding(16.dp)
+        modifier = modifier
+            .padding(16.dp)
             .fillMaxWidth()
     ) {
         Text("Tamaño de Letra", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -103,7 +118,8 @@ fun TamanioLetra(modifier: Modifier = Modifier) {
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
-            modifier = Modifier.padding()
+            modifier = Modifier
+                .padding()
                 .fillMaxWidth()
                 .border(
                     1.dp,
@@ -112,27 +128,21 @@ fun TamanioLetra(modifier: Modifier = Modifier) {
                 )
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Button(
-                    onClick = { },
-                    modifier = modifier.weight(1f)
-                ) {
-                    Text("Pequeña", fontSize = 11.sp)
-                }
-                Button(
-                    onClick = { },
-                    modifier = modifier.weight(1f)
-                ) {
-                    Text("Mediana", fontSize = 11.sp)
-                }
-                Button(
-                    onClick = { },
-                    modifier = modifier.weight(1f)
-                ) {
-                    Text("Grande", fontSize = 11.sp)
+                SingleChoiceSegmentedButtonRow(modifier = modifier) {
+                    opciones.forEachIndexed { numero, etiqueta ->
+                        SegmentedButton(
+                            selected = seleccionado == numero,
+                            onClick = { onTamanioLetra(numero) },
+                            shape = SegmentedButtonDefaults.itemShape(index = numero, count = opciones.size)
+                        ) {
+                            Text(text = etiqueta)
+                        }
+                    }
                 }
             }
         }
@@ -148,7 +158,8 @@ fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: Strin
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
-            modifier = Modifier.padding()
+            modifier = Modifier
+                .padding()
                 .fillMaxWidth()
                 .border(
                     1.dp,
@@ -157,7 +168,8 @@ fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: Strin
                 )
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(16.dp)
             ) {
                 Row(
@@ -173,8 +185,6 @@ fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: Strin
                     )
                 }
                 Espacio(8.dp)
-
-
                 OutlinedTextField(
                     value = contrasenia,
                     onValueChange = { actualizarContrasenia(it) },
