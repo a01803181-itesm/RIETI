@@ -1,5 +1,10 @@
 package itesm.rieti.view
 
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -22,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +52,9 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
+import itesm.rieti.model.ubicacion.UbicacionInfo
+import itesm.rieti.viewModel.UbicacionVM
+import kotlin.getValue
 
 @Composable
 fun NuevoReporte(modifier: Modifier = Modifier)
@@ -65,7 +73,8 @@ fun NuevoReporte(modifier: Modifier = Modifier)
         modifier = modifier
             .fillMaxSize()
             .padding(pad)
-    ) {
+    )
+    {
         Text(
             text = "Nuevo Reporte",
             textAlign = TextAlign.Center,
@@ -331,12 +340,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             // ubicacion
             Row(modifier = Modifier.fillMaxWidth())
             {
-                Image(
-                    painter = painterResource(R.drawable.map_preview),
-                    contentDescription = "Static Google Maps preview",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                UbicacionInfo(viewModel = viewModel())
             }
 
             // guarda borrador o manda reporte
@@ -356,48 +360,9 @@ fun NuevoReporte(modifier: Modifier = Modifier)
 }
 
 @Composable
-fun Ubicacion(
-    modifier: Modifier = Modifier,
-    posicionInicial: LatLng = LatLng(19.4326, -99.1332), // CDMX
-    onUbicacionSeleccionada: (LatLng) -> Unit
-)
+fun Ubicacion(modifier: Modifier)
 {
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(posicionInicial, 16f)
-    }
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(500.dp)
-    ) {
-        GoogleMap(
-            modifier = Modifier.matchParentSize(),
-            cameraPositionState = cameraPositionState,
-            uiSettings = MapUiSettings(
-                zoomControlsEnabled = false,
-                myLocationButtonEnabled = false
-            )
-        )
-
-        Icon(
-            imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Marcador de ubicación",
-            tint = Color.Red,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(48.dp)
-                .padding(bottom = 24.dp) // ajusta esto para que la PUNTA del pin quede exacto en el centro
-        )
-    }
-
-    // Se dispara cada vez que el usuario suelta el mapa
-    LaunchedEffect(cameraPositionState.isMoving)
-    {
-        if (!cameraPositionState.isMoving) {
-            onUbicacionSeleccionada(cameraPositionState.position.target)
-        }
-    }
 }
 
 @Preview(showBackground = true)

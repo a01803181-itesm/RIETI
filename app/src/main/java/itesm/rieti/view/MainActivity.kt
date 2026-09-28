@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import itesm.rieti.ui.theme.RIETITheme
+import itesm.rieti.viewModel.UbicacionVM
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -29,6 +31,9 @@ import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity()
 {
+    /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
+    private val viewModel: UbicacionVM by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
@@ -41,8 +46,23 @@ class MainActivity : ComponentActivity()
         }
     }
 
-    override fun onStart() {
+    /**
+     * Se ejecuta al iniciar la app e inicia la solicitud de actualizaciones de ubicación.
+     */
+    override fun onStart()
+    {
         super.onStart()
+        viewModel.iniciarActualizaciones()
+    }
+
+    /**
+     * Se ejecuta al detener la ap y detiene las actualizaciones de ubicación para
+     * no consumir recursos del dispositivo.
+     */
+    override fun onStop()
+    {
+        super.onStop()
+        viewModel.detenerActualizaciones()
     }
 }
 @Composable

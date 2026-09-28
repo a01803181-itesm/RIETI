@@ -50,6 +50,9 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.retrofit)
     implementation(libs.gson)
+
+    implementation(libs.google.play.services.location)
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
