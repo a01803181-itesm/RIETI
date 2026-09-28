@@ -2,6 +2,10 @@ package itesm.rieti.view
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -21,9 +25,12 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
         composable(Pantalla.RUTA_INICIO) { NuevoReporte() }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) {
+            var mostrarHistorial by remember { mutableStateOf(true) }
             val reporteMockups: List<Reporte> = ReporteMockups().values.toList()
             val borradorMockups: List<Borrador> = BorradorMockUps().values.toList()
-            HistorialActivity(reporteMockups, borradorMockups)
+            if (mostrarHistorial) HistorialActivity(reporteMockups, borradorMockups, {
+                mostrarHistorial = false
+            }) else NuevoReporte()
         }
         composable(Pantalla.RUTA_CUENTA) {
             ConfigApp(correo= "rieti@gmail.com",

@@ -1,5 +1,6 @@
 package itesm.rieti.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,10 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,76 +21,68 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import itesm.rieti.R
 
 //Contenedor principal
 @Composable
-fun registroApp(modifier: Modifier = Modifier) {
+fun RegistroApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Column(
-
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFE6F0FA))
-
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        encabezado()
-        cuerpoApp()
+        Encabezado()
+        CuerpoApp(onRegistro)
     }
-
 }
 
 //Contenedor del cuerpo
 @Composable
-fun cuerpoApp(modifier: Modifier = Modifier) {
+fun CuerpoApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(16.dp)
     ) {
-        titulosLogin()
-        espacio(24.dp)
-        correo()
-        espacio(24.dp)
-        contrasenia()
-        espacio(24.dp)
-        botonRegistro()
-        espacio(24.dp)
-        botonGoogle()
+        TitulosLogin()
+        Espacio(24.dp)
+        Correo()
+        Espacio(24.dp)
+        Contrasenia()
+        Espacio(24.dp)
+        BotonRegistro(onRegistro)
+        Espacio(24.dp)
+        BotonGoogle(onRegistro)
     }
-
 }
 
 //Header
 @Composable
-fun encabezado(modifier: Modifier = Modifier) {
+fun Encabezado(modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
-
     ) {
         Text(
             text = "Rieti",
             fontWeight = FontWeight.Bold,
-            fontSize = 32.sp
-        )
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Perfil",
-            modifier = modifier.size(32.dp)
+            fontSize = 32.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
-
 }
 
 @Composable
-fun titulosLogin(modifier: Modifier = Modifier) {
+fun TitulosLogin(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier.fillMaxWidth()
@@ -98,26 +90,26 @@ fun titulosLogin(modifier: Modifier = Modifier) {
         Text(
             text = "Iniciar sesion",
             fontSize = 40.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = "Ingresa tus datos para continuar",
             fontSize = 16.sp,
             color = Color.Gray
-
         )
     }
 }
 
 @Composable
-fun espacio(distancia: Dp, modifier: Modifier = Modifier) {
+fun Espacio(distancia: Dp, modifier: Modifier = Modifier) {
     Spacer(
         modifier = modifier.height(distancia)
     )
 }
 
 @Composable
-fun correo(modifier: Modifier = Modifier) {
+fun Correo(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -125,7 +117,8 @@ fun correo(modifier: Modifier = Modifier) {
         Text(
             text = "Correo electrónico",
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
             value = "",
@@ -137,7 +130,7 @@ fun correo(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun contrasenia(modifier: Modifier = Modifier) {
+fun Contrasenia(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -145,7 +138,8 @@ fun contrasenia(modifier: Modifier = Modifier) {
         Text(
             text = "Contraseña",
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
             value = "",
@@ -159,26 +153,36 @@ fun contrasenia(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun botonRegistro(modifier: Modifier = Modifier) {
+fun BotonRegistro(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Button(
-        onClick = {},
+        onClick = { onRegistro() },
         modifier = modifier.fillMaxWidth()
-
     ) { Text("Registro") }
 
 }
 
 @Composable
-fun botonGoogle(modifier: Modifier = Modifier) {
+fun BotonGoogle(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
     Button(
-        onClick = {},
+        onClick = { onRegistro() },
         modifier = modifier.fillMaxWidth()
-    ) { Text("Continuar con Google") }
-
+    ) {
+        Row(
+            modifier = modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.google),
+                contentDescription = "Google Login",
+                modifier = modifier.size(18.dp)
+            )
+            Text(text = "Continuar con Google")
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun mainAppPreview() {
-    registroApp()
+fun MainAppPreview() {
+    RegistroApp({})
 }

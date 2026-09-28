@@ -14,6 +14,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,19 +33,19 @@ import itesm.rieti.view.HistorialActivity.TarjetaReporte
 import itesm.rieti.view.mockupData.BorradorMockUps
 
 @Composable
-fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, modifier: Modifier = Modifier) {
+fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, onEditar: () -> Unit, modifier: Modifier = Modifier) {
     var reporteSeleccionado by remember { mutableStateOf<Reporte?>(null) }
-    var opcionSeleccionada by remember { mutableStateOf(0) }
+    var opcionSeleccionada by remember { mutableIntStateOf(0) }
     val opciones = listOf("Reportes", "Borradores")
     if (reporteSeleccionado == null) {
-        MuestraHistorial(mockupReportes, mockupBorradores, opciones, opcionSeleccionada, { opcionSeleccionada = it }, reporteSeleccionado, { reporteSeleccionado = it }, modifier)
+        MuestraHistorial(mockupReportes, mockupBorradores, opciones, opcionSeleccionada, { opcionSeleccionada = it }, reporteSeleccionado, { reporteSeleccionado = it }, onEditar, modifier)
     } else {
         DetallesReporteActivity(onClose = { reporteSeleccionado = null }, reporte = reporteSeleccionado!!)
     }
 }
 
 @Composable
-fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, opciones: List<String>, opcionSeleccionada: Int, onOpcion: (Int) -> Unit, reporteSeleccionado: Reporte?, onReporte: (Reporte) -> Unit, modifier: Modifier = Modifier) {
+fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, opciones: List<String>, opcionSeleccionada: Int, onOpcion: (Int) -> Unit, reporteSeleccionado: Reporte?, onReporte: (Reporte) -> Unit, onEditar: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(all = 14.dp).fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -69,7 +70,7 @@ fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borra
                 }
                 1 -> {
                     items(mockupBorradores) { borrador ->
-                        TarjetaBorrador(borrador)
+                        TarjetaBorrador(borrador, onEditar)
                     }
                 }
             }
@@ -97,5 +98,5 @@ fun BarraToggle(opciones: List<String>, seleccionado: Int, onClick: (Int) -> Uni
 fun TarjetaReportePreview() {
     val mockupReportes: List<Reporte> = ReporteMockups().values.toList()
     val mockupBorradores: List<Borrador> = BorradorMockUps().values.toList()
-    HistorialActivity(mockupReportes, mockupBorradores)
+    HistorialActivity(mockupReportes, mockupBorradores, {})
 }

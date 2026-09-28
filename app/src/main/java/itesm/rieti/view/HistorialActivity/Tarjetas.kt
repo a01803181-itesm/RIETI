@@ -124,7 +124,7 @@ fun TarjetaReporte(reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Mod
 }
 
 @Composable
-fun TarjetaBorrador(borrador: Borrador, modifier: Modifier = Modifier) {
+fun TarjetaBorrador(borrador: Borrador, onEditar: () -> Unit, modifier: Modifier = Modifier) {
     Card(modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Column(
             modifier = modifier.wrapContentHeight().padding(all = 18.dp)
@@ -181,7 +181,7 @@ fun TarjetaBorrador(borrador: Borrador, modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.End
                 ) {
                     IconButton(
-                        onClick = { },
+                        onClick = { onEditar() },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Color.Transparent
                         )
@@ -212,12 +212,12 @@ fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @C
 @Composable
 fun TarjetaReportePreview() {
     val reporte: Reporte = ReporteMockups().values.toList()[0]
-    TarjetaReporte(reporte, { })
+    TarjetaReporte(reporte, {})
 }
 
 @Preview
 @Composable
 fun TarjetaBorradorPreview() {
     val borrador: Borrador = BorradorMockUps().values.toList()[0]
-    TarjetaBorrador(borrador)
+    TarjetaBorrador(borrador, {})
 }
