@@ -45,6 +45,7 @@ class InicioVM : ViewModel()
             {
                 val resultado = manejador.obtenerCorreo(correo)
                 _usuarioActual.value = resultado
+                println("Funciono el get uwu")
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
