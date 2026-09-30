@@ -33,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,14 +47,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.ubicacion.UbicacionInfo
 import itesm.rieti.viewModel.UbicacionVM
+import kotlinx.coroutines.launch
 import kotlin.getValue
 
 @Composable
@@ -67,7 +71,6 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     val estadoScroll = rememberScrollState()
 
     var error by remember { mutableStateOf(false) }
-    var ubicacion by remember { mutableStateOf<LatLng?>(null) }
 
     Column(
         modifier = modifier
@@ -80,30 +83,27 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
-            modifier = modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = modifier.height(16.dp))
-        // Columna principal
+        Spacer(modifier = Modifier.height(pad))
+        
+        // Columna principal con scroll
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(estadoScroll)
+                .verticalScroll(estadoScroll),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         )
         {
             // Nombre
             Row(modifier = Modifier.fillMaxWidth())
             {
-                var nombre by remember { mutableStateOf(value = "") }
+                var nombre by remember { mutableStateOf("") }
 
                 OutlinedTextField(
                     value = nombre,
                     onValueChange = {
-                        try {
-                            nombre = it
-                            error = false
-                        } catch (e: NumberFormatException) {
-                            error = true
-                        }
+                        nombre = it
                     },
                     label = {
                         Text(
@@ -119,7 +119,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                         }
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -129,19 +129,14 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                var numNinos by remember { mutableStateOf(value = "") }
-                var edadNinos by remember { mutableStateOf(value = "") }
+                var numNinos by remember { mutableStateOf("") }
+                var edadNinos by remember { mutableStateOf("") }
 
                 // # ni;os
                 OutlinedTextField(
                     value = numNinos,
                     onValueChange = {
-                        try {
-                            numNinos = it
-                            error = false
-                        } catch (e: NumberFormatException) {
-                            error = true
-                        }
+                        numNinos = it
                     },
                     label = {
                         Text(
@@ -151,28 +146,17 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
-                    supportingText = {
-                        if (error) {
-                            Text("Campo Incorrecto")
-                        }
-                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = modifier
+                    modifier = Modifier
                         .width(ancho)
                         .height(altura)
-                        .padding(end = pad)
                 )
 
                 // edad
                 OutlinedTextField(
                     value = edadNinos,
                     onValueChange = {
-                        try {
-                            edadNinos = it
-                            error = false
-                        } catch (e: NumberFormatException) {
-                            error = true
-                        }
+                        edadNinos = it
                     },
                     label = {
                         Text(
@@ -182,38 +166,27 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
-                    supportingText = {
-                        if (error) {
-                            Text("Campo Incorrecto")
-                        }
-                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = modifier
+                    modifier = Modifier
                         .width(ancho)
                         .height(altura)
-                        .padding(start = pad)
                 )
             }
 
-            // tipo de tabajo y horario
+            // Tipo de trabajo y horario
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                var numNinos by remember { mutableStateOf(value = "") }
-                var edadNinos by remember { mutableStateOf(value = "") }
+                var tipoTrabajo by remember { mutableStateOf("") }
+                var horario by remember { mutableStateOf("") }
 
-                // tipo trabajo
+                // Tipo trabajo
                 OutlinedTextField(
-                    value = numNinos,
+                    value = tipoTrabajo,
                     onValueChange = {
-                        try {
-                            numNinos = it
-                            error = false
-                        } catch (e: NumberFormatException) {
-                            error = true
-                        }
+                        tipoTrabajo = it
                     },
                     label = {
                         Text(
@@ -223,28 +196,17 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
-                    supportingText = {
-                        if (error) {
-                            Text("Campo Incorrecto")
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = modifier
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier
                         .width(ancho)
                         .height(altura)
-                        .padding(end = pad)
                 )
 
-                // horario
+                // Horario
                 OutlinedTextField(
-                    value = edadNinos,
+                    value = horario,
                     onValueChange = {
-                        try {
-                            edadNinos = it
-                            error = false
-                        } catch (e: NumberFormatException) {
-                            error = true
-                        }
+                        horario = it
                     },
                     label = {
                         Text(
@@ -254,33 +216,22 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
-                    supportingText = {
-                        if (error) {
-                            Text("Campo Incorrecto")
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = modifier
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier
                         .width(ancho)
                         .height(altura)
-                        .padding(start = pad)
                 )
             }
 
-            // detalles
+            // Detalles
             Row(modifier = Modifier.fillMaxWidth())
             {
-                var detalles by remember { mutableStateOf(value = "") }
+                var detalles by remember { mutableStateOf("") }
 
                 OutlinedTextField(
                     value = detalles,
                     onValueChange = {
-                        try {
-                            detalles = it
-                            error = false
-                        } catch (_: NumberFormatException) {
-                            error = true
-                        }
+                        detalles = it
                     },
                     label = {
                         Text(
@@ -290,32 +241,22 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
-                    supportingText = {
-                        if (error) {
-                            Text("Campo Incorrecto")
-                        }
-                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .height(altura * 2)
                 )
             }
 
-            // fotos
+            // Foto
             Row(modifier = Modifier.fillMaxWidth())
             {
-                var foto by remember { mutableStateOf(value = "") }
+                var foto by remember { mutableStateOf("") }
 
                 OutlinedTextField(
                     value = foto,
                     onValueChange = {
-                        try {
-                            foto = it
-                            error = false
-                        } catch (_: NumberFormatException) {
-                            error = true
-                        }
+                        foto = it
                     },
                     label = {
                         Text(
@@ -325,34 +266,32 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
-                    supportingText = {
-                        if (error) {
-                            Text("Campo Incorrecto")
-                        }
-                    },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .height(altura)
                 )
             }
 
-            // ubicacion
-            Row(modifier = Modifier.fillMaxWidth())
-            {
-                UbicacionInfo(viewModel = viewModel())
-            }
-
-            // guarda borrador o manda reporte
-            Row(
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth()
+            // Ubicación / Mapa
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
             )
             {
-                // guardar borrador
-                Button(onClick = { }) { Text("Guardar Borrador") }
+                MapScreen(modifier = Modifier.fillMaxSize())
+            }
 
-                // envira reporte
+            // Guardar borrador o mandar reporte
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+            {
+                Button(onClick = { }) { Text("Guardar Borrador") }
                 Button(onClick = { }) { Text("Enviar Reporte") }
             }
         }
@@ -360,9 +299,61 @@ fun NuevoReporte(modifier: Modifier = Modifier)
 }
 
 @Composable
-fun Ubicacion(modifier: Modifier)
+fun MapScreen(modifier: Modifier = Modifier)
 {
+    val zocalo = LatLng(19.553207953517877, -99.28483799099922)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(zocalo, 15f)
+    }
 
+    val coroutineScope = rememberCoroutineScope()
+
+    // Escuchar cuando la cámara deje de moverse (Equivalente a OnCameraIdle / dragend)
+    LaunchedEffect(cameraPositionState.isMoving)
+    {
+        if (!cameraPositionState.isMoving)
+        {
+            // Validar que el movimiento fue por un gesto del usuario
+            if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE)
+            {
+                val centroActual = cameraPositionState.position.target
+                val zoomActual = cameraPositionState.position.zoom
+
+                println("El usuario movió el mapa a: ${centroActual.latitude}, ${centroActual.longitude}")
+                // SOLICITAR LA DIRECCIÓN EN TEXTO PARA ACTUALIZARLA
+                println("Zoom actual: $zoomActual")
+            }
+        }
+    }
+
+    Box (modifier = modifier.fillMaxSize())
+    {
+        GoogleMap(
+            modifier = Modifier
+                .fillMaxWidth(),
+            cameraPositionState = cameraPositionState,
+            onMapClick = {
+                val pos = it
+                println("Click en el mapa: ${it.latitude}, ${it.longitude}")
+                // Mover la cámara de forma asíncrona hacia las nuevas coordenadas
+                coroutineScope.launch {
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newLatLng(pos),
+                        durationMs = 1000
+                    )
+                }
+            }
+        )
+        // Pin
+        Icon(
+            imageVector = Icons.Default.LocationOn,
+            contentDescription = "Centro del mapa",
+            tint = Color.Red,
+            modifier = modifier
+                .size(16.dp)
+                .align(Alignment.Center)
+        )
+    }
 }
 
 @Preview(showBackground = true)
