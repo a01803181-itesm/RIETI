@@ -22,22 +22,29 @@ object ManejadorAPI {
     // GET
     suspend fun obtenerCorreo(nombre: String = ""): Usuario
     {
-
+        val correo: Usuario = servicio.obtenerCorreo(nombre)
+        return correo
     }
 
     suspend fun obtenerReportes(nombre: String = ""): Reporte
     {
-
+        val reporte: Reporte = servicio.obtenerReportes(nombre)
+        return reporte
     }
 
     // POST
-    suspend fun mandarUsuario(nombre: String = ""): Usuario
+    suspend fun mandarUsuario(usuario: Usuario): Usuario
     {
-
+        return servicio.mandarUsuario(usuario)
     }
 
-    suspend fun mandarReporte(nombre: String = ""): Reporte
+    suspend fun mandarReporte(reporte: Reporte): Reporte
     {
+        return servicio.mandarReporte(reporte)
+    }
 
+    fun generarFolio(): Int
+    {
+        return 24578
     }
 }

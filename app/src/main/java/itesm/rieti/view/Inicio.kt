@@ -26,7 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
+import itesm.rieti.viewModel.InicioVM
 
 //Contenedor principal
 @Composable
@@ -46,17 +48,28 @@ fun RegistroApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
 //Contenedor del cuerpo
 @Composable
 fun CuerpoApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
+    val viewModel: InicioVM = viewModel()
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(16.dp)
     ) {
         TitulosLogin()
         Espacio(24.dp)
-        Correo()
+        Correo(
+            correo = viewModel.correo,
+            onCorreoChange = { viewModel.CorreoCambiado(it) }
+        )
         Espacio(24.dp)
-        Contrasenia()
+        Contrasena(
+            contrasena = viewModel.contrasenia,
+            contrasenaChange = { viewModel.ContrasenaCambiada(it) }
+        )
         Espacio(24.dp)
-        BotonRegistro(onRegistro)
+        BotonRegistro(
+            viewModel = viewModel,
+            onRegistro = onRegistro
+        )
         Espacio(24.dp)
         BotonGoogle(onRegistro)
     }
@@ -109,7 +122,11 @@ fun Espacio(distancia: Dp, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Correo(modifier: Modifier = Modifier) {
+fun Correo(
+    correo: String,
+    onCorreoChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -121,8 +138,8 @@ fun Correo(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = correo,
+            onValueChange = onCorreoChange,
             placeholder = { Text("ejemplo@correo.com", color = Color.Gray) },
             modifier = modifier.fillMaxWidth()
         )
@@ -130,7 +147,11 @@ fun Correo(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Contrasenia(modifier: Modifier = Modifier) {
+fun Contrasena(
+    contrasena: String,
+    contrasenaChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -142,23 +163,27 @@ fun Contrasenia(modifier: Modifier = Modifier) {
             color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = contrasena,
+            onValueChange = contrasenaChange,
             placeholder = { Text("••••••••", color = Color.Gray) },
             modifier = modifier.fillMaxWidth()
         )
     }
-
-
 }
 
 @Composable
-fun BotonRegistro(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
+fun BotonRegistro(
+    viewModel: InicioVM,
+    onRegistro: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Button(
-        onClick = { onRegistro() },
+        onClick = {
+            viewModel.obtenerCorreo()
+            onRegistro()
+        },
         modifier = modifier.fillMaxWidth()
     ) { Text("Registro") }
-
 }
 
 @Composable
