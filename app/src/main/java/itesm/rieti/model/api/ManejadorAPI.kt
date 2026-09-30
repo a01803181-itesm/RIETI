@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ManejadorAPI {
-    private const val BASE_URL = "" // imagino q ya la tengo
+    private const val BASE_URL = Config.BaseURL
 
     private val retrofit by lazy {
         Retrofit.Builder()
@@ -16,7 +16,7 @@ object ManejadorAPI {
     }
 
     private val servicio by lazy {
-        retrofit.create(ManejadorAPI::class.java)
+        retrofit.create(Peticiones::class.java)
     }
 
     // GET

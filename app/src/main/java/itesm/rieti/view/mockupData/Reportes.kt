@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 class ReporteMockups : PreviewParameterProvider<Reporte> {
     override val values = sequenceOf(
         Reporte(
-            folioReporte = "20260906ATZL87",
+            folio = "20260906ATZL87",
             descripcion = "Vi a dos chicos de aprox. 14 años vendiendo mazapanes en el semáforo",
             fechaYHora = LocalDateTime.of(2026, 9, 6, 14, 40),
             numeroNNA = 2,
@@ -19,7 +19,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             expediente = ExpedienteMockups().values.toList()[0]
         ),
         Reporte(
-            folioReporte = "20260903ECAR64",
+            folio = "20260903ECAR64",
             descripcion = "Vi a una niña y un niño de aprox. 10 años lavando parabrisas en el semáforo",
             fechaYHora = LocalDateTime.of(2026, 9, 3, 11, 18),
             expediente = ExpedienteMockups().values.toList()[1],
@@ -29,7 +29,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             municipio = Municipio.ECATEPEC,
         ),
         Reporte(
-            folioReporte = "20260829COAR24",
+            folio = "20260829COAR24",
             descripcion = "Hay cinco jóvenes como de 15 años vendiendo chicles en la esquina",
             fechaYHora = LocalDateTime.of(2026, 8, 29, 9, 46),
             expediente = ExpedienteMockups().values.toList()[2],

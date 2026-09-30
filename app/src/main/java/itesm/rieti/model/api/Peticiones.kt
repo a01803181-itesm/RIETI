@@ -9,8 +9,9 @@ import retrofit2.http.Path
 
 interface Peticiones
 {
+    // endpoint: https://nyazu3k2shty7f2hmhqnrae3fq0cvdjz.lambda-url.us-east-1.on.aws/
     // GET
-    @GET("usuario/{correo}")
+    @GET("v1/{correo}")
     suspend fun obtenerCorreo(@Path("correo") nombre: String = ""): Usuario
 
     @GET("reporte/{folio}")
@@ -20,6 +21,6 @@ interface Peticiones
     @POST("usuario/")
     suspend fun mandarUsuario(@Body usuario: Usuario): Usuario
 
-    @POST("reporte/}")
+    @POST("reporte/")
     suspend fun mandarReporte(@Body reporte: Reporte): Reporte
 }

@@ -1,6 +1,7 @@
 package itesm.rieti.model.esquemas
 
 data class Usuario (
-    val correo: String,
-    val contrasena: String
+    val correoU: String,
+    val contrasenia: String,
+    val proveedor: String
 )

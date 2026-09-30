@@ -80,7 +80,7 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Folio: ${reporte.folioReporte}",
+                text = "Folio: ${reporte.folio}",
                 fontWeight = FontWeight.Light,
                 modifier = modifier.padding(end = 8.dp),
                 textAlign = TextAlign.Center

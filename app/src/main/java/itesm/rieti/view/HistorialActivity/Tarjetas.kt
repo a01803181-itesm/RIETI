@@ -46,7 +46,7 @@ fun TarjetaReporte(reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Mod
                                 fontSize = 16.sp,
                             )
                             Text(
-                                text = reporte.folioReporte,
+                                text = reporte.folio,
                                 fontWeight = FontWeight.Light,
                                 fontSize = 10.sp,
                             )
@@ -75,7 +75,7 @@ fun TarjetaReporte(reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Mod
                         fontSize = 16.sp,
                     )
                     Text(
-                        text = reporte.folioReporte,
+                        text = reporte.folio,
                         fontWeight = FontWeight.Light,
                         fontSize = 10.sp,
                     )
