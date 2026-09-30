@@ -1,10 +1,12 @@
 package itesm.rieti.model.api
 
+import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.Usuario
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ManejadorAPI {
-    private const val BASE_URL = "" // TODO
+    private const val BASE_URL = "" // imagino q ya la tengo
 
     private val retrofit by lazy {
         Retrofit.Builder()
@@ -17,7 +19,25 @@ object ManejadorAPI {
         retrofit.create(ManejadorAPI::class.java)
     }
 
-    suspend fun obtenerReporte() {
+    // GET
+    suspend fun obtenerCorreo(nombre: String = ""): Usuario
+    {
+
+    }
+
+    suspend fun obtenerReportes(nombre: String = ""): Reporte
+    {
+
+    }
+
+    // POST
+    suspend fun mandarUsuario(nombre: String = ""): Usuario
+    {
+
+    }
+
+    suspend fun mandarReporte(nombre: String = ""): Reporte
+    {
 
     }
 }

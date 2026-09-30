@@ -1,11 +1,5 @@
 package itesm.rieti.view
 
-import android.os.Bundle
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,8 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,18 +43,12 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
-import itesm.rieti.R
-import itesm.rieti.model.ubicacion.UbicacionInfo
-import itesm.rieti.viewModel.UbicacionVM
 import kotlinx.coroutines.launch
-import kotlin.getValue
 
 @Composable
 fun NuevoReporte(modifier: Modifier = Modifier)
 {
-    val ancho = 180.dp
     val altura = 90.dp
     val pad = 16.dp
     val tamLetra = 20.sp
@@ -87,7 +72,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
         )
         Spacer(modifier = Modifier.height(pad))
         
-        // Columna principal con scroll
+        // Columna principal
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -113,6 +98,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
+                    shape = RoundedCornerShape(12.dp),
                     supportingText = {
                         if (error) {
                             Text("Campo Incorrecto")
@@ -125,7 +111,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
 
             // Cantidad y edad ni;os
             Row(
-                horizontalArrangement = Arrangement.SpaceAround,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             )
             {
@@ -146,9 +132,10 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
+                    shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
-                        .width(ancho)
+                        .weight(1f)
                         .height(altura)
                 )
 
@@ -166,16 +153,17 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
+                    shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
-                        .width(ancho)
+                        .weight(1f)
                         .height(altura)
                 )
             }
 
             // Tipo de trabajo y horario
             Row(
-                horizontalArrangement = Arrangement.SpaceAround,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             )
             {
@@ -196,9 +184,10 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
+                    shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
-                        .width(ancho)
+                        .weight(1f)
                         .height(altura)
                 )
 
@@ -216,9 +205,10 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
+                    shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
-                        .width(ancho)
+                        .weight(1f)
                         .height(altura)
                 )
             }
@@ -241,6 +231,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
+                    shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -266,6 +257,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
                     isError = error,
+                    shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -292,7 +284,9 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             )
             {
                 Button(onClick = { }) { Text("Guardar Borrador") }
-                Button(onClick = { }) { Text("Enviar Reporte") }
+                Button(onClick = {
+
+                }) { Text("Enviar Reporte") }
             }
         }
     }
@@ -301,9 +295,9 @@ fun NuevoReporte(modifier: Modifier = Modifier)
 @Composable
 fun MapScreen(modifier: Modifier = Modifier)
 {
-    val zocalo = LatLng(19.553207953517877, -99.28483799099922)
+    val ubicacionInicial = LatLng(19.553207953517877, -99.28483799099922)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(zocalo, 15f)
+        position = CameraPosition.fromLatLngZoom(ubicacionInicial, 15f)
     }
 
     val coroutineScope = rememberCoroutineScope()
@@ -332,13 +326,12 @@ fun MapScreen(modifier: Modifier = Modifier)
             modifier = Modifier
                 .fillMaxWidth(),
             cameraPositionState = cameraPositionState,
-            onMapClick = {
-                val pos = it
-                println("Click en el mapa: ${it.latitude}, ${it.longitude}")
+            onMapClick = { latLng ->
+                println("Click en el mapa: ${latLng.latitude}, ${latLng.longitude}")
                 // Mover la cámara de forma asíncrona hacia las nuevas coordenadas
                 coroutineScope.launch {
                     cameraPositionState.animate(
-                        update = CameraUpdateFactory.newLatLng(pos),
+                        update = CameraUpdateFactory.newLatLng(latLng),
                         durationMs = 1000
                     )
                 }
@@ -348,7 +341,7 @@ fun MapScreen(modifier: Modifier = Modifier)
         Icon(
             imageVector = Icons.Default.LocationOn,
             contentDescription = "Centro del mapa",
-            tint = Color.Red,
+            tint = Color.Black,
             modifier = modifier
                 .size(16.dp)
                 .align(Alignment.Center)
