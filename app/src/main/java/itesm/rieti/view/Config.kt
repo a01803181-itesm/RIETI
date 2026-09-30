@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -53,7 +54,11 @@ fun ConfigApp(
         TamanioLetra(opciones, seleccionado, { seleccionado = it })
         Espacio(16.dp)
         Cuenta(correo = correo, actualizarCorreo = actualizarCorreo, contrasenia = contrasenia, actualizarContrasenia = actualizarContrasenia)
-
+        Espacio(16.dp)
+        Button(onClick = {
+            }) {
+            Text("Guardar")
+        }
     }}
 
 
