@@ -66,9 +66,6 @@ fun NuevoReporte(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
     )
     {
         Text(
-            text = "Hola: ${usuario?.correoU}!",
-        )
-        Text(
             text = "Nuevo Reporte",
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
