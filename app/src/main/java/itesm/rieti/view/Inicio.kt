@@ -98,7 +98,7 @@ fun BotonRegistro(
         if (esperando) CircularProgressIndicator() else Text("Registro")
     }
     if (usuario != null) {
-        Text(text = "Bienvenido ${usuario!!.correoU}. Proveedor: ${usuario!!.proveedor}")
+        Text(text = "Bienvenido ${usuario!!.correoU}.") //Proveedor: ${usuario!!.proveedor}
     }
 }
 

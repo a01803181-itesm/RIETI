@@ -45,7 +45,6 @@ class InicioVM : ViewModel()
             {
                 val resultado = manejador.obtenerCorreo(correo)
                 _usuarioActual.value = resultado
-                println("Correo obtenido: ${resultado.correoU}")
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
