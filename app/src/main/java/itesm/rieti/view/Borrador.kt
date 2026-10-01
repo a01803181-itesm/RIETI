@@ -52,11 +52,12 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.view.HistorialActivity.TarjetaBorrador
 import itesm.rieti.view.HistorialActivity.TarjetaReporte
+import itesm.rieti.viewModel.api.UsuariosVM
 
 @Composable
-fun Borrador(modifier: Modifier = Modifier)
+fun Borrador(usuariosVM: UsuariosVM = UsuariosVM(), modifier: Modifier = Modifier)
 {
-    NuevoReporte()
+    NuevoReporte(usuariosVM)
 }
 
 @Preview(showBackground = true)

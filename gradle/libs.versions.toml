@@ -17,6 +17,9 @@ gsonVer = "3.0.0"
 
 googlePSVer = "21.4.0"
 
+espresso = "3.7.0"
+androidx-test = "1.7.0"
+
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +45,10 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gsonVer" }
 
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googlePSVer" }
+
+androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
+androidx-test-runner      = { module = "androidx.test:runner", version.ref = "androidx-test" }
+androidx-test-rules       = { module = "androidx.test:rules", version.ref = "androidx-test" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
