@@ -20,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,7 +49,12 @@ fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borr
 @Composable
 fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, opciones: List<String>, opcionSeleccionada: Int, onOpcion: (Int) -> Unit, reporteSeleccionado: Reporte?, onReporte: (Reporte) -> Unit, onEditar: () -> Unit, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.padding(all = 14.dp).fillMaxSize(),
+        modifier = modifier
+            .padding(all = 14.dp)
+            .fillMaxSize()
+            .semantics {
+                testTagsAsResourceId = true
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -65,7 +72,7 @@ fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borra
             when (opcionSeleccionada) {
                 0 -> {
                     items(mockupReportes) { reporte ->
-                        TarjetaReporte(reporte, onReporte)
+                        TarjetaReporte(reporte.folio, reporte, onReporte)
                     }
                 }
                 1 -> {
