@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -29,10 +32,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.viewModel.InicioVM
+import itesm.rieti.viewModel.api.UsuariosVM
 
 //Contenedor principal
 @Composable
-fun RegistroApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
+fun RegistroApp(modifier: Modifier = Modifier) {
+    val usuariosVM: UsuariosVM = viewModel()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -41,14 +46,14 @@ fun RegistroApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.background)
     ) {
         Encabezado()
-        CuerpoApp(onRegistro)
+        CuerpoApp(usuariosVM)
     }
 }
 
 //Contenedor del cuerpo
 @Composable
-fun CuerpoApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
-    val viewModel: InicioVM = viewModel()
+fun CuerpoApp(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
+    val inicioVM: InicioVM = viewModel()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -57,21 +62,63 @@ fun CuerpoApp(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
         TitulosLogin()
         Espacio(24.dp)
         Correo(
-            correo = viewModel.correo,
-            onCorreoChange = { viewModel.CorreoCambiado(it) }
+            correo = inicioVM.correo,
+            onCorreoChange = { inicioVM.CorreoCambiado(it) }
         )
         Espacio(24.dp)
         Contrasena(
-            contrasena = viewModel.contrasenia,
-            contrasenaChange = { viewModel.ContrasenaCambiada(it) }
+            contrasena = inicioVM.contrasenia,
+            contrasenaChange = { inicioVM.ContrasenaCambiada(it) }
         )
         Espacio(24.dp)
         BotonRegistro(
-            viewModel = viewModel,
-            onRegistro = onRegistro
+            usuariosVM = usuariosVM,
+            onRegistro = {
+                usuariosVM.obtenerUsuario(inicioVM.correo)
+            }
         )
         Espacio(24.dp)
-        BotonGoogle(onRegistro)
+        BotonGoogle({ })
+    }
+}
+
+@Composable
+fun BotonRegistro(
+    usuariosVM: UsuariosVM,
+    onRegistro: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val usuario by usuariosVM.usuarioActual.collectAsState()
+    val esperando by usuariosVM.esperando.collectAsState()
+
+    Button(
+        onClick = { onRegistro() },
+        modifier = modifier.fillMaxWidth()
+    ) {
+        if (esperando) CircularProgressIndicator() else Text("Registro")
+    }
+    if (usuario != null) {
+        Text(text = "Bienvenido ${usuario!!.correoU}. Proveedor: ${usuario!!.proveedor}")
+    }
+}
+
+@Composable
+fun BotonGoogle(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
+    Button(
+        onClick = { onRegistro() },
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.google),
+                contentDescription = "Google Login",
+                modifier = modifier.size(18.dp)
+            )
+            Text(text = "Continuar con Google")
+        }
     }
 }
 
@@ -171,43 +218,8 @@ fun Contrasena(
     }
 }
 
-@Composable
-fun BotonRegistro(
-    viewModel: InicioVM,
-    onRegistro: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = {
-            viewModel.obtenerCorreo()
-            onRegistro()
-        },
-        modifier = modifier.fillMaxWidth()
-    ) { Text("Registro") }
-}
-
-@Composable
-fun BotonGoogle(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
-    Button(
-        onClick = { onRegistro() },
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = modifier.wrapContentWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Image(
-                painter = painterResource(R.drawable.google),
-                contentDescription = "Google Login",
-                modifier = modifier.size(18.dp)
-            )
-            Text(text = "Continuar con Google")
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun MainAppPreview() {
-    RegistroApp({})
+    RegistroApp()
 }

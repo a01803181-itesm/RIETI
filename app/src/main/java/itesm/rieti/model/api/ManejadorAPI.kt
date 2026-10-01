@@ -6,16 +6,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ManejadorAPI {
-    private const val BASE_URL = Config.BaseURL
-
-    private val retrofit by lazy {
+    val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(Config.BaseURL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
-    private val servicio by lazy {
+    val servicio by lazy {
         retrofit.create(Peticiones::class.java)
     }
 
