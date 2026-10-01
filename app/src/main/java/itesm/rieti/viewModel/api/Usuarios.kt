@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UsuariosVM : ViewModel() {
+    private val _login = MutableStateFlow(false)
+    val login: StateFlow<Boolean> = _login
     private val manejador = Manejador
 
     private val _usuarioActual = MutableStateFlow<Usuario?>(null)
@@ -22,8 +24,10 @@ class UsuariosVM : ViewModel() {
             _esperando.value = true
             try {
                 _usuarioActual.value = manejador.obtenerUsuario(correo)
+                _login.value = true
             } catch (e: Exception) {
                 e.printStackTrace()
+                _login.value = false
             } finally {
                 _esperando.value = false
             }

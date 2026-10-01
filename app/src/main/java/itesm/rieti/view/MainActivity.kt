@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import itesm.rieti.ui.theme.RIETITheme
+import itesm.rieti.viewModel.InicioVM
 import itesm.rieti.viewModel.UbicacionVM
 import itesm.rieti.viewModel.api.UsuariosVM
 
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity()
 {
     /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
     private val viewModel: UbicacionVM by viewModels()
+    private val usuariosVM: UsuariosVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -36,7 +39,7 @@ class MainActivity : ComponentActivity()
         viewModel.crearAdministradorUbicacion(this)
         enableEdgeToEdge()
         setContent {
-            var login by remember { mutableStateOf(false) }
+            val login by usuariosVM.login.collectAsState()
             RIETITheme {
                 if (!login) RegistroApp() else RIETIApp()
             }
