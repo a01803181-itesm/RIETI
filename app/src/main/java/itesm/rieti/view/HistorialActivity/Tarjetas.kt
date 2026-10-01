@@ -31,7 +31,13 @@ import itesm.rieti.view.mockupData.ReporteMockups
 
 @Composable
 fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+    Card(
+        onClick = { onReporte(reporte) },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .testTag(testId)
+    ) {
         Column(
             modifier = modifier.wrapContentHeight().padding(all = 18.dp)
         ) {
@@ -115,8 +121,7 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
                         Icon(
                             painter = painterResource(id = R.drawable.long_arrow),
                             contentDescription = "Further info",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.testTag(testId)
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
