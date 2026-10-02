@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.view.historialActivity.HistorialActivity
 import itesm.rieti.view.mockupData.BorradorMockUps
 import itesm.rieti.view.mockupData.ReporteMockups
 import itesm.rieti.viewModel.api.UsuariosVM

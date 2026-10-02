@@ -1,4 +1,4 @@
-package itesm.rieti.view.HistorialActivity
+package itesm.rieti.view.historialActivity
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

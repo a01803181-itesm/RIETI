@@ -1,5 +1,6 @@
-package itesm.rieti.view
+package itesm.rieti.view.inicioActivity
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -32,12 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
+import itesm.rieti.model.cognito.SignIn
 import itesm.rieti.viewModel.InicioVM
+import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.api.UsuariosVM
 
 //Contenedor principal
 @Composable
-fun RegistroApp(modifier: Modifier = Modifier, usuariosVM: UsuariosVM = viewModel()) {
+fun RegistroApp(modifier: Modifier = Modifier) {
+    val logInVM: LogInVM = viewModel()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -46,15 +49,19 @@ fun RegistroApp(modifier: Modifier = Modifier, usuariosVM: UsuariosVM = viewMode
             .background(MaterialTheme.colorScheme.background)
     ) {
         Encabezado()
-        CuerpoApp(usuariosVM)
+        if (!logInVM.otpRequired.collectAsState().value) {
+            CuerpoApp(logInVM)
+        } else {
+            OTPScreen(logInVM)
+        }
     }
 }
 
 //Contenedor del cuerpo
 @Composable
-fun CuerpoApp(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
-    val inicioVM: InicioVM = viewModel()
-
+fun CuerpoApp(logInVM: LogInVM, modifier: Modifier = Modifier) {
+    val email by logInVM.email.collectAsState()
+    val password by logInVM.password.collectAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(16.dp)
@@ -62,52 +69,42 @@ fun CuerpoApp(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
         TitulosLogin()
         Espacio(24.dp)
         Correo(
-            correo = inicioVM.correo,
-            onCorreoChange = { inicioVM.CorreoCambiado(it) }
+            correo = email,
+            onCorreoChange = { logInVM.updateEmail(it) }
         )
         Espacio(24.dp)
         Contrasena(
-            contrasena = inicioVM.contrasenia,
-            contrasenaChange = { inicioVM.ContrasenaCambiada(it) }
+            contrasena = password,
+            contrasenaChange = { logInVM.updatePassword(it) }
         )
         Espacio(24.dp)
         BotonRegistro(
-            usuariosVM = usuariosVM,
-            onRegistro = {
-                usuariosVM.obtenerUsuario(inicioVM.correo)
-            }
+            onRegistro = { logInVM.triggerOTPSend() }
         )
         Espacio(24.dp)
-        BotonGoogle({ })
+        BotonGoogle(logInVM)
     }
 }
 
 @Composable
 fun BotonRegistro(
-    usuariosVM: UsuariosVM,
     onRegistro: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val usuario by usuariosVM.usuarioActual.collectAsState()
-    val esperando by usuariosVM.esperando.collectAsState()
-
     Button(
         onClick = { onRegistro() },
-        modifier = modifier
-            .fillMaxWidth()
-            .testTag("localLoginBtn")
+        modifier = modifier.fillMaxWidth()
     ) {
-        if (esperando) CircularProgressIndicator() else Text("Registro")
-    }
-    if (usuario != null) {
-        Text(text = "Bienvenido ${usuario!!.correoU}.") //Proveedor: ${usuario!!.proveedor}
+        Text("Iniciar Sesión / Registro")
     }
 }
 
 @Composable
-fun BotonGoogle(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
+fun BotonGoogle(logInVM: LogInVM, modifier: Modifier = Modifier) {
+    val activity = LocalActivity.current ?: return
+
     Button(
-        onClick = { onRegistro() },
+        onClick = { logInVM.withGoogle(activity) },
         modifier = modifier.fillMaxWidth()
     ) {
         Row(
@@ -190,9 +187,7 @@ fun Correo(
             value = correo,
             onValueChange = onCorreoChange,
             placeholder = { Text("ejemplo@correo.com", color = Color.Gray) },
-            modifier = modifier
-                .fillMaxWidth()
-                .testTag("emailTextField")
+            modifier = modifier.fillMaxWidth()
         )
     }
 }
@@ -217,9 +212,7 @@ fun Contrasena(
             value = contrasena,
             onValueChange = contrasenaChange,
             placeholder = { Text("••••••••", color = Color.Gray) },
-            modifier = modifier
-                .fillMaxWidth()
-                .testTag("passwordTextField")
+            modifier = modifier.fillMaxWidth()
         )
     }
 }

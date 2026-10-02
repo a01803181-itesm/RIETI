@@ -1,0 +1,33 @@
+{
+  "auth": {
+    "plugins": {
+      "awsCognitoAuthPlugin": {
+        "CognitoUserPool": {
+          "Default": {
+            "PoolId": "",
+            "AppClientId": "",
+            "Region": ""
+          }
+        },
+        "Auth": {
+          "Default": {
+            "authenticationFlowType": "USER_SRP_AUTH",
+            "OAuth": {
+              "WebDomain": "",
+              "AppClientId": "",
+              "SignInRedirectURI": "",
+              "SignOutRedirectURI": "",
+              "Scopes": [
+                "email",
+                "openid",
+                "phone",
+                "profile",
+                "aws.cognito.signin.user.admin"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

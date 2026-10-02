@@ -6,8 +6,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -48,13 +50,13 @@ fun ConfigApp(
         .fillMaxSize()
         .padding((18.dp))) {
         Text("Configuración",  style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold )
-        Espacio(12.dp)
+        Spacer(modifier = Modifier.height(12.dp))
         Apariencia()
-        Espacio(12.dp)
+        Spacer(modifier = Modifier.height(12.dp))
         TamanioLetra(opciones, seleccionado, { seleccionado = it })
-        Espacio(16.dp)
+        Spacer(modifier = Modifier.height(16.dp))
         Cuenta(correo = correo, actualizarCorreo = actualizarCorreo, contrasenia = contrasenia, actualizarContrasenia = actualizarContrasenia)
-        Espacio(16.dp)
+        Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {
             }) {
             Text("Guardar")
@@ -71,7 +73,7 @@ fun Apariencia(modifier: Modifier = Modifier) {
     )
     {
         Text("Apariencia", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Espacio(8.dp)
+        Spacer(modifier = Modifier.height(8.dp))
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
@@ -119,7 +121,7 @@ fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int
             .fillMaxWidth()
     ) {
         Text("Tamaño de Letra", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Espacio(8.dp)
+        Spacer(modifier = Modifier.height(8.dp))
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
@@ -157,9 +159,9 @@ fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int
 
 @Composable
 fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: String, actualizarContrasenia:(String)-> Unit, modifier: Modifier = Modifier) {
-    Column() {
+    Column {
         Text( "Cuenta", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Espacio(8.dp)
+        Spacer(modifier = Modifier.height(8.dp))
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
 
@@ -189,7 +191,7 @@ fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: Strin
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                Espacio(8.dp)
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = contrasenia,
                     onValueChange = { actualizarContrasenia(it) },
