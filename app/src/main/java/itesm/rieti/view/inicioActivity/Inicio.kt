@@ -1,4 +1,4 @@
-package itesm.rieti.view
+package itesm.rieti.view.inicioActivity
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image

@@ -25,6 +25,7 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
 import itesm.rieti.model.cognito.SignIn
 import itesm.rieti.ui.theme.RIETITheme
+import itesm.rieti.view.inicioActivity.RegistroApp
 import itesm.rieti.viewModel.UbicacionVM
 import itesm.rieti.viewModel.api.UsuariosVM
 
