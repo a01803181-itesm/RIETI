@@ -1,5 +1,8 @@
 package itesm.rieti.view
 
+import android.app.Activity
+import androidx.activity.compose.LocalActivity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +33,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.amplifyframework.auth.AuthProvider
+import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
+import com.amplifyframework.core.Amplify
 import itesm.rieti.R
+import itesm.rieti.model.cognito.SignIn
 import itesm.rieti.viewModel.InicioVM
 import itesm.rieti.viewModel.api.UsuariosVM
 
@@ -78,7 +85,7 @@ fun CuerpoApp(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
             }
         )
         Espacio(24.dp)
-        BotonGoogle({ })
+        BotonGoogle()
     }
 }
 
@@ -103,9 +110,11 @@ fun BotonRegistro(
 }
 
 @Composable
-fun BotonGoogle(onRegistro: () -> Unit, modifier: Modifier = Modifier) {
+fun BotonGoogle(modifier: Modifier = Modifier) {
+    val activity = LocalActivity.current ?: return
+
     Button(
-        onClick = { onRegistro() },
+        onClick = { SignIn.trySignIn(activity) },
         modifier = modifier.fillMaxWidth()
     ) {
         Row(

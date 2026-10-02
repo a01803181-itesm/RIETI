@@ -21,6 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.Amplify
+import itesm.rieti.model.cognito.SignIn
 import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.viewModel.UbicacionVM
 import itesm.rieti.viewModel.api.UsuariosVM
@@ -33,6 +36,14 @@ class MainActivity : ComponentActivity()
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
+
+        try {
+            Amplify.addPlugin(AWSCognitoAuthPlugin())
+            Amplify.configure(applicationContext)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         viewModel.crearAdministradorUbicacion(this)
         enableEdgeToEdge()
         setContent {

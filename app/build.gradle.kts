@@ -29,6 +29,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -50,6 +51,9 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.retrofit)
     implementation(libs.gson)
+
+    implementation(libs.aws.auth.cognito)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(libs.google.play.services.location)
 
