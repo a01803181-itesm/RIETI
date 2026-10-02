@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,8 +30,14 @@ import itesm.rieti.view.mockupData.BorradorMockUps
 import itesm.rieti.view.mockupData.ReporteMockups
 
 @Composable
-fun TarjetaReporte(reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Modifier = Modifier) {
+    Card(
+        onClick = { onReporte(reporte) },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .testTag(testId)
+    ) {
         Column(
             modifier = modifier.wrapContentHeight().padding(all = 18.dp)
         ) {
@@ -212,7 +219,7 @@ fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @C
 @Composable
 fun TarjetaReportePreview() {
     val reporte: Reporte = ReporteMockups().values.toList()[0]
-    TarjetaReporte(reporte, {})
+    TarjetaReporte("test", reporte, {})
 }
 
 @Preview

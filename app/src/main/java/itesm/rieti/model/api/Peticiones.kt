@@ -11,7 +11,7 @@ interface Peticiones
 {
     // endpoint: https://nyazu3k2shty7f2hmhqnrae3fq0cvdjz.lambda-url.us-east-1.on.aws/
     // GET
-    @GET("v1/{correo}")
+    @GET("v1/usuarios/{correo}")
     suspend fun obtenerCorreo(@Path("correo") nombre: String = ""): Usuario
 
     @GET("reporte/{folio}")

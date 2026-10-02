@@ -18,8 +18,10 @@ retrofitVer = "3.0.0"
 gsonVer = "3.0.0"
 
 googlePSVer = "21.4.0"
+uiTestManifest = "1.12.1"
 
 [libraries]
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 aws-auth-cognito = { module = "com.amplifyframework:aws-auth-cognito", version.ref = "awsAuthCognito" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
