@@ -27,12 +27,6 @@ class UsuariosVM : ViewModel() {
                 _login.value = true
             } catch (e: Exception) {
                 e.printStackTrace()
-                if (correo.isNotBlank()) {
-                    _usuarioActual.value = Usuario(correoU = correo, contrasenia = "123456", proveedor = "Local")
-                    _login.value = true
-                } else {
-                    _login.value = false
-                }
             } finally {
                 _esperando.value = false
             }

@@ -49,8 +49,7 @@ import itesm.rieti.viewModel.api.UsuariosVM
 import kotlinx.coroutines.launch
 
 @Composable
-fun NuevoReporte(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
-    val usuario by usuariosVM.usuarioActual.collectAsState()
+fun NuevoReporte(modifier: Modifier = Modifier) {
     val altura = 90.dp
     val pad = 16.dp
     val tamLetra = 20.sp
@@ -353,7 +352,7 @@ fun MapScreen(modifier: Modifier = Modifier)
 
 @Preview(showBackground = true)
 @Composable
-fun ReportePreview(usuariosVM: UsuariosVM = UsuariosVM())
+fun ReportePreview()
 {
-    NuevoReporte(usuariosVM)
+    NuevoReporte()
 }

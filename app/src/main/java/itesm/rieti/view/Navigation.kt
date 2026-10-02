@@ -18,13 +18,13 @@ import itesm.rieti.view.mockupData.ReporteMockups
 import itesm.rieti.viewModel.api.UsuariosVM
 
 @Composable
-fun AppNavHost(usuariosVM: UsuariosVM = UsuariosVM(), navController: NavHostController, modifier: Modifier = Modifier) {
+fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
         startDestination = Pantalla.RUTA_INICIO,
         modifier = modifier.fillMaxSize()
     ) {
-        composable(Pantalla.RUTA_INICIO) { NuevoReporte(usuariosVM) }
+        composable(Pantalla.RUTA_INICIO) { NuevoReporte() }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) {
             var mostrarHistorial by remember { mutableStateOf(true) }
@@ -32,7 +32,7 @@ fun AppNavHost(usuariosVM: UsuariosVM = UsuariosVM(), navController: NavHostCont
             val borradorMockups: List<Borrador> = BorradorMockUps().values.toList()
             if (mostrarHistorial) HistorialActivity(reporteMockups, borradorMockups, {
                 mostrarHistorial = false
-            }) else NuevoReporte(usuariosVM)
+            }) else NuevoReporte()
         }
         composable(Pantalla.RUTA_CUENTA) {
             ConfigApp(correo= "rieti@gmail.com",
