@@ -34,12 +34,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.model.cognito.SignIn
 import itesm.rieti.viewModel.InicioVM
+import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.api.UsuariosVM
 
 //Contenedor principal
 @Composable
 fun RegistroApp(modifier: Modifier = Modifier) {
-    val usuariosVM: UsuariosVM = viewModel()
+    val logInVM: LogInVM = viewModel()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -48,15 +49,19 @@ fun RegistroApp(modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.background)
     ) {
         Encabezado()
-        CuerpoApp(usuariosVM)
+        if (!logInVM.otpRequired.collectAsState().value) {
+            CuerpoApp(logInVM)
+        } else {
+            OTPScreen(logInVM)
+        }
     }
 }
 
 //Contenedor del cuerpo
 @Composable
-fun CuerpoApp(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
-    val inicioVM: InicioVM = viewModel()
-
+fun CuerpoApp(logInVM: LogInVM, modifier: Modifier = Modifier) {
+    val email by logInVM.email.collectAsState()
+    val password by logInVM.password.collectAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(16.dp)
@@ -64,52 +69,42 @@ fun CuerpoApp(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
         TitulosLogin()
         Espacio(24.dp)
         Correo(
-            correo = inicioVM.correo,
-            onCorreoChange = { inicioVM.CorreoCambiado(it) }
+            correo = email,
+            onCorreoChange = { logInVM.updateEmail(it) }
         )
         Espacio(24.dp)
         Contrasena(
-            contrasena = inicioVM.contrasenia,
-            contrasenaChange = { inicioVM.ContrasenaCambiada(it) }
+            contrasena = password,
+            contrasenaChange = { logInVM.updatePassword(it) }
         )
         Espacio(24.dp)
         BotonRegistro(
-            usuariosVM = usuariosVM,
-            onRegistro = {
-                usuariosVM.obtenerUsuario(inicioVM.correo)
-            }
+            onRegistro = { logInVM.triggerOTPSend() }
         )
         Espacio(24.dp)
-        BotonGoogle()
+        BotonGoogle(logInVM)
     }
 }
 
 @Composable
 fun BotonRegistro(
-    usuariosVM: UsuariosVM,
     onRegistro: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val usuario by usuariosVM.usuarioActual.collectAsState()
-    val esperando by usuariosVM.esperando.collectAsState()
-
     Button(
         onClick = { onRegistro() },
         modifier = modifier.fillMaxWidth()
     ) {
-        if (esperando) CircularProgressIndicator() else Text("Iniciar Sesión / Registro")
-    }
-    if (usuario != null) {
-        Text(text = "Bienvenido ${usuario!!.correoU}. Proveedor: ${usuario!!.proveedor}")
+        Text("Iniciar Sesión / Registro")
     }
 }
 
 @Composable
-fun BotonGoogle(modifier: Modifier = Modifier) {
+fun BotonGoogle(logInVM: LogInVM, modifier: Modifier = Modifier) {
     val activity = LocalActivity.current ?: return
 
     Button(
-        onClick = { SignIn.withGoogle(activity) },
+        onClick = { logInVM.withGoogle(activity) },
         modifier = modifier.fillMaxWidth()
     ) {
         Row(

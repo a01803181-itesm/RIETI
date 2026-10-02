@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +27,7 @@ import com.amplifyframework.core.Amplify
 import itesm.rieti.model.cognito.SignIn
 import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.view.inicioActivity.RegistroApp
+import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.UbicacionVM
 import itesm.rieti.viewModel.api.UsuariosVM
 
@@ -33,6 +35,7 @@ class MainActivity : ComponentActivity()
 {
     /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
     private val viewModel: UbicacionVM by viewModels()
+    private val logInVM: LogInVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -48,7 +51,7 @@ class MainActivity : ComponentActivity()
         viewModel.crearAdministradorUbicacion(this)
         enableEdgeToEdge()
         setContent {
-            var login by remember { mutableStateOf(false) }
+            val login by logInVM.successful.collectAsState()
             RIETITheme {
                 if (!login) RegistroApp() else RIETIApp()
             }

@@ -29,4 +29,8 @@ class UsuariosVM : ViewModel() {
             }
         }
     }
+
+    fun actualizarUsuario(usuario: Usuario) {
+        _usuarioActual.value = usuario
+    }
 }

@@ -25,17 +25,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import itesm.rieti.model.cognito.SignUp.confirmUserAccount
 import itesm.rieti.viewModel.LogInVM
 
 @Composable
 fun OTPScreen(
-    loginVM: LogInVM,
-    email: String,
-    onSuccess: () -> Unit
+    loginVM: LogInVM
 ) {
     val otp by loginVM.otp.collectAsState()
     val errorMessage by loginVM.error.collectAsState()
+    val email by loginVM.email.collectAsState()
 
     Column(modifier = Modifier.padding(24.dp)) {
         Text(
@@ -56,14 +54,7 @@ fun OTPScreen(
                 loginVM.updateOtp(it)
                 loginVM.updateError(null)
             },
-            onCodeComplete = {
-                confirmUserAccount(
-                    email = email,
-                    confirmationCode = otp,
-                    onConfirmed = { onSuccess() },
-                    onError = { _ -> loginVM.updateError("Código incorrecto. Inténtalo de nuevo.")}
-                )
-            }
+            onCodeComplete = { loginVM.tryLogIn() }
         )
 
         if (errorMessage != null) {
@@ -151,9 +142,5 @@ fun DigitBox(
 @Preview(showBackground = true)
 @Composable
 fun OTPCodeInputPreview(loginVM: LogInVM = LogInVM()) {
-    OTPScreen(
-        loginVM = loginVM,
-        email = "william.henry.harrison@example-pet-store.com",
-        onSuccess = {}
-    )
+    OTPScreen(loginVM = loginVM)
 }

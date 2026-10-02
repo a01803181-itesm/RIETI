@@ -6,17 +6,18 @@ import com.amplifyframework.auth.AuthProvider
 import com.amplifyframework.auth.AuthUserAttributeKey
 import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.core.Amplify
+import itesm.rieti.model.esquemas.Usuario
 
 object SignIn {
-    fun withGoogle(activity: Activity) {
+    fun withGoogle(activity: Activity, onSuccessData: (Usuario) -> Unit) {
         Amplify.Auth.fetchAuthSession(
             { session ->
                 if (session.isSignedIn) {
                     Log.i("AmplifyAuth", "Already signed in")
-                    fetchAndSyncData()
+                    fetchAndSyncData(onSuccessData)
                 } else {
                     Log.i("AmplifyAuth", "Not signed in")
-                    launchGoogleWebUI(activity)
+                    launchGoogleWebUI(activity, onSuccessData)
                 }
             },
             { error ->
@@ -25,13 +26,13 @@ object SignIn {
         )
     }
 
-    private fun launchGoogleWebUI(activity: Activity) {
+    private fun launchGoogleWebUI(activity: Activity, onSuccessData: (Usuario) -> Unit) {
         Amplify.Auth.signInWithSocialWebUI(
             AuthProvider.google(),
             activity,
             { result ->
                 if (result.isSignedIn) {
-                    fetchAndSyncData()
+                    fetchAndSyncData(onSuccessData)
                 }
             },
             { error ->
@@ -40,11 +41,13 @@ object SignIn {
         )
     }
 
-    private fun fetchAndSyncData() {
+    private fun fetchAndSyncData(onSuccessData: (Usuario) -> Unit) {
         Amplify.Auth.fetchUserAttributes(
             { attributes ->
                 val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
                 val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
+
+                onSuccessData(Usuario(email, sub))
 
                 Amplify.Auth.fetchAuthSession(
                     { _ ->

@@ -9,8 +9,7 @@ object SignUp {
     fun withEmail(
         email: String,
         password: String,
-        onCodeSent: () -> Unit,
-        onError: (Exception) -> Unit
+        onCodeSent: () -> Unit
     ) {
         val options = AuthSignUpOptions.builder()
             .userAttribute(AuthUserAttributeKey.email(), email)
