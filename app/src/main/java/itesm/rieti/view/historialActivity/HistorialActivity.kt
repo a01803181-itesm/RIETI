@@ -1,4 +1,4 @@
-package itesm.rieti.view
+package itesm.rieti.view.historialActivity
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,9 +27,7 @@ import androidx.compose.ui.unit.sp
 import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.view.mockupData.ReporteMockups
 import itesm.rieti.model.esquemas.Reporte
-import itesm.rieti.view.HistorialActivity.GrillaKPIs
-import itesm.rieti.view.HistorialActivity.TarjetaBorrador
-import itesm.rieti.view.HistorialActivity.TarjetaReporte
+import itesm.rieti.view.DetallesReporteActivity
 import itesm.rieti.view.mockupData.BorradorMockUps
 
 @Composable
@@ -40,7 +38,10 @@ fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borr
     if (reporteSeleccionado == null) {
         MuestraHistorial(mockupReportes, mockupBorradores, opciones, opcionSeleccionada, { opcionSeleccionada = it }, reporteSeleccionado, { reporteSeleccionado = it }, onEditar, modifier)
     } else {
-        DetallesReporteActivity(onClose = { reporteSeleccionado = null }, reporte = reporteSeleccionado!!)
+        DetallesReporteActivity(
+            onClose = { reporteSeleccionado = null },
+            reporte = reporteSeleccionado!!
+        )
     }
 }
 
@@ -95,7 +96,7 @@ fun BarraToggle(opciones: List<String>, seleccionado: Int, onClick: (Int) -> Uni
 
 @Preview(showBackground = true)
 @Composable
-fun TarjetaReportePreview() {
+fun HistorialPreview() {
     val mockupReportes: List<Reporte> = ReporteMockups().values.toList()
     val mockupBorradores: List<Borrador> = BorradorMockUps().values.toList()
     HistorialActivity(mockupReportes, mockupBorradores, {})

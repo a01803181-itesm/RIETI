@@ -97,7 +97,7 @@ fun BotonRegistro(
         onClick = { onRegistro() },
         modifier = modifier.fillMaxWidth()
     ) {
-        if (esperando) CircularProgressIndicator() else Text("Registro")
+        if (esperando) CircularProgressIndicator() else Text("Iniciar Sesión / Registro")
     }
     if (usuario != null) {
         Text(text = "Bienvenido ${usuario!!.correoU}. Proveedor: ${usuario!!.proveedor}")
@@ -152,7 +152,7 @@ fun TitulosLogin(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Iniciar sesion / Registrarse",
+            text = "Iniciar sesion",
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
