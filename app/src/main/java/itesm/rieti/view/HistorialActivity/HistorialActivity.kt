@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +63,7 @@ fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borra
             text = "Historial",
             fontWeight = FontWeight.Bold,
             fontSize = 28.sp,
+            modifier = Modifier.testTag("historyTitle")
         )
         Spacer(Modifier.height(12.dp))
         GrillaKPIs()

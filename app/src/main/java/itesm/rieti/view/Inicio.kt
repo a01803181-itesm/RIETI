@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -36,8 +37,7 @@ import itesm.rieti.viewModel.api.UsuariosVM
 
 //Contenedor principal
 @Composable
-fun RegistroApp(modifier: Modifier = Modifier) {
-    val usuariosVM: UsuariosVM = viewModel()
+fun RegistroApp(modifier: Modifier = Modifier, usuariosVM: UsuariosVM = viewModel()) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -93,7 +93,9 @@ fun BotonRegistro(
 
     Button(
         onClick = { onRegistro() },
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag("localLoginBtn")
     ) {
         if (esperando) CircularProgressIndicator() else Text("Registro")
     }
@@ -188,7 +190,9 @@ fun Correo(
             value = correo,
             onValueChange = onCorreoChange,
             placeholder = { Text("ejemplo@correo.com", color = Color.Gray) },
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
+                .testTag("emailTextField")
         )
     }
 }
@@ -213,7 +217,9 @@ fun Contrasena(
             value = contrasena,
             onValueChange = contrasenaChange,
             placeholder = { Text("••••••••", color = Color.Gray) },
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
+                .testTag("passwordTextField")
         )
     }
 }
