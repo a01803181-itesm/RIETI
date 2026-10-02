@@ -8,7 +8,7 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.core.Amplify
 
 object SignIn {
-    fun trySignIn(activity: Activity) {
+    fun withGoogle(activity: Activity) {
         Amplify.Auth.fetchAuthSession(
             { session ->
                 if (session.isSignedIn) {
@@ -47,10 +47,7 @@ object SignIn {
                 val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
 
                 Amplify.Auth.fetchAuthSession(
-                    { session ->
-                        val cognitoSession = session as? AWSCognitoAuthSession
-                        val idToken = cognitoSession?.userPoolTokensResult?.value?.idToken
-
+                    { _ ->
                         Log.i("AmplifyAuth", "Authenticated User SUB: $sub")
                         Log.i("AmplifyAuth", "Authenticated Email: $email")
                     },
@@ -58,6 +55,43 @@ object SignIn {
                 )
             },
             { error -> Log.e("AmplifyAuth", "Failed to fetch user attributes: ", error) }
+        )
+    }
+
+    fun withEmail(
+        email: String,
+        password: String,
+        onSuccess: (sub: String, email: String, idToken: String?) -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        Amplify.Auth.signIn(
+            email,
+            password,
+            { result ->
+                if (result.isSignedIn) {
+                    Log.i("AmplifyAuth", "Sign-in successful, fetching credentials...")
+                    Amplify.Auth.fetchUserAttributes(
+                        { attributes ->
+                            val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
+                            val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
+
+                            Amplify.Auth.fetchAuthSession(
+                                { session ->
+                                    val cognitoSession = session as? AWSCognitoAuthSession
+                                    val idToken = cognitoSession?.userPoolTokensResult?.value?.idToken
+                                    Log.i("AmplifyAuth", "Authenticated Local User SUB: $sub")
+                                    onSuccess(sub, email, idToken)
+                                },
+                                { error -> onError(error) }
+                            )
+                        },
+                        { error -> onError(error) }
+                    )
+                }
+            },
+            { error ->
+                Log.e("AmplifyAuth", "Sign-in failed: ", error)
+            }
         )
     }
 }

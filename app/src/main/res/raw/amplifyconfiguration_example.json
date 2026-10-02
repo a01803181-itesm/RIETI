@@ -11,7 +11,7 @@
         },
         "Auth": {
           "Default": {
-            "authenticationFlowType": "",
+            "authenticationFlowType": "USER_SRP_AUTH",
             "OAuth": {
               "WebDomain": "",
               "AppClientId": "",
