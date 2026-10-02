@@ -1,13 +1,20 @@
 package itesm.rieti
 
-import androidx.test.espresso.Espresso.closeSoftKeyboard
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.replaceText
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import itesm.rieti.view.MainActivity
+import itesm.rieti.ui.theme.RIETITheme
+import itesm.rieti.view.Pantalla
+import itesm.rieti.view.RIETIApp
+import itesm.rieti.view.RegistroApp
+import itesm.rieti.viewModel.api.UsuariosVM
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,28 +23,50 @@ import org.junit.runner.RunWith
 class FlujoInicialTest
 {
     @get:Rule
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    val composeTestRule = createComposeRule()
 
+    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun iniciaSesionYNavegaPorHaciaHistorial()
-    {
-        val correo = "casita@gmail.com"
-        val contra = "123456"
+    fun logInAndNavigateToHistory() {
+        val email = "casita@gmail.com"
+        val password = "123456"
+        val usuariosVM = UsuariosVM()
 
-        // Modificar los ID en todos
-        onView(withId(R.id.editText))
-            .perform(replaceText(correo), closeSoftKeyboard()) // Poner correo
+        composeTestRule.setContent {
+            val login by usuariosVM.login.collectAsState()
+            RIETITheme {
+                if (!login) {
+                    RegistroApp(usuariosVM = usuariosVM)
+                } else {
+                    RIETIApp(usuariosVM = usuariosVM)
+                }
+            }
+        }
 
-        onView(withId(R.id.editText))
-            .perform(replaceText(contra), closeSoftKeyboard()) // Poner contrase;a
+        composeTestRule.onNodeWithTag("emailTextField")
+            .performTextInput(email)
 
-        onView(withId(R.id.button))
-            .perform(click()) // Click en registrarse
+        composeTestRule.onNodeWithTag("passwordTextField")
+            .performTextInput(password)
 
-        onView(withId(R.id.button))
-            .perform(click()) // Click a historial
+        composeTestRule.onNodeWithTag("localLoginBtn")
+            .performClick()
 
-        onView(withId(R.id.textView))
-            .check(matches(withText(TEXTO))) // Forma de comprobar (modificar)
+        composeTestRule.waitUntilAtLeastOneExists(
+            matcher = hasTestTag(Pantalla.listaPantallas[2].etiqueta),
+            timeoutMillis = 5000
+        )
+
+        composeTestRule.onNodeWithTag(Pantalla.listaPantallas[2].etiqueta)
+            .performClick()
+
+        composeTestRule.waitUntilAtLeastOneExists(
+            matcher = hasTestTag("historyTitle"),
+            timeoutMillis = 5000
+        )
+
+        composeTestRule.onNodeWithTag("historyTitle")
+            .assertExists()
+            .assertIsDisplayed()
     }
 }
