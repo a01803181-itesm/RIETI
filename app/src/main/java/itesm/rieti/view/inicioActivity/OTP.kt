@@ -57,7 +57,13 @@ fun OTPScreen(
                 cognitoVM.setOTP(it)
                 authVM.setError(null)
             },
-            onCodeComplete = { cognitoVM.verifyOTP() }
+            onCodeComplete = {
+                cognitoVM.verifyOTP(
+                    email = authState.usuario?.correoU ?: "",
+                    onSuccess = { authVM.setLoggedIn(true) },
+                    onError = { authVM.setError(it) }
+                )
+            }
         )
 
         if (authState.error != null) {

@@ -6,13 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.usuarios.Manejador
 import itesm.rieti.model.auth.Google
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class GoogleVM : ViewModel() {
     private val userAPIHandler = Manejador
     private val googleAuth = Google
-    private val _authState = MutableStateFlow(AuthState())
     fun authenticate(
         activity: Activity,
         onSuccess: () -> Unit,

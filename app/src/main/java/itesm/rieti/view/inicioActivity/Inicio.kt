@@ -89,7 +89,12 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
         }
         Espacio(24.dp)
         BotonRegistro(
-            onRegistro = { cognitoVM.authenticate() }
+            onRegistro = {
+                cognitoVM.authenticate(
+                    email = authState.usuario?.correoU ?: "",
+                    onError = { authVM.setError(it) }
+                )
+            }
         )
         Espacio(24.dp)
         BotonGoogle()

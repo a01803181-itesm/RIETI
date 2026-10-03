@@ -1,5 +1,6 @@
 package itesm.rieti.viewModel.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.usuarios.Manejador
@@ -13,40 +14,48 @@ import kotlinx.coroutines.launch
 class CognitoVM : ViewModel() {
     private val userAPIHandler = Manejador
     private val cognito = Cognito
-    private val _authState = MutableStateFlow(AuthState())
     private val _cognitoState = MutableStateFlow(CognitoState())
     val cognitoState: StateFlow<CognitoState> = _cognitoState
     fun setPassword(password: String) { _cognitoState.value = _cognitoState.value.copy(password = password) }
     fun setOTP(otp: String) { _cognitoState.value = _cognitoState.value.copy(otp = otp) }
-    fun authenticate() {
+    fun authenticate(
+        email: String,
+        onError: (String) -> Unit,
+    ) {
+        Log.i("CognitoVM", "Function called")
         viewModelScope.launch {
-            val response = userAPIHandler.checkEmail(_authState.value.usuario!!.correoU)
+            Log.i("CognitoVM", "User email: $email")
+            val response = userAPIHandler.checkEmail(email)
             if (response.isSuccessful) {
                 if (response.body()?.exists == true) {
-                    _authState.value = _authState.value.copy(error = "El correo ya está registrado por ${response.body()?.provider!!}. Inicie sesión con ${response.body()?.provider!!}")
+                    onError("El correo ya está registrado por ${response.body()?.provider!!}. Inicie sesión con ${response.body()?.provider!!}")
                 } else {
                     cognito.signUpWithEmail(
-                        _authState.value.usuario!!.correoU,
+                        email,
                         _cognitoState.value.password,
                         { _cognitoState.value = _cognitoState.value.copy(otpSent = true) },
                         {
                             val error = cognito.mapError(it)
-                            _authState.value = _authState.value.copy(error = error)
+                            onError(error)
                         }
                     )
                 }
             } else {
-                _authState.value = _authState.value.copy(error = "Error de conexión al servidor. ${response.errorBody()}")
+                onError("Error de conexión al servidor. ${response.errorBody()}")
             }
         }
     }
 
-    fun verifyOTP() {
+    fun verifyOTP(
+        email: String,
+        onSuccess: () -> Unit,
+        onError: (String?) -> Unit
+    ) {
         cognito.confirmSignUp(
-            _authState.value.usuario!!.correoU,
+            email,
             _cognitoState.value.otp,
-            { _authState.value = _authState.value.copy(loggedIn = true) },
-            { _authState.value = _authState.value.copy(error = it.message) }
+            { onSuccess() },
+            { onError(it.message) }
         )
     }
 }
