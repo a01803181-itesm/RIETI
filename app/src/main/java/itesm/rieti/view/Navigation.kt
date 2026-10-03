@@ -15,7 +15,6 @@ import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.historialActivity.HistorialActivity
 import itesm.rieti.view.mockupData.BorradorMockUps
 import itesm.rieti.view.mockupData.ReporteMockups
-import itesm.rieti.viewModel.api.UsuariosVM
 
 @Composable
 fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) {

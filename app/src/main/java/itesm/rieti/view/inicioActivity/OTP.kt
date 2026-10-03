@@ -25,15 +25,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.viewModel.LogInVM
+import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.auth.CognitoVM
 
 @Composable
 fun OTPScreen(
-    loginVM: LogInVM
+    cognitoVM: CognitoVM
 ) {
-    val otp by loginVM.otp.collectAsState()
-    val errorMessage by loginVM.error.collectAsState()
-    val email by loginVM.email.collectAsState()
+    val authVM: AuthVM = viewModel()
+    val authState by authVM.authState.collectAsState()
+    val cognitoState by cognitoVM.cognitoState.collectAsState()
 
     Column(modifier = Modifier.padding(24.dp)) {
         Text(
@@ -41,7 +44,7 @@ fun OTPScreen(
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = "Hemos enviado un código de 6 dígitos a $email",
+            text = "Hemos enviado un código de 6 dígitos a ${authState.usuario!!.correoU}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -49,18 +52,18 @@ fun OTPScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         OTPCodeInput(
-            code = otp,
+            code = cognitoState.otp,
             onCodeChange = {
-                loginVM.updateOtp(it)
-                loginVM.updateError(null)
+                cognitoVM.setOTP(it)
+                authVM.setError(null)
             },
-            onCodeComplete = { loginVM.tryLogIn() }
+            onCodeComplete = { cognitoVM.verifyOTP() }
         )
 
-        if (errorMessage != null) {
+        if (authState.error != null) {
             Spacer(Modifier.height(16.dp))
             Text(
-                text = errorMessage!!,
+                text = authState.error!!,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -141,6 +144,6 @@ fun DigitBox(
 
 @Preview(showBackground = true)
 @Composable
-fun OTPCodeInputPreview(loginVM: LogInVM = LogInVM()) {
-    OTPScreen(loginVM = loginVM)
+fun OTPCodeInputPreview(cognitoVM: CognitoVM = CognitoVM()) {
+    OTPScreen(cognitoVM = cognitoVM)
 }

@@ -1,4 +1,4 @@
-package itesm.rieti.model.cognito
+package itesm.rieti.model.auth
 
 import android.util.Log
 import com.amplifyframework.auth.AuthUserAttributeKey

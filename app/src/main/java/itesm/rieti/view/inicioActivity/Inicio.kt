@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -32,15 +31,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
-import itesm.rieti.model.cognito.SignIn
-import itesm.rieti.viewModel.InicioVM
+import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.viewModel.LogInVM
-import itesm.rieti.viewModel.api.UsuariosVM
+import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.auth.CognitoVM
+import itesm.rieti.viewModel.auth.GoogleVM
 
 //Contenedor principal
 @Composable
 fun RegistroApp(modifier: Modifier = Modifier) {
-    val logInVM: LogInVM = viewModel()
+    val cognitoVM: CognitoVM = viewModel()
+    val cognitoState by cognitoVM.cognitoState.collectAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -49,19 +50,20 @@ fun RegistroApp(modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.background)
     ) {
         Encabezado()
-        if (!logInVM.otpRequired.collectAsState().value) {
-            CuerpoApp(logInVM)
+        if (!cognitoState.otpSent) {
+            CuerpoApp(cognitoVM)
         } else {
-            OTPScreen(logInVM)
+            OTPScreen(cognitoVM)
         }
     }
 }
 
 //Contenedor del cuerpo
 @Composable
-fun CuerpoApp(logInVM: LogInVM, modifier: Modifier = Modifier) {
-    val email by logInVM.email.collectAsState()
-    val password by logInVM.password.collectAsState()
+fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
+    val authVM: AuthVM = viewModel()
+    val authState by authVM.authState.collectAsState()
+    val cognitoState by cognitoVM.cognitoState.collectAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(16.dp)
@@ -69,20 +71,28 @@ fun CuerpoApp(logInVM: LogInVM, modifier: Modifier = Modifier) {
         TitulosLogin()
         Espacio(24.dp)
         Correo(
-            correo = email,
-            onCorreoChange = { logInVM.updateEmail(it) }
+            correo = authState.usuario?.correoU ?: "",
+            onCorreoChange = { authVM.setEmail(it, Provider.COGNITO) }
         )
         Espacio(24.dp)
         Contrasena(
-            contrasena = password,
-            contrasenaChange = { logInVM.updatePassword(it) }
+            contrasena = cognitoState.password,
+            contrasenaChange = { cognitoVM.setPassword(it) }
         )
+        if (authState.error != null) {
+            Text(
+                text = authState.error!!,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.error,
+                modifier = modifier.padding(16.dp)
+            )
+        }
         Espacio(24.dp)
         BotonRegistro(
-            onRegistro = { logInVM.triggerOTPSend() }
+            onRegistro = { cognitoVM.authenticate() }
         )
         Espacio(24.dp)
-        BotonGoogle(logInVM)
+        BotonGoogle()
     }
 }
 
@@ -100,11 +110,12 @@ fun BotonRegistro(
 }
 
 @Composable
-fun BotonGoogle(logInVM: LogInVM, modifier: Modifier = Modifier) {
+fun BotonGoogle(modifier: Modifier = Modifier) {
+    val googleVM: GoogleVM = viewModel()
     val activity = LocalActivity.current ?: return
 
     Button(
-        onClick = { logInVM.withGoogle(activity) },
+        onClick = { googleVM.authenticate(activity) },
         modifier = modifier.fillMaxWidth()
     ) {
         Row(

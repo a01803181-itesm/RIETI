@@ -1,12 +1,14 @@
 package itesm.rieti.model.esquemas
 
-data class LegacyUsuario (
-    val correoU: String,
-    val contrasenia: String,
-    val proveedor: String
-)
-
+enum class Provider(name: String) {
+    COGNITO("cognito"),
+    GOOGLE("google")
+}
 data class Usuario (
     val correoU: String,
-    val sub: String
+    val provider: Provider
+)
+data class CheckEmail (
+    val exists: Boolean,
+    val provider: String?
 )

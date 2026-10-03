@@ -14,9 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
@@ -24,18 +21,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
-import itesm.rieti.model.cognito.SignIn
 import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.view.inicioActivity.RegistroApp
 import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.UbicacionVM
-import itesm.rieti.viewModel.api.UsuariosVM
+import itesm.rieti.viewModel.auth.AuthVM
 
 class MainActivity : ComponentActivity()
 {
     /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
     private val viewModel: UbicacionVM by viewModels()
-    private val logInVM: LogInVM by viewModels()
+    private val authVM: AuthVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -51,9 +47,9 @@ class MainActivity : ComponentActivity()
         viewModel.crearAdministradorUbicacion(this)
         enableEdgeToEdge()
         setContent {
-            val login by logInVM.successful.collectAsState()
+            val authState by authVM.authState.collectAsState()
             RIETITheme {
-                if (!login) RegistroApp() else RIETIApp()
+                if (!authState.loggedIn) RegistroApp() else RIETIApp()
             }
         }
     }
