@@ -8,6 +8,7 @@ import aws.sdk.kotlin.services.cognitoidentityprovider.model.LimitExceededExcept
 import aws.sdk.kotlin.services.cognitoidentityprovider.model.NotAuthorizedException
 import aws.sdk.kotlin.services.cognitoidentityprovider.model.UserNotFoundException
 import com.amplifyframework.auth.AuthUserAttributeKey
+import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.core.Amplify
 
@@ -36,6 +37,41 @@ object Cognito {
             is LimitExceededException -> "Demasiados intentos. Intenta de nuevo más tarde."
             else -> "Ocurrió un error inesperado. Intenta de nuevo."
         }
+    }
+    fun signInWithEmail(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        Amplify.Auth.signIn(
+            email,
+            password,
+            { result ->
+                if (result.isSignedIn) {
+                    Log.i("AmplifyAuth", "Sign-in successful, fetching credentials...")
+                    Amplify.Auth.fetchUserAttributes(
+                        { attributes ->
+                            val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
+
+                            Amplify.Auth.fetchAuthSession(
+                                { session ->
+                                    val cognitoSession = session as? AWSCognitoAuthSession
+                                    val idToken = cognitoSession?.userPoolTokensResult?.value?.idToken
+                                    onSuccess()
+                                },
+                                { error -> onError(error) }
+                            )
+                        },
+                        { error -> onError(error) }
+                    )
+                }
+            },
+            { error ->
+                Log.e("AmplifyAuth", "Sign-in failed: ", error)
+                onError(error)
+            }
+        )
     }
 
     fun signUpWithEmail(

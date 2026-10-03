@@ -33,7 +33,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.viewModel.LogInVM
+import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.auth.CognitoState
 import itesm.rieti.viewModel.auth.CognitoVM
 import itesm.rieti.viewModel.auth.GoogleVM
 
@@ -89,9 +91,13 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
         }
         Espacio(24.dp)
         BotonRegistro(
+            authState,
+            cognitoState,
+            authVM,
             onRegistro = {
                 cognitoVM.authenticate(
                     email = authState.usuario?.correoU ?: "",
+                    onSuccess = { authVM.setLoggedIn(true) },
                     onError = { authVM.setError(it) }
                 )
             }
@@ -103,14 +109,25 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
 
 @Composable
 fun BotonRegistro(
+    authState: AuthState,
+    cognitoState: CognitoState,
+    authVM: AuthVM,
     onRegistro: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
     Button(
-        onClick = { onRegistro() },
+        onClick = {
+            if (authState.usuario?.correoU?.isNotEmpty() == true && !emailRegex.matches(authState.usuario.correoU)) {
+                authVM.setError("Correo electrónico inválido")
+            } else {
+                onRegistro()
+            }
+        },
+        enabled = authState.usuario != null && authState.usuario.correoU.isNotEmpty() && cognitoState.password.isNotEmpty(),
         modifier = modifier.fillMaxWidth()
     ) {
-        Text("Iniciar Sesión / Registro")
+        Text("Iniciar Sesión / Registrarse")
     }
 }
 
@@ -170,7 +187,7 @@ fun TitulosLogin(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Iniciar sesion",
+            text = "Iniciar sesión",
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface

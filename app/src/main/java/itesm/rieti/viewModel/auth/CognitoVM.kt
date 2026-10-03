@@ -20,7 +20,8 @@ class CognitoVM : ViewModel() {
     fun setOTP(otp: String) { _cognitoState.value = _cognitoState.value.copy(otp = otp) }
     fun authenticate(
         email: String,
-        onError: (String) -> Unit,
+        onSuccess: () -> Unit,
+        onError: (String?) -> Unit,
     ) {
         Log.i("CognitoVM", "Function called")
         viewModelScope.launch {
@@ -28,7 +29,15 @@ class CognitoVM : ViewModel() {
             val response = userAPIHandler.checkEmail(email)
             if (response.isSuccessful) {
                 if (response.body()?.exists == true) {
-                    onError("El correo ya está registrado por ${response.body()?.provider!!}. Inicie sesión con ${response.body()?.provider!!}")
+                    cognito.signInWithEmail(
+                        email,
+                        _cognitoState.value.password,
+                        { onSuccess() },
+                        {
+                            val error = cognito.mapError(it)
+                            onError(error)
+                        }
+                    )
                 } else {
                     cognito.signUpWithEmail(
                         email,
