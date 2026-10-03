@@ -11,4 +11,5 @@ class AuthVM : ViewModel() {
     val authState: StateFlow<AuthState> = _authState
     fun setEmail(email: String, provider: Provider) { _authState.value = _authState.value.copy(usuario = Usuario(correoU = email, provider = provider)) }
     fun setError(error: String?) { _authState.value = _authState.value.copy(error = error) }
+    fun setLoggedIn(loggedIn: Boolean) { _authState.value = _authState.value.copy(loggedIn = loggedIn) }
 }

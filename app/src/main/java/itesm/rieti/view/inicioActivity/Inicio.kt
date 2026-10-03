@@ -112,10 +112,17 @@ fun BotonRegistro(
 @Composable
 fun BotonGoogle(modifier: Modifier = Modifier) {
     val googleVM: GoogleVM = viewModel()
+    val authVM: AuthVM = viewModel()
     val activity = LocalActivity.current ?: return
 
     Button(
-        onClick = { googleVM.authenticate(activity) },
+        onClick = {
+            googleVM.authenticate(
+                activity,
+                { authVM.setLoggedIn(true) },
+                { authVM.setError(it) }
+            )
+        },
         modifier = modifier.fillMaxWidth()
     ) {
         Row(

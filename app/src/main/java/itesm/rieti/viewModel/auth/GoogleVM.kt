@@ -1,6 +1,7 @@
 package itesm.rieti.viewModel.auth
 
 import android.app.Activity
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.usuarios.Manejador
@@ -12,19 +13,30 @@ class GoogleVM : ViewModel() {
     private val userAPIHandler = Manejador
     private val googleAuth = Google
     private val _authState = MutableStateFlow(AuthState())
-    fun authenticate(activity: Activity) {
+    fun authenticate(
+        activity: Activity,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         googleAuth.authenticate(activity) { user ->
             viewModelScope.launch {
                 val response = userAPIHandler.checkEmail(user.correoU)
                 if (response.isSuccessful && response.body()?.exists == false) {
+                    Log.i("GoogleVM", "User not found, creating new user")
                     val response2 = userAPIHandler.crearUsuario(user)
                     if (response2.isSuccessful) {
-                        _authState.value = _authState.value.copy(loggedIn = true)
+                        Log.i("GoogleVM", "User signed up successfully")
+                        onSuccess()
                     } else {
-                        _authState.value = _authState.value.copy(error = response2.message())
+                        Log.e("GoogleVM", "Error signing up user: ${response2.message()}")
+                        onError("Error signing up user: ${response2.message()}")
                     }
                 } else if (response.isSuccessful && response.body()?.exists == true) {
-                    _authState.value = _authState.value.copy(loggedIn = true)
+                    Log.i("GoogleVM", "User found, logging in")
+                    onSuccess()
+                } else {
+                    Log.e("GoogleVM", "Error checking email: ${response.message()}")
+                    onError("Error checking email: ${response.message()}")
                 }
             }
         }

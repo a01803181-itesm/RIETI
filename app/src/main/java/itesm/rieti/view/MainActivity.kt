@@ -23,14 +23,13 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
 import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.view.inicioActivity.RegistroApp
-import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
 
 class MainActivity : ComponentActivity()
 {
     /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
-    private val viewModel: UbicacionVM by viewModels()
+    private val ubicacionVM: UbicacionVM by viewModels()
     private val authVM: AuthVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
@@ -44,7 +43,7 @@ class MainActivity : ComponentActivity()
             e.printStackTrace()
         }
 
-        viewModel.crearAdministradorUbicacion(this)
+        ubicacionVM.crearAdministradorUbicacion(this)
         enableEdgeToEdge()
         setContent {
             val authState by authVM.authState.collectAsState()
@@ -60,7 +59,7 @@ class MainActivity : ComponentActivity()
     override fun onStart()
     {
         super.onStart()
-        viewModel.iniciarActualizaciones()
+        ubicacionVM.iniciarActualizaciones()
     }
 
     /**
@@ -70,7 +69,7 @@ class MainActivity : ComponentActivity()
     override fun onStop()
     {
         super.onStop()
-        viewModel.detenerActualizaciones()
+        ubicacionVM.detenerActualizaciones()
     }
 }
 @Composable
