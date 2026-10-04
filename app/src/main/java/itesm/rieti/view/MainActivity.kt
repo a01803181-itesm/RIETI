@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity()
         }
 
         ubicacionVM.iniciarActualizaciones()
-        authVM.checkAuth()
+        // authVM.checkAuth()
     }
 
     /**

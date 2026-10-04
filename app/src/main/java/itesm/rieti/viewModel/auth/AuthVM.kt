@@ -18,21 +18,19 @@ class AuthVM : ViewModel() {
     val authState: StateFlow<AuthState> = _authState
     fun setEmail(email: String, provider: Provider) { _authState.value = _authState.value.copy(usuario = Usuario(correoU = email, provider = provider)) }
     fun setError(error: String?) { _authState.value = _authState.value.copy(error = error) }
-    fun registerUser(sub: String) {
+    fun registerUser(user: Usuario, sub: String) {
         viewModelScope.launch {
-            val user = _authState.value.usuario
-            if (user != null) {
-                try {
-                    val response = userHandler.crearUsuario(user)
-                    if (response.isSuccessful) {
-                        setSUB(sub)
-                        setLoggedIn(true)
-                    } else {
-                        setError(response.message())
-                    }
-                } catch (e: Exception) {
-                    setError(e.message)
+            try {
+                val response = userHandler.crearUsuario(user)
+                if (response.isSuccessful) {
+                    setLoggedIn(true)
+                    setSUB(sub)
+                    setEmail(user.correoU, user.provider)
+                } else {
+                    setError(response.message())
                 }
+            } catch (e: Exception) {
+                setError(e.message)
             }
         }
     }

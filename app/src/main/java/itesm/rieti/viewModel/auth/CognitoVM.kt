@@ -20,7 +20,7 @@ class CognitoVM : ViewModel() {
     fun setOTP(otp: String) { _cognitoState.value = _cognitoState.value.copy(otp = otp) }
     fun authenticate(
         email: String,
-        onSuccess: (String) -> Unit,
+        onSuccess: (Usuario, String) -> Unit,
         onError: (String?) -> Unit,
     ) {
         Log.i("CognitoVM", "Function called")
@@ -32,7 +32,7 @@ class CognitoVM : ViewModel() {
                     cognito.signInWithEmail(
                         email,
                         _cognitoState.value.password,
-                        { onSuccess(it) },
+                        { user, sub -> onSuccess(user, sub) },
                         {
                             val error = cognito.mapError(it)
                             onError(error)
@@ -57,7 +57,7 @@ class CognitoVM : ViewModel() {
 
     fun verifyOTP(
         email: String,
-        onSuccess: (String) -> Unit,
+        onSuccess: (Usuario, String) -> Unit,
         onError: (String?) -> Unit
     ) {
         cognito.confirmSignUp(
@@ -68,7 +68,7 @@ class CognitoVM : ViewModel() {
                 cognito.signInWithEmail(
                     email,
                     _cognitoState.value.password,
-                    { sub -> onSuccess(sub) },
+                    { user, sub -> onSuccess(user, sub) },
                     { error -> onError(cognito.mapError(error)) }
                 )
             },

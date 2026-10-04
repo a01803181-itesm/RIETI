@@ -11,6 +11,8 @@ import com.amplifyframework.auth.AuthUserAttributeKey
 import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.core.Amplify
+import itesm.rieti.model.esquemas.Provider
+import itesm.rieti.model.esquemas.Usuario
 
 object Cognito {
     fun mapError(error: Exception): String {
@@ -27,7 +29,7 @@ object Cognito {
     fun signInWithEmail(
         email: String,
         password: String,
-        onSuccess: (String) -> Unit,
+        onSuccess: (Usuario, String) -> Unit,
         onError: (Exception) -> Unit
     ) {
         Amplify.Auth.signIn(
@@ -40,14 +42,7 @@ object Cognito {
                         { attributes ->
                             val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
                             val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
-                            Amplify.Auth.fetchAuthSession(
-                                { session ->
-                                    val cognitoSession = session as? AWSCognitoAuthSession
-                                    val idToken = cognitoSession?.userPoolTokensResult?.value?.idToken
-                                    onSuccess(sub)
-                                },
-                                { error -> onError(error) }
-                            )
+                            onSuccess(Usuario(email, Provider.COGNITO), sub)
                         },
                         { error -> onError(error) }
                     )

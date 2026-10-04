@@ -97,9 +97,10 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
             onRegistro = {
                 cognitoVM.authenticate(
                     email = authState.usuario?.correoU ?: "",
-                    onSuccess = { sub ->
+                    onSuccess = { user, sub ->
                         authVM.setLoggedIn(true)
                         authVM.setSUB(sub)
+                        authVM.setEmail(user.correoU, user.provider)
                     },
                     onError = { authVM.setError(it) }
                 )

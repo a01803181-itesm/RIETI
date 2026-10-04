@@ -63,10 +63,8 @@ fun OTPScreen(
             onCodeComplete = {
                 cognitoVM.verifyOTP(
                     email = authState.usuario?.correoU ?: "",
-                    onSuccess = { sub ->
-                        CoroutineScope(context = Dispatchers.IO).launch {
-                            authVM.registerUser(sub)
-                        }
+                    onSuccess = { user, sub ->
+                        authVM.registerUser(user, sub)
                     },
                     onError = { authVM.setError(it) }
                 )
