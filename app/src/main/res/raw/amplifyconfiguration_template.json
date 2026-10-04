@@ -4,19 +4,19 @@
       "awsCognitoAuthPlugin": {
         "CognitoUserPool": {
           "Default": {
-            "PoolId": "",
-            "AppClientId": "",
-            "Region": ""
+            "PoolId": "${COGNITO_POOL_ID}",
+            "AppClientId": "${COGNITO_APP_CLIENT_ID}",
+            "Region": "${COGNITO_REGION}"
           }
         },
         "Auth": {
           "Default": {
             "authenticationFlowType": "USER_SRP_AUTH",
             "OAuth": {
-              "WebDomain": "",
-              "AppClientId": "",
-              "SignInRedirectURI": "",
-              "SignOutRedirectURI": "",
+              "WebDomain": "${COGNITO_DOMAIN}",
+              "AppClientId": "${COGNITO_APP_CLIENT_ID}",
+              "SignInRedirectURI": "${COGNITO_SIGN_IN_URI}",
+              "SignOutRedirectURI": "${COGNITO_SIGN_OUT_URI}",
               "Scopes": [
                 "email",
                 "openid",
