@@ -1,12 +1,16 @@
 package itesm.rieti.model.esquemas
 
-enum class Provider(name: String) {
-    COGNITO("cognito"),
-    GOOGLE("google")
+import com.google.gson.annotations.SerializedName
+
+enum class Provider {
+    @SerializedName("cognito")
+    COGNITO,
+    @SerializedName("google")
+    GOOGLE
 }
 data class Usuario (
     val correoU: String,
-    val provider: Provider
+    val proveedor: Provider
 )
 data class CheckEmail (
     val exists: Boolean,

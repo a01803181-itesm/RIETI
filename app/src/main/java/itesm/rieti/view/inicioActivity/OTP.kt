@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.auth.AuthVM
@@ -63,9 +64,7 @@ fun OTPScreen(
             onCodeComplete = {
                 cognitoVM.verifyOTP(
                     email = authState.usuario?.correoU ?: "",
-                    onSuccess = { user, sub ->
-                        authVM.registerUser(user, sub)
-                    },
+                    onSuccess = { authVM.registerUser() },
                     onError = { authVM.setError(it) }
                 )
             }

@@ -20,19 +20,19 @@ class CognitoVM : ViewModel() {
     fun setOTP(otp: String) { _cognitoState.value = _cognitoState.value.copy(otp = otp) }
     fun authenticate(
         email: String,
-        onSuccess: (Usuario, String) -> Unit,
+        onSuccess: (String) -> Unit,
         onError: (String?) -> Unit,
     ) {
-        Log.i("CognitoVM", "Function called")
+        Log.i("AUTH", "Function called")
         viewModelScope.launch {
-            Log.i("CognitoVM", "User email: $email")
+            Log.i("AUTH", "User email: $email")
             val response = userAPIHandler.checkEmail(email)
             if (response.isSuccessful) {
                 if (response.body()?.exists == true) {
                     cognito.signInWithEmail(
                         email,
                         _cognitoState.value.password,
-                        { user, sub -> onSuccess(user, sub) },
+                        { onSuccess(it) },
                         {
                             val error = cognito.mapError(it)
                             onError(error)
@@ -57,20 +57,22 @@ class CognitoVM : ViewModel() {
 
     fun verifyOTP(
         email: String,
-        onSuccess: (Usuario, String) -> Unit,
+        onSuccess: () -> Unit,
         onError: (String?) -> Unit
     ) {
         cognito.confirmSignUp(
             email,
             _cognitoState.value.otp,
             {
-                Log.i("CognitoVM", "User Sign Up confirmed")
-                cognito.signInWithEmail(
-                    email,
-                    _cognitoState.value.password,
-                    { user, sub -> onSuccess(user, sub) },
-                    { error -> onError(cognito.mapError(error)) }
-                )
+                viewModelScope.launch {
+                    onSuccess()
+                    cognito.signInWithEmail(
+                        email,
+                        _cognitoState.value.password,
+                        { },
+                        { error -> onError("Background login failed: ${error.message}") }
+                    )
+                }
             },
             { onError(it.message) }
         )

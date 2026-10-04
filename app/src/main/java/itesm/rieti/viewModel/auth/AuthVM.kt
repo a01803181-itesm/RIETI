@@ -16,21 +16,26 @@ class AuthVM : ViewModel() {
     private val userHandler = Manejador
     private val _authState = MutableStateFlow(AuthState())
     val authState: StateFlow<AuthState> = _authState
-    fun setEmail(email: String, provider: Provider) { _authState.value = _authState.value.copy(usuario = Usuario(correoU = email, provider = provider)) }
+    fun setEmail(email: String, provider: Provider) { _authState.value = _authState.value.copy(usuario = Usuario(correoU = email, proveedor = provider)) }
     fun setError(error: String?) { _authState.value = _authState.value.copy(error = error) }
-    fun registerUser(user: Usuario, sub: String) {
+    fun registerUser() {
         viewModelScope.launch {
-            try {
-                val response = userHandler.crearUsuario(user)
-                if (response.isSuccessful) {
-                    setLoggedIn(true)
-                    setSUB(sub)
-                    setEmail(user.correoU, user.provider)
-                } else {
-                    setError(response.message())
+            if (_authState.value.usuario != null) {
+                try {
+                    Log.i("AUTH", "Inserting user through FastAPI")
+                    Log.i("AUTH", "User: ${_authState.value.usuario}")
+                    val response = userHandler.crearUsuario(_authState.value.usuario!!)
+                    if (response.isSuccessful) {
+                        Log.i("AUTH", "User inserted successfully")
+                        setLoggedIn(true)
+                    } else {
+                        Log.e("AUTH", "FastAPI error response: ${response.message()}")
+                        setError(response.message())
+                    }
+                } catch (e: Exception) {
+                    Log.e("AUTH", "FastAPI connection error: ${e.message}")
+                    setError(e.message)
                 }
-            } catch (e: Exception) {
-                setError(e.message)
             }
         }
     }
@@ -42,7 +47,7 @@ class AuthVM : ViewModel() {
         auth.checkCachedSession(
             { user, sub ->
                 setLoggedIn(true)
-                setEmail(user.correoU, user.provider)
+                setEmail(user.correoU, user.proveedor)
                 setSUB(sub)
             },
             {

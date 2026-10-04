@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Provider
-import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.auth.CognitoState
@@ -97,10 +96,10 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
             onRegistro = {
                 cognitoVM.authenticate(
                     email = authState.usuario?.correoU ?: "",
-                    onSuccess = { user, sub ->
+                    onSuccess = { sub ->
                         authVM.setLoggedIn(true)
                         authVM.setSUB(sub)
-                        authVM.setEmail(user.correoU, user.provider)
+                        authVM.setEmail(authState.usuario?.correoU ?: "", authState.usuario?.proveedor ?: Provider.COGNITO)
                     },
                     onError = { authVM.setError(it) }
                 )

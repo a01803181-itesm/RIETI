@@ -29,7 +29,7 @@ object Cognito {
     fun signInWithEmail(
         email: String,
         password: String,
-        onSuccess: (Usuario, String) -> Unit,
+        onSuccess: (String) -> Unit,
         onError: (Exception) -> Unit
     ) {
         Amplify.Auth.signIn(
@@ -42,7 +42,7 @@ object Cognito {
                         { attributes ->
                             val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
                             val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
-                            onSuccess(Usuario(email, Provider.COGNITO), sub)
+                            onSuccess(sub)
                         },
                         { error -> onError(error) }
                     )
