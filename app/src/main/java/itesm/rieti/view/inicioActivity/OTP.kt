@@ -29,6 +29,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.auth.CognitoVM
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun OTPScreen(
@@ -60,7 +63,11 @@ fun OTPScreen(
             onCodeComplete = {
                 cognitoVM.verifyOTP(
                     email = authState.usuario?.correoU ?: "",
-                    onSuccess = { authVM.setLoggedIn(true) },
+                    onSuccess = { sub ->
+                        CoroutineScope(context = Dispatchers.IO).launch {
+                            authVM.registerUser(sub)
+                        }
+                    },
                     onError = { authVM.setError(it) }
                 )
             }

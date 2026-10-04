@@ -97,7 +97,10 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
             onRegistro = {
                 cognitoVM.authenticate(
                     email = authState.usuario?.correoU ?: "",
-                    onSuccess = { authVM.setLoggedIn(true) },
+                    onSuccess = { sub ->
+                        authVM.setLoggedIn(true)
+                        authVM.setSUB(sub)
+                    },
                     onError = { authVM.setError(it) }
                 )
             }
@@ -141,7 +144,10 @@ fun BotonGoogle(modifier: Modifier = Modifier) {
         onClick = {
             googleVM.authenticate(
                 activity,
-                { authVM.setLoggedIn(true) },
+                { sub ->
+                    authVM.setLoggedIn(true)
+                    authVM.setSUB(sub)
+                },
                 { authVM.setError(it) }
             )
         },

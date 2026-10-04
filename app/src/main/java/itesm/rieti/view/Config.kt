@@ -24,6 +24,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import itesm.rieti.viewModel.auth.AuthVM
 
 @Composable
 fun ConfigApp(
@@ -159,6 +162,8 @@ fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int
 
 @Composable
 fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: String, actualizarContrasenia:(String)-> Unit, modifier: Modifier = Modifier) {
+    val authVM: AuthVM = viewModel()
+    val authState by authVM.authState.collectAsState()
     Column {
         Text( "Cuenta", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
@@ -184,7 +189,7 @@ fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: Strin
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = correo,
+                        value = authState.usuario?.correoU ?: "anonymous",
                         onValueChange = { actualizarCorreo(it) },
                         label = { Text("Correo Electronico", style = MaterialTheme.typography.titleMedium) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -196,6 +201,13 @@ fun Cuenta(correo:String, actualizarCorreo: (String) -> Unit, contrasenia: Strin
                     value = contrasenia,
                     onValueChange = { actualizarContrasenia(it) },
                     label = { Text("Contraseña", style = MaterialTheme.typography.titleMedium) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = authState.sub ?: "anonymous",
+                    onValueChange = { actualizarContrasenia(it) },
+                    label = { Text("SUB", style = MaterialTheme.typography.titleMedium) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth()
                 )

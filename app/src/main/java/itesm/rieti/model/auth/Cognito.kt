@@ -13,20 +13,6 @@ import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.core.Amplify
 
 object Cognito {
-    fun checkCachedSession(onSessionValid: () -> Unit, onRequireAuth: () -> Unit) {
-        Amplify.Auth.fetchAuthSession(
-            { session ->
-                if (session.isSignedIn) {
-                    onSessionValid()
-                } else {
-                    onRequireAuth()
-                }
-            },
-            { _ ->
-                onRequireAuth()
-            }
-        )
-    }
     fun mapError(error: Exception): String {
         return when (error.cause) {
             is InvalidPasswordException -> "La contraseña debe contener al menos 8 caracteres, un número y un símbolo."
@@ -41,7 +27,7 @@ object Cognito {
     fun signInWithEmail(
         email: String,
         password: String,
-        onSuccess: () -> Unit,
+        onSuccess: (String) -> Unit,
         onError: (Exception) -> Unit
     ) {
         Amplify.Auth.signIn(
@@ -53,12 +39,12 @@ object Cognito {
                     Amplify.Auth.fetchUserAttributes(
                         { attributes ->
                             val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
-
+                            val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
                             Amplify.Auth.fetchAuthSession(
                                 { session ->
                                     val cognitoSession = session as? AWSCognitoAuthSession
                                     val idToken = cognitoSession?.userPoolTokensResult?.value?.idToken
-                                    onSuccess()
+                                    onSuccess(sub)
                                 },
                                 { error -> onError(error) }
                             )

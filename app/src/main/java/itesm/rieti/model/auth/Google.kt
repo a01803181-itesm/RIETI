@@ -9,9 +9,10 @@ import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
 
 object Google {
-    fun authenticate(activity: Activity, onSuccessData: (Usuario) -> Unit) {
+    fun authenticate(activity: Activity, onSuccessData: (Usuario, String) -> Unit) {
         Amplify.Auth.fetchAuthSession(
             { session ->
+
                 if (session.isSignedIn) {
                     Log.i("AmplifyAuth", "Already signed in")
                     fetchAndSyncData(onSuccessData)
@@ -26,7 +27,7 @@ object Google {
         )
     }
 
-    private fun launchGoogleWebUI(activity: Activity, onSuccessData: (Usuario) -> Unit) {
+    private fun launchGoogleWebUI(activity: Activity, onSuccessData: (Usuario, String) -> Unit) {
         Amplify.Auth.signInWithSocialWebUI(
             AuthProvider.google(),
             activity,
@@ -41,13 +42,13 @@ object Google {
         )
     }
 
-    private fun fetchAndSyncData(onSuccessData: (Usuario) -> Unit) {
+    private fun fetchAndSyncData(onSuccessData: (Usuario, String) -> Unit) {
         Amplify.Auth.fetchUserAttributes(
             { attributes ->
                 val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
                 val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
 
-                onSuccessData(Usuario(email, Provider.GOOGLE))
+                onSuccessData(Usuario(email, Provider.GOOGLE), sub)
 
                 Amplify.Auth.fetchAuthSession(
                     { _ ->
