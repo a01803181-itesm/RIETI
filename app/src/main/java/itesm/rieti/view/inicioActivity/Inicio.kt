@@ -100,6 +100,7 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
                         authVM.setLoggedIn(true)
                         authVM.setSUB(sub)
                         authVM.setEmail(authState.usuario?.correoU ?: "", authState.usuario?.proveedor ?: Provider.COGNITO)
+                        authVM.setPictureURL(null)
                     },
                     onError = { authVM.setError(it) }
                 )
@@ -144,9 +145,10 @@ fun BotonGoogle(modifier: Modifier = Modifier) {
         onClick = {
             googleVM.authenticate(
                 activity,
-                { sub ->
+                { sub, pictureURL ->
                     authVM.setLoggedIn(true)
                     authVM.setSUB(sub)
+                    authVM.setPictureURL(pictureURL)
                 },
                 { authVM.setError(it) }
             )

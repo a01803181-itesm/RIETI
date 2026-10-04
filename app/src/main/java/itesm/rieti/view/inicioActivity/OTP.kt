@@ -25,14 +25,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import itesm.rieti.viewModel.LogInVM
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.auth.CognitoVM
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun OTPScreen(
@@ -45,7 +40,8 @@ fun OTPScreen(
     Column(modifier = Modifier.padding(24.dp)) {
         Text(
             text = "Ingresa tu código OTP",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = "Hemos enviado un código de 6 dígitos a ${authState.usuario!!.correoU}",

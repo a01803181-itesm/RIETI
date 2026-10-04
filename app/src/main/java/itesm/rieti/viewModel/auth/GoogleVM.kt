@@ -13,10 +13,10 @@ class GoogleVM : ViewModel() {
     private val googleAuth = Google
     fun authenticate(
         activity: Activity,
-        onSuccess: (String) -> Unit,
+        onSuccess: (String, String) -> Unit,
         onError: (String) -> Unit
     ) {
-        googleAuth.authenticate(activity) { user, sub ->
+        googleAuth.authenticate(activity) { user, sub, pictureURL ->
             viewModelScope.launch {
                 val response = userAPIHandler.checkEmail(user.correoU)
                 if (response.isSuccessful && response.body()?.exists == false) {
@@ -24,14 +24,14 @@ class GoogleVM : ViewModel() {
                     val response2 = userAPIHandler.crearUsuario(user)
                     if (response2.isSuccessful) {
                         Log.i("GoogleVM", "User signed up successfully")
-                        onSuccess(sub)
+                        onSuccess(sub, pictureURL)
                     } else {
                         Log.e("GoogleVM", "Error signing up user: ${response2.message()}")
                         onError("Error signing up user: ${response2.message()}")
                     }
                 } else if (response.isSuccessful && response.body()?.exists == true) {
                     Log.i("GoogleVM", "User found, logging in")
-                    onSuccess(sub)
+                    onSuccess(sub, pictureURL)
                 } else {
                     Log.e("GoogleVM", "Error checking email: ${response.message()}")
                     onError("Error checking email: ${response.message()}")

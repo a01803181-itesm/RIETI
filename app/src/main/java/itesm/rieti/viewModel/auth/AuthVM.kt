@@ -43,17 +43,24 @@ class AuthVM : ViewModel() {
         _authState.value = _authState.value.copy(loggedIn = loggedIn)
     }
     fun setSUB(sub: String?) { _authState.value = _authState.value.copy(sub = sub) }
+    fun setPictureURL(url: String?) { _authState.value = _authState.value.copy(pictureURL = url) }
     fun checkAuth() {
         auth.checkCachedSession(
-            { user, sub ->
+            { user, sub, url ->
                 setLoggedIn(true)
                 setEmail(user.correoU, user.proveedor)
                 setSUB(sub)
+                setPictureURL(url)
             },
             {
                 setLoggedIn(false)
                 Log.i("Auth", "Not logged in")
             }
         )
+    }
+    fun signOut() {
+        auth.signOut {
+            _authState.value = AuthState()
+        }
     }
 }
