@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,16 +39,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
+import itesm.rieti.model.api.FormError
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import kotlinx.coroutines.launch
 
 @Composable
 fun NuevoReporte(modifier: Modifier = Modifier) {
+    val nuevoReporteVM: NuevoReporteVM = viewModel()
+    val nuevoReporteState by nuevoReporteVM.state.collectAsState()
     val altura = 90.dp
     val pad = 16.dp
     val tamLetra = 20.sp
@@ -80,33 +87,7 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
         )
         {
             // Nombre
-            Row(modifier = Modifier.fillMaxWidth())
-            {
-                var nombre by remember { mutableStateOf("") }
-
-                OutlinedTextField(
-                    value = nombre,
-                    onValueChange = {
-                        nombre = it
-                    },
-                    label = {
-                        Text(
-                            "Nombre Completo",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = error,
-                    shape = RoundedCornerShape(12.dp),
-                    supportingText = {
-                        if (error) {
-                            Text("Campo Incorrecto")
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            FullName(nuevoReporteVM, nuevoReporteState)
 
             // Cantidad y edad ni;os
             Row(
@@ -274,6 +255,15 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                 MapScreen()
             }
 
+            if (nuevoReporteState.errors.isNotEmpty()) {
+                Text(
+                    text = nuevoReporteState.errors[0].toString(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             // Guardar borrador o mandar reporte
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
@@ -283,12 +273,62 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
             )
             {
                 Button(onClick = { }) { Text("Guardar Borrador") }
-                Button(onClick = {
-
-                }) { Text("Enviar Reporte") }
+                Button(onClick = { nuevoReporteVM.crearReporte() }) { Text("Enviar Reporte") }
             }
         }
     }
+}
+
+@Composable
+fun FullName(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState, modifier: Modifier = Modifier) {
+    OutlinedTextField(
+        value = nuevoReporteState.rawName,
+        onValueChange = {
+            nuevoReporteVM.setNombreCompleto(it)
+        },
+        label = {
+            Text(
+                "Nombre Completo",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        textStyle = TextStyle(fontSize = 18.sp),
+        isError = nuevoReporteState.errors.contains(FormError.SurnameMissing) || nuevoReporteState.errors.contains(FormError.SurnameIncomplete),
+        shape = RoundedCornerShape(12.dp),
+        supportingText = {
+            if (nuevoReporteState.errors.contains(FormError.SurnameIncomplete)) {
+                Text(text = FormError.SurnameIncomplete.toString())
+            }
+            if (nuevoReporteState.errors.contains(FormError.SurnameMissing)) {
+                Text(text = FormError.SurnameMissing.toString())
+            }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+fun cantidadNNA(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState) {
+    OutlinedTextField(
+        value = nuevoReporteState.reporte.numNinios.toString() ?: "",
+        onValueChange = {
+            nuevoReporteVM.set
+        },
+        label = {
+            Text(
+                "Cantidad Niños",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
+        isError = error,
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier
+            .weight(1f)
+            .height(altura)
+    )
 }
 
 @Composable

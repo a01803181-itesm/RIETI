@@ -48,12 +48,12 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
                             modifier = modifier.weight(1f)
                         ) {
                             Text(
-                                text = reporte.municipio.name,
+                                text = reporte.municipio?.name ?: "",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                             )
                             Text(
-                                text = reporte.folio,
+                                text = reporte.folio ?: "",
                                 fontWeight = FontWeight.Light,
                                 fontSize = 10.sp,
                             )
@@ -77,12 +77,12 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
                     modifier = modifier.weight(1f)
                 ) {
                     Text(
-                        text = reporte.municipio.name,
+                        text = reporte.municipio?.name ?: "",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                     )
                     Text(
-                        text = reporte.folio,
+                        text = reporte.folio ?: "",
                         fontWeight = FontWeight.Light,
                         fontSize = 10.sp,
                     )
@@ -90,7 +90,7 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                text = reporte.descripcion,
+                text = reporte.detalles_adicionales ?: "",
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
             )
@@ -103,7 +103,7 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
                     modifier = modifier.weight(1f)
                 ) {
                     Text(
-                        text = reporte.fechaYHora.toString(),
+                        text = reporte.dia.toString(),
                         fontWeight = FontWeight.Light,
                         fontSize = 14.sp
                     )

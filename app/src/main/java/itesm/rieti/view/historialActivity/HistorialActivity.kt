@@ -75,7 +75,7 @@ fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borra
             when (opcionSeleccionada) {
                 0 -> {
                     items(mockupReportes) { reporte ->
-                        TarjetaReporte(reporte.folio, reporte, onReporte)
+                        TarjetaReporte(reporte.folio ?: "", reporte, onReporte)
                     }
                 }
                 1 -> {

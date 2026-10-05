@@ -101,15 +101,15 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
         ) {
             Spacer(modifier.height(14.dp))
             Text(
-                text = reporte.descripcion,
+                text = reporte.detalles_adicionales ?: "",
                 fontWeight = FontWeight.Normal,
                 fontSize = 18.sp,
             )
             Spacer(modifier.height(14.dp))
-            ElementoLista("Fecha:", reporte.fechaYHora.toString())
-            ElementoLista("Número de NNA:", reporte.numeroNNA.toString())
-            ElementoLista("Rango de edad:", reporte.rangoEdad)
-            ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo.name)
+            ElementoLista("Fecha:", reporte.dia.toString())
+            ElementoLista("Número de NNA:", reporte.numNinios.toString())
+            ElementoLista("Rango de edad:", reporte.edad.toString())
+            ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo?.name ?: "")
             if (reporte.expediente != null) DetallesExpediente(reporte.expediente)
             Spacer(modifier.height(14.dp))
             Text(
@@ -118,7 +118,7 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
                 fontSize = 16.sp
             )
             Text(
-                text = reporte.municipio.name,
+                text = reporte.municipio?.name ?: "",
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp
             )
