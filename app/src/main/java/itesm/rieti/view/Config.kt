@@ -1,20 +1,23 @@
 package itesm.rieti.view
 
-
-
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -34,8 +37,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import itesm.rieti.R
+import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.viewModel.auth.AuthVM
 
 @Composable
@@ -56,6 +62,7 @@ fun ConfigApp(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val authVM: AuthVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val opciones: List<String> = listOf("Pequeña", "Mediana", "Grande")
     var seleccionado by remember { mutableIntStateOf(0) }
     Column (modifier = modifier
@@ -65,28 +72,54 @@ fun ConfigApp(
     ) {
         Text("Configuración",  style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.ExtraBold )
         Spacer(modifier = Modifier.height(12.dp))
-        Perfil()
+        Perfil(authVM)
         Spacer(modifier = Modifier.height(12.dp))
         Apariencia()
         Spacer(modifier = Modifier.height(12.dp))
         TamanioLetra(opciones, seleccionado, { seleccionado = it })
         Spacer(modifier = Modifier.height(16.dp))
-        Cuenta(correo = correo, actualizarCorreo = actualizarCorreo, contrasenia = contrasenia, actualizarContrasenia = actualizarContrasenia)
+        Cuenta(authVM, correo = correo, actualizarCorreo = actualizarCorreo, contrasenia = contrasenia, actualizarContrasenia = actualizarContrasenia)
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
 @Composable
-fun Perfil(modifier: Modifier = Modifier) {
-    val authVM: AuthVM = viewModel()
+fun Perfil(authVM: AuthVM, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(
-            model = authState.pictureURL,
-            contentDescription = "Imagen de perfil de ${authState.usuario?.correoU}",
-            modifier = Modifier.size(175.dp),
-            error = painterResource(R.drawable.user),
-            contentScale = ContentScale.Crop
-        )
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            if (authState.pictureURL != null) {
+                val highPictureURL = authState.pictureURL!!.replace(Regex("s\\d+-c"), "s400-c")
+                AsyncImage(
+                    model = highPictureURL,
+                    contentDescription = "Imagen de perfil de ${authState.usuario?.correoU}",
+                    error = painterResource(R.drawable.user),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(175.dp)
+                        .clip(CircleShape)
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.user),
+                    contentDescription = "Imagen de perfil de ${authState.usuario?.correoU}",
+                    modifier = Modifier
+                        .size(175.dp)
+                        .clip(CircleShape)
+                )
+            }
+            if (authState.usuario?.proveedor == Provider.GOOGLE) {
+                Image(
+                    painter = painterResource(R.drawable.google),
+                    contentDescription = "Logueado con Google",
+                    modifier = Modifier
+                        .size(32.dp)
+                        .offset(y = 16.dp)
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = authState.usuario?.correoU ?: "anonymous",
@@ -198,8 +231,7 @@ fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int
 
 
 @Composable
-fun Cuenta(correo: String, actualizarCorreo: (String) -> Unit, contrasenia: String, actualizarContrasenia:(String)-> Unit, modifier: Modifier = Modifier) {
-    val authVM: AuthVM = viewModel()
+fun Cuenta(authVM: AuthVM, correo: String, actualizarCorreo: (String) -> Unit, contrasenia: String, actualizarContrasenia:(String)-> Unit, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
     val scrollState = rememberScrollState()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

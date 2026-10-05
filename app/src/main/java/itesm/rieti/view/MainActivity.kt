@@ -37,6 +37,14 @@ class MainActivity : ComponentActivity()
         super.onCreate(savedInstanceState)
 
         ubicacionVM.crearAdministradorUbicacion(this)
+
+        try {
+            Amplify.addPlugin(AWSCognitoAuthPlugin())
+            Amplify.configure(applicationContext)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         enableEdgeToEdge()
         setContent {
             val authState by authVM.authState.collectAsState()
@@ -52,15 +60,7 @@ class MainActivity : ComponentActivity()
     override fun onStart()
     {
         super.onStart()
-        try {
-            Amplify.addPlugin(AWSCognitoAuthPlugin())
-            Amplify.configure(applicationContext)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
         ubicacionVM.iniciarActualizaciones()
-        authVM.checkAuth()
     }
 
     /**

@@ -16,6 +16,10 @@ class AuthVM : ViewModel() {
     private val userHandler = Manejador
     private val _authState = MutableStateFlow(AuthState())
     val authState: StateFlow<AuthState> = _authState
+
+    init {
+        checkAuth()
+    }
     fun setEmail(email: String, provider: Provider) { _authState.value = _authState.value.copy(usuario = Usuario(correoU = email, proveedor = provider)) }
     fun setError(error: String?) { _authState.value = _authState.value.copy(error = error) }
     fun registerUser() {
@@ -44,7 +48,7 @@ class AuthVM : ViewModel() {
     }
     fun setSUB(sub: String?) { _authState.value = _authState.value.copy(sub = sub) }
     fun setPictureURL(url: String?) { _authState.value = _authState.value.copy(pictureURL = url) }
-    fun checkAuth() {
+    private fun checkAuth() {
         auth.checkCachedSession(
             { user, sub, url ->
                 setLoggedIn(true)

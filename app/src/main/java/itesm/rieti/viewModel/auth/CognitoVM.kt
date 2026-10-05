@@ -54,7 +54,6 @@ class CognitoVM : ViewModel() {
             }
         }
     }
-
     fun verifyOTP(
         email: String,
         onSuccess: () -> Unit,
@@ -69,7 +68,7 @@ class CognitoVM : ViewModel() {
                     cognito.signInWithEmail(
                         email,
                         _cognitoState.value.password,
-                        { },
+                        { onSuccess() },
                         { error -> onError("Background login failed: ${error.message}") }
                     )
                 }
@@ -77,4 +76,5 @@ class CognitoVM : ViewModel() {
             { onError(it.message) }
         )
     }
+    fun resetState() { _cognitoState.value = CognitoState() }
 }

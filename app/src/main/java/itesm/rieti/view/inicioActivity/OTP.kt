@@ -44,7 +44,7 @@ fun OTPScreen(
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "Hemos enviado un código de 6 dígitos a ${authState.usuario!!.correoU}",
+            text = "Hemos enviado un código de 6 dígitos a ${authState.usuario?.correoU ?: ""}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

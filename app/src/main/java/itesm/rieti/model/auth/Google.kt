@@ -12,17 +12,16 @@ object Google {
     fun authenticate(activity: Activity, onSuccessData: (Usuario, String, String) -> Unit) {
         Amplify.Auth.fetchAuthSession(
             { session ->
-
                 if (session.isSignedIn) {
-                    Log.i("AmplifyAuth", "Already signed in")
+                    Log.i("Auth", "Already signed in (from Google Model)")
                     fetchAndSyncData(onSuccessData)
                 } else {
-                    Log.i("AmplifyAuth", "Not signed in")
+                    Log.i("Auth", "User Not signed in (from Google Model)")
                     launchGoogleWebUI(activity, onSuccessData)
                 }
             },
             { error ->
-                Log.e("AmplifyAuth", "Failed to fetch auth session", error)
+                Log.e("Auth", "Failed to fetch auth session (from Google Model)", error)
             }
         )
     }

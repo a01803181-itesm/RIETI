@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,7 +43,15 @@ import itesm.rieti.viewModel.auth.GoogleVM
 @Composable
 fun RegistroApp(modifier: Modifier = Modifier) {
     val cognitoVM: CognitoVM = viewModel()
+    val authVM: AuthVM = viewModel()
     val cognitoState by cognitoVM.cognitoState.collectAsState()
+    val authState by authVM.authState.collectAsState()
+
+    LaunchedEffect(authState.loggedIn) {
+        if (!authState.loggedIn) {
+            cognitoVM.resetState()
+        }
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -51,8 +60,8 @@ fun RegistroApp(modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.background)
     ) {
         Encabezado()
-        if (!cognitoState.otpSent) {
-            CuerpoApp(cognitoVM)
+        if (!cognitoState.otpSent || authState.usuario == null) {
+            CuerpoApp(authVM, cognitoVM)
         } else {
             OTPScreen(cognitoVM)
         }
@@ -61,8 +70,7 @@ fun RegistroApp(modifier: Modifier = Modifier) {
 
 //Contenedor del cuerpo
 @Composable
-fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
-    val authVM: AuthVM = viewModel()
+fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
     val cognitoState by cognitoVM.cognitoState.collectAsState()
     Column(
@@ -107,7 +115,7 @@ fun CuerpoApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
             }
         )
         Espacio(24.dp)
-        BotonGoogle()
+        BotonGoogle(authVM)
     }
 }
 
@@ -136,18 +144,18 @@ fun BotonRegistro(
 }
 
 @Composable
-fun BotonGoogle(modifier: Modifier = Modifier) {
+fun BotonGoogle(authVM: AuthVM, modifier: Modifier = Modifier) {
     val googleVM: GoogleVM = viewModel()
-    val authVM: AuthVM = viewModel()
     val activity = LocalActivity.current ?: return
 
     Button(
         onClick = {
             googleVM.authenticate(
                 activity,
-                { sub, pictureURL ->
+                { user, sub, pictureURL ->
                     authVM.setLoggedIn(true)
                     authVM.setSUB(sub)
+                    authVM.setEmail(user.correoU, user.proveedor)
                     authVM.setPictureURL(pictureURL)
                 },
                 { authVM.setError(it) }
