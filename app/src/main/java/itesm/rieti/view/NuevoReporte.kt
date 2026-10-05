@@ -50,9 +50,11 @@ import itesm.rieti.model.api.FormError
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
-fun NuevoReporte(modifier: Modifier = Modifier) {
+fun NuevoReporte(modifier: Modifier = Modifier)
+{
     val nuevoReporteVM: NuevoReporteVM = viewModel()
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
     val altura = 90.dp
@@ -61,7 +63,15 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
 
     val estadoScroll = rememberScrollState()
 
-    var error by remember { mutableStateOf(false) }
+    var horarioTexto by remember { mutableStateOf("") }
+    var fotoTexto by remember { mutableStateOf("") }
+
+    // Inicializar fecha y ubicación por defecto si no existen
+    LaunchedEffect(Unit) {
+        if (nuevoReporteState.reporte.dia == null) {
+            nuevoReporteVM.setDia(LocalDateTime.now())
+        }
+    }
 
     Column(
         modifier = modifier
@@ -87,22 +97,19 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
         )
         {
             // Nombre
-            FullName(nuevoReporteVM, nuevoReporteState)
+            NombreCompleto(nuevoReporteVM, nuevoReporteState)
 
-            // Cantidad y edad ni;os
+            // Cantidad y edad niños
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                var numNinos by remember { mutableStateOf("") }
-                var edadNinos by remember { mutableStateOf("") }
-
-                // # ni;os
+                // # niños
                 OutlinedTextField(
-                    value = numNinos,
+                    value = nuevoReporteState.reporte.numNinios?.toString() ?: "",
                     onValueChange = {
-                        numNinos = it
+                        nuevoReporteVM.setNumNinos(it)
                     },
                     label = {
                         Text(
@@ -111,7 +118,7 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                         )
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = error,
+                    isError = nuevoReporteState.errors.contains(FormError.NumN),
                     shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
@@ -121,9 +128,9 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
 
                 // edad
                 OutlinedTextField(
-                    value = edadNinos,
+                    value = nuevoReporteState.reporte.edad?.toString() ?: "",
                     onValueChange = {
-                        edadNinos = it
+                        nuevoReporteVM.setEdad(it)
                     },
                     label = {
                         Text(
@@ -132,7 +139,6 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                         )
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = error,
                     shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
@@ -147,14 +153,11 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                var tipoTrabajo by remember { mutableStateOf("") }
-                var horario by remember { mutableStateOf("") }
-
                 // Tipo trabajo
                 OutlinedTextField(
-                    value = tipoTrabajo,
+                    value = nuevoReporteState.reporte.tipoTrabajo?.name ?: "",
                     onValueChange = {
-                        tipoTrabajo = it
+                        nuevoReporteVM.setTipoTrabajoStr(it)
                     },
                     label = {
                         Text(
@@ -163,7 +166,7 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                         )
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = error,
+                    isError = nuevoReporteState.errors.contains(FormError.WorkTypeMissing),
                     shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
@@ -173,9 +176,12 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
 
                 // Horario
                 OutlinedTextField(
-                    value = horario,
+                    value = horarioTexto,
                     onValueChange = {
-                        horario = it
+                        horarioTexto = it
+                        if (it.isNotBlank()) {
+                            nuevoReporteVM.setDia(LocalDateTime.now())
+                        }
                     },
                     label = {
                         Text(
@@ -184,7 +190,7 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                         )
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = error,
+                    isError = nuevoReporteState.errors.contains(FormError.DateTimeMissing),
                     shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
@@ -196,12 +202,10 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
             // Detalles
             Row(modifier = Modifier.fillMaxWidth())
             {
-                var detalles by remember { mutableStateOf("") }
-
                 OutlinedTextField(
-                    value = detalles,
+                    value = nuevoReporteState.reporte.detalles_adicionales ?: "",
                     onValueChange = {
-                        detalles = it
+                        nuevoReporteVM.setDetalles(it)
                     },
                     label = {
                         Text(
@@ -210,7 +214,6 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                         )
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = error,
                     shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
@@ -222,12 +225,10 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
             // Foto
             Row(modifier = Modifier.fillMaxWidth())
             {
-                var foto by remember { mutableStateOf("") }
-
                 OutlinedTextField(
-                    value = foto,
+                    value = fotoTexto,
                     onValueChange = {
-                        foto = it
+                        fotoTexto = it
                     },
                     label = {
                         Text(
@@ -236,7 +237,6 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                         )
                     },
                     textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = error,
                     shape = RoundedCornerShape(12.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     modifier = Modifier
@@ -252,7 +252,11 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                     .height(250.dp)
             )
             {
-                MapScreen()
+                MapScreen(
+                    onUbicacionSelected = { lat, lng ->
+                        nuevoReporteVM.setUbicacion(lat, lng)
+                    }
+                )
             }
 
             if (nuevoReporteState.errors.isNotEmpty()) {
@@ -280,7 +284,67 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun FullName(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState, modifier: Modifier = Modifier) {
+fun MapScreen(
+    modifier: Modifier = Modifier,
+    onUbicacionSelected: (Float, Float) -> Unit = { _, _ -> }
+)
+{
+    val ubicacionInicial = LatLng(19.55310179726687, -99.28478736430407)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(ubicacionInicial, 15f)
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    // Establecer la ubicación inicial por defecto
+    LaunchedEffect(Unit) {
+        onUbicacionSelected(ubicacionInicial.latitude.toFloat(), ubicacionInicial.longitude.toFloat())
+    }
+
+    // Escuchar cuando la cámara deje de moverse (Equivalente a OnCameraIdle / dragend)
+    LaunchedEffect(cameraPositionState.isMoving)
+    {
+        if (!cameraPositionState.isMoving)
+        {
+            if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE)
+            {
+                val centroActual = cameraPositionState.position.target
+                onUbicacionSelected(centroActual.latitude.toFloat(), centroActual.longitude.toFloat())
+            }
+        }
+    }
+
+    Box (modifier = modifier.fillMaxSize())
+    {
+        GoogleMap(
+            modifier = Modifier
+                .fillMaxWidth(),
+            cameraPositionState = cameraPositionState,
+            onMapClick = { latLng ->
+                onUbicacionSelected(latLng.latitude.toFloat(), latLng.longitude.toFloat())
+                coroutineScope.launch {
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newLatLng(latLng),
+                        durationMs = 1000
+                    )
+                }
+            }
+        )
+        // Pin
+        Icon(
+            imageVector = Icons.Default.LocationOn,
+            contentDescription = "Centro del mapa",
+            tint = Color.Black,
+            modifier = modifier
+                .size(16.dp)
+                .align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState, modifier: Modifier = Modifier)
+{
     OutlinedTextField(
         value = nuevoReporteState.rawName,
         onValueChange = {
@@ -306,63 +370,6 @@ fun FullName(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteStat
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         modifier = Modifier.fillMaxWidth()
     )
-}
-
-@Composable
-fun MapScreen(modifier: Modifier = Modifier)
-{
-    val ubicacionInicial = LatLng(19.55310179726687, -99.28478736430407)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(ubicacionInicial, 15f)
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-
-    // Escuchar cuando la cámara deje de moverse (Equivalente a OnCameraIdle / dragend)
-    LaunchedEffect(cameraPositionState.isMoving)
-    {
-        if (!cameraPositionState.isMoving)
-        {
-            // Validar que el movimiento fue por un gesto del usuario
-            if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE)
-            {
-                val centroActual = cameraPositionState.position.target
-                val zoomActual = cameraPositionState.position.zoom
-
-                println("El usuario movió el mapa a: ${centroActual.latitude}, ${centroActual.longitude}")
-                // SOLICITAR LA DIRECCIÓN EN TEXTO PARA ACTUALIZARLA
-                println("Zoom actual: $zoomActual")
-            }
-        }
-    }
-
-    Box (modifier = modifier.fillMaxSize())
-    {
-        GoogleMap(
-            modifier = Modifier
-                .fillMaxWidth(),
-            cameraPositionState = cameraPositionState,
-            onMapClick = { latLng ->
-                println("Click en el mapa: ${latLng.latitude}, ${latLng.longitude}")
-                // Mover la cámara de forma asíncrona hacia las nuevas coordenadas
-                coroutineScope.launch {
-                    cameraPositionState.animate(
-                        update = CameraUpdateFactory.newLatLng(latLng),
-                        durationMs = 1000
-                    )
-                }
-            }
-        )
-        // Pin
-        Icon(
-            imageVector = Icons.Default.LocationOn,
-            contentDescription = "Centro del mapa",
-            tint = Color.Black,
-            modifier = modifier
-                .size(16.dp)
-                .align(Alignment.Center)
-        )
-    }
 }
 
 @Preview(showBackground = true)

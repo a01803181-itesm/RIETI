@@ -13,36 +13,29 @@ object ManejadorAPI {
             .build()
     }
 
-    val servicio by lazy {
-        retrofit.create(Peticiones::class.java)
-    }
-
     // GET
-    suspend fun obtenerCorreo(nombre: String = ""): Usuario
-    {
-        val correo: Usuario = servicio.obtenerCorreo(nombre)
-        return correo
+    suspend fun obtenerCorreo(nombre: String = ""): Usuario? {
+        val response = itesm.rieti.model.api.usuarios.Manejador.obtenerUsuario(nombre)
+        return response.body()
     }
 
-    suspend fun obtenerReportes(nombre: String = ""): Reporte
-    {
-        val reporte: Reporte = servicio.obtenerReportes(nombre)
-        return reporte
+    suspend fun obtenerReportes(nombre: String = ""): Reporte? {
+        val response = itesm.rieti.model.api.reportes.Manejador.obtenerReporte(nombre)
+        return response.body()
     }
 
     // POST
-    suspend fun mandarUsuario(usuario: Usuario): Usuario
-    {
-        return servicio.mandarUsuario(usuario)
+    suspend fun mandarUsuario(usuario: Usuario): Usuario? {
+        val response = itesm.rieti.model.api.usuarios.Manejador.crearUsuario(usuario)
+        return response.body()
     }
 
-    suspend fun mandarReporte(reporte: Reporte): Reporte
-    {
-        return servicio.mandarReporte(reporte)
+    suspend fun mandarReporte(reporte: Reporte): Reporte? {
+        val response = itesm.rieti.model.api.reportes.Manejador.crearReporte(reporte)
+        return response.body()
     }
 
-    fun generarFolio(): Int
-    {
+    fun generarFolio(): Int {
         return 24578
     }
 }

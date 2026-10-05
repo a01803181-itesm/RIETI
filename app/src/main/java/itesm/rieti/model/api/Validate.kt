@@ -7,6 +7,8 @@ enum class FormError(desc: String) {
     SurnameIncomplete("Apellido materno es requerido"),
     WorkTypeMissing("Tipo de trabajo es requerido"),
     DateTimeMissing("Horario es requerido"),
+    LocationMissing("Ubicación es requerida"),
+    NumN("Número de niños es requerido"),
     ServerError("Error en el servidor")
 }
 object Validate {
