@@ -8,31 +8,31 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class UsuariosVM : ViewModel() {
-    private val _login = MutableStateFlow(false)
-    val login: StateFlow<Boolean> = _login
-    private val manejador = Manejador
-
+class UsuarioVM : ViewModel() {
+    private val manejadorUsuarios = Manejador
+    private val _loggedIn = MutableStateFlow(false)
+    val loggedIn: StateFlow<Boolean> = _loggedIn
     private val _usuarioActual = MutableStateFlow<Usuario?>(null)
     val usuarioActual: StateFlow<Usuario?> = _usuarioActual
-
     private val _esperando = MutableStateFlow(false)
     val esperando: StateFlow<Boolean> = _esperando
+    fun actualizarUsuario(usuario: Usuario) {
+        _usuarioActual.value = usuario
+    }
 
     fun obtenerUsuario(correo: String) {
         viewModelScope.launch {
             _esperando.value = true
             try {
-                _usuarioActual.value = manejador.obtenerUsuario(correo)
-                _login.value = true
+                val response = manejadorUsuarios.obtenerUsuario(correo)
+                if (response.isSuccessful) {
+                    val usuario = response.body()
+                } else {
+                    // Manejar errores de respuesta
+                }
+                _loggedIn.value = true
             } catch (e: Exception) {
                 e.printStackTrace()
-                if (correo.isNotBlank()) {
-                    _usuarioActual.value = Usuario(correoU = correo, contrasenia = "123456", proveedor = "Local")
-                    _login.value = true
-                } else {
-                    _login.value = false
-                }
             } finally {
                 _esperando.value = false
             }

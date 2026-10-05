@@ -158,7 +158,7 @@ class Ubicacion(
         override fun onLocationResult(result: LocationResult) {
             //for (location in result.locations) {
             if (result.locations.last() != null ) {
-                println("Nueva ubicación: ${result.locations.last()}")
+                // println("Nueva ubicación: ${result.locations.last()}")
                 viewModel.actualizarUbicacion(result.locations.last())
             }
             //}

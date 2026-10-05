@@ -14,36 +14,42 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.Amplify
 import itesm.rieti.ui.theme.RIETITheme
-import itesm.rieti.viewModel.InicioVM
+import itesm.rieti.view.inicioActivity.RegistroApp
 import itesm.rieti.viewModel.UbicacionVM
-import itesm.rieti.viewModel.api.UsuariosVM
+import itesm.rieti.viewModel.auth.AuthVM
 
 class MainActivity : ComponentActivity()
 {
     /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
-    private val viewModel: UbicacionVM by viewModels()
-    private val usuariosVM: UsuariosVM by viewModels()
+    private val ubicacionVM: UbicacionVM by viewModels()
+    private val authVM: AuthVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
-        viewModel.crearAdministradorUbicacion(this)
+
+        ubicacionVM.crearAdministradorUbicacion(this)
+
+        try {
+            Amplify.addPlugin(AWSCognitoAuthPlugin())
+            Amplify.configure(applicationContext)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         enableEdgeToEdge()
         setContent {
-            val login by usuariosVM.login.collectAsState()
+            val authState by authVM.authState.collectAsState()
             RIETITheme {
-                if (!login) RegistroApp(usuariosVM = usuariosVM) else RIETIApp(usuariosVM = usuariosVM)
+                if (!authState.loggedIn) RegistroApp() else RIETIApp()
             }
         }
     }
@@ -54,7 +60,7 @@ class MainActivity : ComponentActivity()
     override fun onStart()
     {
         super.onStart()
-        viewModel.iniciarActualizaciones()
+        ubicacionVM.iniciarActualizaciones()
     }
 
     /**
@@ -64,17 +70,16 @@ class MainActivity : ComponentActivity()
     override fun onStop()
     {
         super.onStop()
-        viewModel.detenerActualizaciones()
+        ubicacionVM.detenerActualizaciones()
     }
 }
 @Composable
-fun RIETIApp(modifier: Modifier = Modifier, usuariosVM: UsuariosVM = viewModel())
+fun RIETIApp(modifier: Modifier = Modifier)
 {
     val navController = rememberNavController()
     Scaffold(
         content = { innerPadding ->
             AppNavHost(
-                usuariosVM = usuariosVM,
                 navController = navController,
                 modifier = modifier.padding(innerPadding)
             )
@@ -91,7 +96,6 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
 
         Pantalla.listaPantallas.forEach { pantalla ->
             NavigationBarItem(
-                modifier = Modifier.testTag(pantalla.etiqueta),
                 selected = pantallaActual?.route == pantalla.ruta,
                 onClick = {
                     navController.navigate(pantalla.ruta) {

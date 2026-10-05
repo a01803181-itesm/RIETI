@@ -23,7 +23,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,12 +44,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
-import itesm.rieti.viewModel.api.UsuariosVM
 import kotlinx.coroutines.launch
 
 @Composable
-fun NuevoReporte(usuariosVM: UsuariosVM, modifier: Modifier = Modifier) {
-    val usuario by usuariosVM.usuarioActual.collectAsState()
+fun NuevoReporte(modifier: Modifier = Modifier) {
     val altura = 90.dp
     val pad = 16.dp
     val tamLetra = 20.sp
@@ -353,7 +350,7 @@ fun MapScreen(modifier: Modifier = Modifier)
 
 @Preview(showBackground = true)
 @Composable
-fun ReportePreview(usuariosVM: UsuariosVM = UsuariosVM())
+fun ReportePreview()
 {
-    NuevoReporte(usuariosVM)
+    NuevoReporte()
 }

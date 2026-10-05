@@ -14,7 +14,7 @@ import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.view.Pantalla
 import itesm.rieti.view.RIETIApp
 import itesm.rieti.view.RegistroApp
-import itesm.rieti.viewModel.api.UsuariosVM
+import itesm.rieti.viewModel.api.UsuarioVM
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,10 +30,10 @@ class FlujoInicialTest
     fun logInAndNavigateToHistory() {
         val email = "casita@gmail.com"
         val password = "123456"
-        val usuariosVM = UsuariosVM()
+        val usuariosVM = UsuarioVM()
 
         composeTestRule.setContent {
-            val login by usuariosVM.login.collectAsState()
+            val login by usuariosVM.loggedIn.collectAsState()
             RIETITheme {
                 if (!login) {
                     RegistroApp(usuariosVM = usuariosVM)

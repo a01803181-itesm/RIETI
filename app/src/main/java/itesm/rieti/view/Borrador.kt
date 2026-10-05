@@ -1,13 +1,13 @@
 package itesm.rieti.view
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import itesm.rieti.viewModel.api.UsuariosVM
 
 @Composable
-fun Borrador(usuariosVM: UsuariosVM = UsuariosVM())
+fun Borrador(modifier: Modifier = Modifier)
 {
-    NuevoReporte(usuariosVM)
+    NuevoReporte()
 }
 
 @Preview(showBackground = true)
