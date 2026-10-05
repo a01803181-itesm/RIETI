@@ -271,7 +271,7 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
                     .height(250.dp)
             )
             {
-                MapScreen(modifier = Modifier.fillMaxSize())
+                MapScreen()
             }
 
             // Guardar borrador o mandar reporte
@@ -294,7 +294,7 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
 @Composable
 fun MapScreen(modifier: Modifier = Modifier)
 {
-    val ubicacionInicial = LatLng(19.553207953517877, -99.28483799099922)
+    val ubicacionInicial = LatLng(19.55310179726687, -99.28478736430407)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(ubicacionInicial, 15f)
     }

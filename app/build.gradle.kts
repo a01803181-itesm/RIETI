@@ -1,6 +1,11 @@
-import java.io.FileInputStream
 import java.util.Properties
 import kotlin.text.replace
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
 
 plugins {
     alias(libs.plugins.android.application)
@@ -21,6 +26,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MAPS_API_KEY"] = localProperties.getProperty("MAPS_API_KEY") ?: ""
     }
 
     buildTypes {
@@ -44,30 +50,31 @@ android {
 tasks.register("generateAmplifyConfig") {
     description = "Generate amplifyconfiguration.json"
 
-    val templateFile = file("src/main/res/raw/amplifyconfiguration_template.json")
-    val outputFile = file("src/main/res/raw/amplifyconfiguration.json")
-    val localPropertiesFile = rootProject.file("local.properties")
+    val templateFile = layout.projectDirectory.file("src/main/res/raw/amplifyconfiguration_template.json").asFile
+    val outputFile = layout.projectDirectory.file("src/main/res/raw/amplifyconfiguration.json").asFile
+    val localPropFile = layout.projectDirectory.file("../local.properties").asFile
 
     inputs.file(templateFile)
-    inputs.file(localPropertiesFile).optional()
+    inputs.file(localPropFile).optional()
     outputs.file(outputFile)
 
     doLast {
-        val localProperties = Properties()
-
-        if (localPropertiesFile.exists()) {
-            localProperties.load(FileInputStream(localPropertiesFile))
+        val props = Properties()
+        if (localPropFile.exists()) {
+            localPropFile.inputStream().use { stream ->
+                props.load(stream)
+            }
         }
 
         if (templateFile.exists()) {
             var content = templateFile.readText()
 
-            content = content.replace("\${COGNITO_POOL_ID}", localProperties.getProperty("COGNITO_POOL_ID", ""))
-            content = content.replace("\${COGNITO_APP_CLIENT_ID}", localProperties.getProperty("COGNITO_APP_CLIENT_ID", ""))
-            content = content.replace("\${COGNITO_DOMAIN}", localProperties.getProperty("COGNITO_DOMAIN", ""))
-            content = content.replace("\${COGNITO_REGION}", localProperties.getProperty("COGNITO_REGION", ""))
-            content = content.replace("\${COGNITO_SIGN_IN_URI}", localProperties.getProperty("COGNITO_SIGN_IN_URI", ""))
-            content = content.replace("\${COGNITO_SIGN_OUT_URI}", localProperties.getProperty("COGNITO_SIGN_OUT_URI", ""))
+            content = content.replace("\${COGNITO_POOL_ID}", props.getProperty("COGNITO_POOL_ID", ""))
+            content = content.replace("\${COGNITO_APP_CLIENT_ID}", props.getProperty("COGNITO_APP_CLIENT_ID", ""))
+            content = content.replace("\${COGNITO_DOMAIN}", props.getProperty("COGNITO_DOMAIN", ""))
+            content = content.replace("\${COGNITO_REGION}", props.getProperty("COGNITO_REGION", ""))
+            content = content.replace("\${COGNITO_SIGN_IN_URI}", props.getProperty("COGNITO_SIGN_IN_URI", ""))
+            content = content.replace("\${COGNITO_SIGN_OUT_URI}", props.getProperty("COGNITO_SIGN_OUT_URI", ""))
 
             outputFile.writeText(content)
             println("Amplify configuration generated successfully in raw/amplifyconfiguration.json")
