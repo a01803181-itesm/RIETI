@@ -284,7 +284,7 @@ fun NuevoReporte(modifier: Modifier = Modifier) {
             {
                 Button(onClick = { }) { Text("Guardar Borrador") }
                 Button(onClick = {
-
+                    
                 }) { Text("Enviar Reporte") }
             }
         }
@@ -312,9 +312,9 @@ fun MapScreen(modifier: Modifier = Modifier)
                 val centroActual = cameraPositionState.position.target
                 val zoomActual = cameraPositionState.position.zoom
 
-                println("El usuario movió el mapa a: ${centroActual.latitude}, ${centroActual.longitude}")
-                // SOLICITAR LA DIRECCIÓN EN TEXTO PARA ACTUALIZARLA
-                println("Zoom actual: $zoomActual")
+//                println("El usuario movió el mapa a: ${centroActual.latitude}, ${centroActual.longitude}")
+//                SOLICITAR LA DIRECCIÓN EN TEXTO PARA ACTUALIZARLA
+//                println("Zoom actual: $zoomActual")
             }
         }
     }
@@ -326,7 +326,7 @@ fun MapScreen(modifier: Modifier = Modifier)
                 .fillMaxWidth(),
             cameraPositionState = cameraPositionState,
             onMapClick = { latLng ->
-                println("Click en el mapa: ${latLng.latitude}, ${latLng.longitude}")
+//                println("Click en el mapa: ${latLng.latitude}, ${latLng.longitude}")
                 // Mover la cámara de forma asíncrona hacia las nuevas coordenadas
                 coroutineScope.launch {
                     cameraPositionState.animate(
