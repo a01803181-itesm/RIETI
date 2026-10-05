@@ -309,29 +309,6 @@ fun FullName(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteStat
 }
 
 @Composable
-fun cantidadNNA(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState) {
-    OutlinedTextField(
-        value = nuevoReporteState.reporte.numNinios.toString() ?: "",
-        onValueChange = {
-            nuevoReporteVM.set
-        },
-        label = {
-            Text(
-                "Cantidad Niños",
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-        isError = error,
-        shape = RoundedCornerShape(12.dp),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier
-            .weight(1f)
-            .height(altura)
-    )
-}
-
-@Composable
 fun MapScreen(modifier: Modifier = Modifier)
 {
     val ubicacionInicial = LatLng(19.55310179726687, -99.28478736430407)
