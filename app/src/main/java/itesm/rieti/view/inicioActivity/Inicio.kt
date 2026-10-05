@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,6 +53,7 @@ fun RegistroApp(modifier: Modifier = Modifier) {
             cognitoVM.resetState()
         }
     }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -60,10 +62,16 @@ fun RegistroApp(modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.background)
     ) {
         Encabezado()
-        if (!cognitoState.otpSent || authState.usuario == null) {
-            CuerpoApp(authVM, cognitoVM)
-        } else {
-            OTPScreen(cognitoVM)
+        when {
+            cognitoState.isRecoveringPassword -> {
+                OTPRecoverPasswordScreen(authVM, cognitoVM)
+            }
+            cognitoState.otpSent && authState.usuario != null -> {
+                OTPSignUpScreen(cognitoVM)
+            }
+            else -> {
+                CuerpoApp(authVM, cognitoVM)
+            }
         }
     }
 }
@@ -97,6 +105,25 @@ fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifie
             )
         }
         Espacio(24.dp)
+        TextButton(
+            onClick = {
+                cognitoVM.resetPassword(
+                    email = authState.usuario?.correoU ?: "",
+                    onSuccess = {
+                        cognitoVM.setRecoveringPassword(true)
+                        authVM.setError(null)
+                    },
+                    onError = { authVM.setError(it) }
+                )
+            },
+            modifier = Modifier.align(Alignment.End),
+            enabled = authState.usuario?.correoU?.isNotEmpty() == true
+        ) {
+            Text(
+                text = "¿Olvidaste tu contraseña?",
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
         BotonRegistro(
             authState,
             cognitoState,

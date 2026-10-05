@@ -26,6 +26,10 @@ object Cognito {
             else -> "Ocurrió un error inesperado. Intenta de nuevo."
         }
     }
+    fun validateEmail(email: String): Boolean {
+        val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+        return emailRegex.matches(email)
+    }
     fun signInWithEmail(
         email: String,
         password: String,

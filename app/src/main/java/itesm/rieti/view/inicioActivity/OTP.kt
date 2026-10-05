@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,7 +32,7 @@ import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.auth.CognitoVM
 
 @Composable
-fun OTPScreen(
+fun OTPSignUpScreen(
     cognitoVM: CognitoVM
 ) {
     val authVM: AuthVM = viewModel()
@@ -72,6 +74,87 @@ fun OTPScreen(
                 text = authState.error!!,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+@Composable
+fun OTPRecoverPasswordScreen(
+    authVM: AuthVM,
+    cognitoVM: CognitoVM,
+    modifier: Modifier = Modifier
+) {
+    val authState by authVM.authState.collectAsState()
+    val cognitoState by cognitoVM.cognitoState.collectAsState()
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(24.dp)
+    ) {
+        TitulosLogin()
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Ingresa el código de 6 dígitos enviado a ${authState.usuario?.correoU ?: ""} y tu nueva contraseña.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        OTPCodeInput(
+            code = cognitoState.otp,
+            onCodeChange = {
+                cognitoVM.setOTP(it)
+                authVM.setError(null)
+            },
+            onCodeComplete = { }
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Contrasena(
+            contrasena = cognitoState.password,
+            contrasenaChange = {
+                cognitoVM.setPassword(it)
+                authVM.setError(null)
+            }
+        )
+        if (authState.error != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = authState.error!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = {
+                cognitoVM.confirmPasswordReset(
+                    email = authState.usuario?.correoU ?: "",
+                    newPassword = cognitoState.password,
+                    confirmationCode = cognitoState.otp,
+                    onSuccess = {
+                        cognitoVM.setRecoveringPassword(false)
+                        cognitoVM.resetState()
+                        authVM.setError(null)
+                    },
+                    onError = { authVM.setError(it) }
+                )
+            },
+            enabled = cognitoState.otp.length == 6 && cognitoState.password.isNotEmpty(),
+            modifier = modifier.fillMaxWidth()
+        ) {
+            Text(text = "Cambiar contraseña")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        TextButton(
+            onClick = {
+                cognitoVM.setRecoveringPassword(false)
+                cognitoVM.resetState()
+            }
+        ) {
+            Text(
+                text = "Cancelar",
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -150,6 +233,6 @@ fun DigitBox(
 
 @Preview(showBackground = true)
 @Composable
-fun OTPCodeInputPreview(cognitoVM: CognitoVM = CognitoVM()) {
-    OTPScreen(cognitoVM = cognitoVM)
+fun OTPSignUpCodeInputPreview(cognitoVM: CognitoVM = CognitoVM()) {
+    OTPSignUpScreen(cognitoVM = cognitoVM)
 }

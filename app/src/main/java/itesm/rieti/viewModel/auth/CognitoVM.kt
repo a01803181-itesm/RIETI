@@ -3,6 +3,7 @@ package itesm.rieti.viewModel.auth
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amplifyframework.core.Amplify
 import itesm.rieti.model.api.usuarios.Manejador
 import itesm.rieti.model.auth.Cognito
 import itesm.rieti.model.esquemas.Provider
@@ -17,6 +18,7 @@ class CognitoVM : ViewModel() {
     private val _cognitoState = MutableStateFlow(CognitoState())
     val cognitoState: StateFlow<CognitoState> = _cognitoState
     fun setPassword(password: String) { _cognitoState.value = _cognitoState.value.copy(password = password) }
+    fun setRecoveringPassword(isRecoveringPassword: Boolean) { _cognitoState.value = _cognitoState.value.copy(isRecoveringPassword = isRecoveringPassword) }
     fun setOTP(otp: String) { _cognitoState.value = _cognitoState.value.copy(otp = otp) }
     fun authenticate(
         email: String,
@@ -77,4 +79,59 @@ class CognitoVM : ViewModel() {
         )
     }
     fun resetState() { _cognitoState.value = CognitoState() }
+    fun resetPassword(
+        email: String,
+        onSuccess: () -> Unit,
+        onError: (String?) -> Unit
+    ) {
+        if (cognito.validateEmail(email)) {
+            viewModelScope.launch {
+                val response = userAPIHandler.checkEmail(email)
+                if (response.isSuccessful) {
+                    if (response.body()?.exists == true && response.body()?.provider == "cognito") {
+                        Amplify.Auth.resetPassword(
+                            email,
+                            {
+                                Log.i("Auth", "Password reset code sent to $email")
+                                onSuccess()
+                            },
+                            {
+                                Log.e("Auth", "Failed to reset password", it)
+                                onError(it.message)
+                            }
+                        )
+                    } else if (response.body()?.exists == true && response.body()?.provider == "google") {
+                        onError("No es posible restablecer la contraseña. La cuenta está vinculada con Google")
+                    } else {
+                        onError("El correo electrónico no está registrado")
+                    }
+                } else {
+                    onError("Error de conexión al servidor. ${response.code()}: ${response.message()}.")
+                }
+            }
+        } else {
+            onError("Correo electrónico inválido")
+        }
+    }
+    fun confirmPasswordReset(
+        email: String,
+        newPassword: String,
+        confirmationCode: String,
+        onSuccess: () -> Unit,
+        onError: (String?) -> Unit
+    ) {
+        Amplify.Auth.confirmResetPassword(
+            email,
+            newPassword,
+            confirmationCode,
+            {
+                Log.i("Auth", "Password reset successully")
+                onSuccess()
+            },
+            {
+                Log.e("Auth", "Failed to confirm reset password", it)
+                onError(it.message)
+            }
+        )
+    }
 }
