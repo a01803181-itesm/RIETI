@@ -1,10 +1,14 @@
 package itesm.rieti.view
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,13 +21,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -38,6 +42,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,6 +60,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
+import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
@@ -62,17 +71,9 @@ import java.time.LocalDateTime
 @Composable
 fun NuevoReporte(modifier: Modifier = Modifier)
 {
-    val nuevoReporteVM: NuevoReporteVM = viewModel()
+    val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
-    val altura = 90.dp
-    val pad = 16.dp
-    val tamLetra = 20.sp
-
     val estadoScroll = rememberScrollState()
-
-    var horarioTexto by remember { mutableStateOf("") }
-    var fotoTexto by remember { mutableStateOf("") }
-
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
             nuevoReporteVM.setDia(LocalDateTime.now().toString())
@@ -82,7 +83,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(pad)
+            .padding(16.dp)
     )
     {
         Text(
@@ -92,9 +93,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             fontSize = 24.sp,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(pad))
-        
-        // Columna principal
+        Spacer(modifier = Modifier.height(16.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,136 +101,27 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             verticalArrangement = Arrangement.spacedBy(16.dp)
         )
         {
-            // Nombre
             NombreCompleto(nuevoReporteVM, nuevoReporteState)
-
-            // Cantidad y edad niños
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             )
             {
-                // # niños
-                OutlinedTextField(
-                    value = nuevoReporteState.reporte.numNinios?.toString() ?: "",
-                    onValueChange = {
-                        nuevoReporteVM.setNumNinos(it)
-                    },
-                    label = {
-                        Text(
-                            "Cantidad Niños",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = nuevoReporteState.errors.contains(FormError.NumN),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(altura)
-                )
-
-                // edad
-                OutlinedTextField(
-                    value = nuevoReporteState.reporte.edad?.toString() ?: "",
-                    onValueChange = {
-                        nuevoReporteVM.setEdad(it)
-                    },
-                    label = {
-                        Text(
-                            "Edad de los Niños",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(altura)
-                )
+                CantidadNNA(nuevoReporteVM, nuevoReporteState, modifier.weight(1f))
+                Edad(nuevoReporteVM, nuevoReporteState, modifier.weight(1f))
             }
-
-            // Tipo de trabajo y horario
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             )
             {
-                TipoTrabajoDropdown(nuevoReporteVM, nuevoReporteState)
-                // Horario
-                OutlinedTextField(
-                    value = horarioTexto,
-                    onValueChange = {
-                        horarioTexto = it
-                        if (it.isNotBlank()) {
-                            nuevoReporteVM.setDia(LocalDateTime.now().toString())
-                        }
-                    },
-                    label = {
-                        Text(
-                            "Horario",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = nuevoReporteState.errors.contains(FormError.DateTimeMissing),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(altura)
-                )
+                TipoTrabajoDropdown(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
+                Horario(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
             }
-
-            // Detalles
-            Row(modifier = Modifier.fillMaxWidth())
-            {
-                OutlinedTextField(
-                    value = nuevoReporteState.reporte.detalles_adicionales ?: "",
-                    onValueChange = {
-                        nuevoReporteVM.setDetalles(it)
-                    },
-                    label = {
-                        Text(
-                            "Detalles",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(altura * 2)
-                )
-            }
-
-            // Foto
-            Row(modifier = Modifier.fillMaxWidth())
-            {
-                OutlinedTextField(
-                    value = fotoTexto,
-                    onValueChange = {
-                        fotoTexto = it
-                    },
-                    label = {
-                        Text(
-                            "Foto",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(altura)
-                )
-            }
-
-            // Ubicación / Mapa
+            Detalles(nuevoReporteVM, nuevoReporteState)
+            TomarFoto(nuevoReporteVM, nuevoReporteState)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -268,17 +158,100 @@ fun NuevoReporte(modifier: Modifier = Modifier)
         }
     }
 }
+@Composable
+fun TomarFoto(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Tomar foto",
+            style = MaterialTheme.typography.titleMedium
+        )
+        IconButton(
+            onClick = { },
+            shape = RectangleShape
+        ) {
+            Image(
+                painter = painterResource(R.drawable.camera),
+                contentDescription = "Tomar Foto",
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+}
+@Composable
+fun CantidadNNA(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = nuevoReporteState.reporte.numNinios?.toString() ?: "",
+        onValueChange = {
+            nuevoReporteVM.setNumNinos(it)
+            nuevoReporteVM.popError(FormError.NumN)
+        },
+        label = {
+            Text(
+                text = "Cantidad Niños",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        isError = nuevoReporteState.errors.contains(FormError.NumN),
+        supportingText = {
+            if (nuevoReporteState.errors.contains(FormError.NumN)) {
+                Text(
+                    text = FormError.NumN.desc,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = modifier.fillMaxHeight()
+    )
+}
+
+@Composable
+fun Edad(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = nuevoReporteState.reporte.edad?.toString() ?: "",
+        onValueChange = { nuevoReporteVM.setEdad(it) },
+        label = {
+            Text(
+                text = "Edad de los Niños",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = modifier.fillMaxHeight()
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TipoTrabajoDropdown(
     nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
+        modifier = modifier
     ) {
         OutlinedTextField(
             modifier = Modifier
@@ -286,10 +259,8 @@ fun TipoTrabajoDropdown(
                 .fillMaxWidth(),
             readOnly = true,
             value = nuevoReporteVM.state.value.reporte.tipoTrabajo?.desc ?: "Tipo Trabajo",
-            onValueChange = {  },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
+            onValueChange = { },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             isError = nuevoReporteState.errors.contains(FormError.WorkTypeMissing),
             supportingText = {
                 if (nuevoReporteState.errors.contains(FormError.WorkTypeMissing)) {
@@ -304,7 +275,7 @@ fun TipoTrabajoDropdown(
         ) {
             TipoTrabajo.entries.forEach {
                 DropdownMenuItem(
-                    text = { Text(it.desc) },
+                    text = { Text(text = it.desc) },
                     onClick = {
                         nuevoReporteVM.setTipoTrabajo(it)
                         expanded = false
@@ -313,6 +284,56 @@ fun TipoTrabajoDropdown(
             }
         }
     }
+}
+
+@Composable
+fun Horario(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = nuevoReporteState.reporte.dia ?: "",
+        onValueChange = {
+            nuevoReporteVM.setDia(it)
+            if (it == "") {
+                nuevoReporteVM.setDia(LocalDateTime.now().toString())
+            }
+        },
+        label = {
+            Text(
+                text = "Horario",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        isError = nuevoReporteState.errors.contains(FormError.DateTimeMissing),
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        modifier = modifier.height(90.dp)
+    )
+}
+
+@Composable
+fun Detalles(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = nuevoReporteState.reporte.detalles_adicionales ?: "",
+        onValueChange = { nuevoReporteVM.setDetalles(it) },
+        label = {
+            Text(
+                text = "Detalles",
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(180.dp)
+    )
 }
 
 @Composable
@@ -381,6 +402,8 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
         value = nuevoReporteState.rawName,
         onValueChange = {
             nuevoReporteVM.setNombreCompleto(it)
+            nuevoReporteVM.popError(FormError.SurnameIncomplete)
+            nuevoReporteVM.popError(FormError.SurnameMissing)
         },
         label = {
             Text(
