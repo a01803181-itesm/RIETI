@@ -1,41 +1,42 @@
 package itesm.rieti.model.api
 
+import itesm.rieti.model.auth.Auth
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.Usuario
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.coroutines.resume
 
 object ManejadorAPI {
+    val authInterceptor = Interceptor { chain ->
+        val originalRequest = chain.request()
+        val token = runBlocking { getSynchronousToken() }
+        if (token != null) {
+            val newRequest = originalRequest.newBuilder()
+                .header("Authorization", "Bearer $token")
+                .build()
+            chain.proceed(newRequest)
+        } else {
+            chain.proceed(originalRequest)
+        }
+    }
+    val okHttpClient = OkHttpClient.Builder()
+        .addInterceptor(authInterceptor)
+        .build()
     val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(Config.BaseURL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
-    // GET
-    suspend fun obtenerCorreo(nombre: String = ""): Usuario? {
-        val response = itesm.rieti.model.api.usuarios.Manejador.obtenerUsuario(nombre)
-        return response.body()
-    }
-
-    suspend fun obtenerReportes(nombre: String = ""): Reporte? {
-        val response = itesm.rieti.model.api.reportes.Manejador.obtenerReporte(nombre)
-        return response.body()
-    }
-
-    // POST
-    suspend fun mandarUsuario(usuario: Usuario): Usuario? {
-        val response = itesm.rieti.model.api.usuarios.Manejador.crearUsuario(usuario)
-        return response.body()
-    }
-
-    suspend fun mandarReporte(reporte: Reporte): Reporte? {
-        val response = itesm.rieti.model.api.reportes.Manejador.crearReporte(reporte)
-        return response.body()
-    }
-
-    fun generarFolio(): Int {
-        return 24578
+    suspend fun getSynchronousToken(): String? = suspendCancellableCoroutine { continuation ->
+        Auth.getBearerToken { token ->
+            continuation.resume(token)
+        }
     }
 }

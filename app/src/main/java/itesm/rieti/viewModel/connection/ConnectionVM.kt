@@ -1,8 +1,9 @@
-package itesm.rieti.viewModel
+package itesm.rieti.viewModel.connection
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.collections.copy
 
 class ConnectionVM : ViewModel() {
     val _state = MutableStateFlow(ConnectionState())

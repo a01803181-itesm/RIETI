@@ -3,10 +3,15 @@ package itesm.rieti.model.auth
 import android.util.Log
 import com.amplifyframework.auth.AuthUserAttribute
 import com.amplifyframework.auth.AuthUserAttributeKey
+import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.core.Amplify
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.Interceptor
+import kotlin.coroutines.resume
 
 object Auth {
     fun checkCachedSession(onSessionValid: (Usuario, String, String) -> Unit, onRequireAuth: () -> Unit) {
@@ -62,5 +67,23 @@ object Auth {
                 }
             }
         }
+    }
+    fun getBearerToken(onResult: (String?) -> Unit) {
+        Amplify.Auth.fetchAuthSession(
+            { session ->
+                val cognitoSession = session as? AWSCognitoAuthSession
+                val bearerToken = cognitoSession?.userPoolTokensResult?.value?.accessToken
+                if (bearerToken != null) {
+                    onResult(bearerToken)
+                } else {
+                    Log.w("Auth", "Session is valid but token is missing")
+                    onResult(null)
+                }
+            },
+            { error ->
+                Log.e("Auth", "Failed to fetch auth session for bearer token: ", error)
+                onResult(null)
+            }
+        )
     }
 }

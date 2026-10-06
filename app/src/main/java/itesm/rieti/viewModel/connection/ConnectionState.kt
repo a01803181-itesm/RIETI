@@ -1,4 +1,4 @@
-package itesm.rieti.viewModel
+package itesm.rieti.viewModel.connection
 
 data class ConnectionState(
     val internetConnection: Boolean = true

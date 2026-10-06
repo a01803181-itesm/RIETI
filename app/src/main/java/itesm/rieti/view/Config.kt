@@ -51,20 +51,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Provider
+import itesm.rieti.viewModel.ConfigState
+import itesm.rieti.viewModel.FontSize
+import itesm.rieti.viewModel.Theme
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.config.ConfigVM
 
 @Composable
-fun ConfigApp(
-    correo: String,
-    contrasenia: String,
-    actualizarContrasenia: (String) -> Unit,
-    actualizarCorreo: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun ConfigApp(modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState()
+    val configVM: ConfigVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
+    val configState by configVM.state.collectAsState()
     val authVM: AuthVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
-    val opciones: List<String> = listOf("Pequeña", "Mediana", "Grande")
-    var seleccionado by remember { mutableIntStateOf(0) }
     Column (modifier = modifier
         .fillMaxSize()
         .padding((18.dp))
@@ -74,11 +72,11 @@ fun ConfigApp(
         Spacer(modifier = Modifier.height(12.dp))
         Perfil(authVM)
         Spacer(modifier = Modifier.height(12.dp))
-        Apariencia()
+        Apariencia(configVM, configState)
         Spacer(modifier = Modifier.height(12.dp))
-        TamanioLetra(opciones, seleccionado, { seleccionado = it })
+        TamanioLetra(configVM, configState)
         Spacer(modifier = Modifier.height(16.dp))
-        Cuenta(authVM, correo = correo, actualizarCorreo = actualizarCorreo, contrasenia = contrasenia, actualizarContrasenia = actualizarContrasenia)
+        Cuenta(authVM)
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
@@ -131,7 +129,11 @@ fun Perfil(authVM: AuthVM, modifier: Modifier = Modifier) {
     }
 }
 @Composable
-fun Apariencia(modifier: Modifier = Modifier) {
+fun Apariencia(
+    configVM: ConfigVM,
+    configState: ConfigState,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .padding((16.dp))
@@ -160,25 +162,16 @@ fun Apariencia(modifier: Modifier = Modifier) {
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    SegmentedButton(
-                        selected = true,
-                        onClick = { },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
-                    ) {
-                        Text(
-                            text = "Claro",
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    SegmentedButton(
-                        selected = false,
-                        onClick = { },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
-                    ) {
-                        Text(
-                            text = "Oscuro",
-                            textAlign = TextAlign.Center
-                        )
+                    Theme.entries.forEachIndexed { index, theme ->
+                        SegmentedButton(
+                            selected = configState.theme == theme,
+                            onClick = { configVM.setTheme(theme) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = Theme.entries.size)
+                        ) {
+                            Text(
+                                text = theme.desc
+                            )
+                        }
                     }
                 }
             }
@@ -187,7 +180,11 @@ fun Apariencia(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun TamanioLetra(
+    configVM: ConfigVM,
+    configState: ConfigState,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -197,7 +194,6 @@ fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int
         Spacer(modifier = Modifier.height(8.dp))
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
-
             modifier = Modifier
                 .padding()
                 .fillMaxWidth()
@@ -214,13 +210,13 @@ fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int
                     .padding(16.dp)
             ) {
                 SingleChoiceSegmentedButtonRow(modifier = modifier) {
-                    opciones.forEachIndexed { numero, etiqueta ->
+                    FontSize.entries.forEachIndexed { index, fontSize ->
                         SegmentedButton(
-                            selected = seleccionado == numero,
-                            onClick = { onTamanioLetra(numero) },
-                            shape = SegmentedButtonDefaults.itemShape(index = numero, count = opciones.size)
+                            selected = configState.fontSize == fontSize,
+                            onClick = { configVM.setFontSize(fontSize) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = FontSize.entries.size)
                         ) {
-                            Text(text = etiqueta)
+                            Text(text = fontSize.desc)
                         }
                     }
                 }
@@ -231,7 +227,7 @@ fun TamanioLetra(opciones: List<String>, seleccionado: Int, onTamanioLetra: (Int
 
 
 @Composable
-fun Cuenta(authVM: AuthVM, correo: String, actualizarCorreo: (String) -> Unit, contrasenia: String, actualizarContrasenia:(String)-> Unit, modifier: Modifier = Modifier) {
+fun Cuenta(authVM: AuthVM, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
     val scrollState = rememberScrollState()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -263,15 +259,15 @@ fun Cuenta(authVM: AuthVM, correo: String, actualizarCorreo: (String) -> Unit, c
             ) {
                 OutlinedTextField(
                     value = authState.usuario?.correoU ?: "",
-                    onValueChange = { actualizarCorreo(it) },
+                    onValueChange = { },
                     label = { Text("Correo Electronico", style = MaterialTheme.typography.titleMedium) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = contrasenia,
-                    onValueChange = { actualizarContrasenia(it) },
+                    value = "",
+                    onValueChange = { },
                     label = { Text("Contraseña", style = MaterialTheme.typography.titleMedium) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth()
@@ -279,7 +275,7 @@ fun Cuenta(authVM: AuthVM, correo: String, actualizarCorreo: (String) -> Unit, c
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = authState.sub ?: "anonymous",
-                    onValueChange = { actualizarContrasenia(it) },
+                    onValueChange = { },
                     label = { Text("SUB", style = MaterialTheme.typography.titleMedium) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth()
@@ -305,18 +301,9 @@ fun Cuenta(authVM: AuthVM, correo: String, actualizarCorreo: (String) -> Unit, c
     }
 }
 
-
-
-
-
 @Preview
     (showBackground = true)
 @Composable
 fun ConfigPreview() {
-    ConfigApp(
-        correo= "rieti@gmail.com",
-        actualizarCorreo = {},
-        contrasenia= "123455",
-        actualizarContrasenia = {}
-    )
+    ConfigApp()
 }

@@ -33,11 +33,6 @@ fun AppNavHost(navController: NavHostController, modifier: Modifier = Modifier) 
                 mostrarHistorial = false
             }) else NuevoReporte()
         }
-        composable(Pantalla.RUTA_CUENTA) {
-            ConfigApp(correo= "rieti@gmail.com",
-                actualizarCorreo = {},
-                contrasenia= "123455",
-                actualizarContrasenia = {})
-        }
+        composable(Pantalla.RUTA_CUENTA) { ConfigApp() }
     }
 }

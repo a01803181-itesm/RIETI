@@ -11,7 +11,6 @@ import itesm.rieti.model.esquemas.Reporte
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 class NuevoReporteVM : ViewModel()
 {
@@ -19,40 +18,33 @@ class NuevoReporteVM : ViewModel()
     val validate = Validate
     val _state = MutableStateFlow(NuevoReporteState())
     val state: StateFlow<NuevoReporteState> = _state
+    fun hasErrors(status: Boolean) { _state.value = _state.value.copy(hasErrors = status) }
     private fun assertFieldsCompletion(): Boolean {
         _state.value.errors.clear()
-
-        var hasMissingField = false
-
         if (_state.value.rawName.isBlank()) {
             addError(FormError.SurnameMissing)
-            hasMissingField = true
+            hasErrors(true)
         }
         if (_state.value.reporte.numNinios == null) {
             addError(FormError.NumN)
-            hasMissingField = true
+            hasErrors(true)
         }
         if (_state.value.reporte.tipoTrabajo == null) {
             addError(FormError.WorkTypeMissing)
-            hasMissingField = true
+            hasErrors(true)
         }
         if (_state.value.reporte.dia == null) {
             addError(FormError.DateTimeMissing)
-            hasMissingField = true
+            hasErrors(true)
         }
         if (_state.value.reporte.direccion == null
             && (_state.value.reporte.latitud == null
                     || _state.value.reporte.longitud == null)
             ) {
             addError(FormError.LocationMissing)
-            hasMissingField = true
+            hasErrors(true)
         }
 
-        if (hasMissingField) {
-            return false
-        }
-
-        var isNameValid = false
         validate.fullName(
             _state.value.rawName,
             { nombre, apPaterno, apMaterno ->
@@ -63,53 +55,37 @@ class NuevoReporteVM : ViewModel()
                         ap_materno = apMaterno
                     )
                 )
-                isNameValid = true
             },
             {
                 addError(it)
-                isNameValid = false
+                hasErrors(true)
             }
         )
-
-        return isNameValid
+        return _state.value.hasErrors
     }
-
     fun addError(error: FormError) {
         if (!_state.value.errors.contains(error)) {
             _state.value.errors.add(error)
         }
     }
-
     fun popError(error: FormError) { _state.value.errors.remove(error) }
-
     fun setNombreCompleto(nombre: String) {
         _state.value = _state.value.copy(rawName = nombre)
     }
-
     fun setNumNinos(numStr: String) {
         val num = numStr.toIntOrNull()
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(numNinios = num))
     }
-
     fun setEdad(edadStr: String) {
         val edad = edadStr.toIntOrNull()
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(edad = edad))
     }
-
     fun setTipoTrabajo(tipoTrabajo: TipoTrabajo?) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(tipoTrabajo = tipoTrabajo))
     }
-
-    fun setTipoTrabajoStr(texto: String) {
-        val match = TipoTrabajo.entries.find { it.name.equals(texto, ignoreCase = true) }
-            ?: if (texto.isNotBlank()) TipoTrabajo.OTRO else null
-        setTipoTrabajo(match)
-    }
-
     fun setDetalles(detalles: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(detalles_adicionales = detalles))
     }
-
     fun setUbicacion(lat: Float, lng: Float, direccion: String? = null) {
         _state.value = _state.value.copy(
             reporte = _state.value.reporte.copy(
@@ -120,15 +96,12 @@ class NuevoReporteVM : ViewModel()
             )
         )
     }
-
     fun setDia(dia: String?) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = dia))
     }
-
     fun crearReporte() {
-        if (assertFieldsCompletion()) {
-            viewModelScope.launch {
-
+        viewModelScope.launch {
+            if (assertFieldsCompletion()) {
                 _state.value = _state.value.copy(
                     reporte = _state.value.reporte.copy(
                         folio = "PRUEBA001"

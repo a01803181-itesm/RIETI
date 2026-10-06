@@ -64,7 +64,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.TipoTrabajo
-import itesm.rieti.viewModel.ConnectionVM
+import itesm.rieti.viewModel.connection.ConnectionVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import kotlinx.coroutines.launch
