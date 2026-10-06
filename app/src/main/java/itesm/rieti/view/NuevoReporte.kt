@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -63,6 +64,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.TipoTrabajo
+import itesm.rieti.viewModel.ConnectionVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import kotlinx.coroutines.launch
@@ -73,6 +75,8 @@ fun NuevoReporte(modifier: Modifier = Modifier)
 {
     val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
+    val connectionVM: ConnectionVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
+    val connectionState by connectionVM.state.collectAsState()
     val estadoScroll = rememberScrollState()
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
@@ -93,6 +97,10 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             fontSize = 24.sp,
             modifier = Modifier.fillMaxWidth()
         )
+        if (!connectionState.internetConnection) {
+            Spacer(modifier = Modifier.height(8.dp))
+            OfflineHeader()
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Column(
             modifier = Modifier
@@ -137,25 +145,52 @@ fun NuevoReporte(modifier: Modifier = Modifier)
 
             if (nuevoReporteState.errors.isNotEmpty()) {
                 Text(
-                    text = nuevoReporteState.errors[0].toString(),
+                    text = "Faltan campos por completar",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.error
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
-
-            // Guardar borrador o mandar reporte
             Row(
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-            {
-                Button(onClick = { }) { Text("Guardar Borrador") }
-                Button(onClick = { nuevoReporteVM.crearReporte() }) { Text("Enviar Reporte") }
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                BotonGuardarBorrador(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
+                if (connectionState.internetConnection) {
+                    BotonEnviarReporte(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
+                }
             }
         }
+    }
+}
+@Composable
+fun OfflineHeader() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Estás en modo offline",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = "Solo puedes guardar reportes como borradores",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Image(
+            painter = painterResource(R.drawable.offline),
+            contentDescription = "Modo Offline",
+            modifier = Modifier.size(25.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+        )
     }
 }
 @Composable
@@ -425,6 +460,39 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
         modifier = Modifier.fillMaxWidth()
     )
+}
+
+@Composable
+fun BotonEnviarReporte(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = {
+            nuevoReporteVM.crearReporte()
+        },
+        modifier = modifier
+    ) {
+        Text(
+            text = "Enviar Reporte",
+        )
+    }
+}
+@Composable
+fun BotonGuardarBorrador(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = {},
+        modifier = modifier
+    ) {
+        Text(
+            text = "Guardar borrador"
+        )
+    }
 }
 
 @Preview(showBackground = true)
