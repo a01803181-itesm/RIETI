@@ -75,7 +75,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
 
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
-            nuevoReporteVM.setDia(LocalDateTime.now())
+            nuevoReporteVM.setDia(LocalDateTime.now().toString())
         }
     }
 
@@ -166,7 +166,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                     onValueChange = {
                         horarioTexto = it
                         if (it.isNotBlank()) {
-                            nuevoReporteVM.setDia(LocalDateTime.now())
+                            nuevoReporteVM.setDia(LocalDateTime.now().toString())
                         }
                     },
                     label = {

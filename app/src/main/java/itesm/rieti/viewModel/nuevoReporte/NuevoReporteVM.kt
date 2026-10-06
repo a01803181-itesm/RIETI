@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.api.Validate
 import itesm.rieti.model.api.reportes.Manejador
+import itesm.rieti.model.enums.Municipio
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,19 +115,31 @@ class NuevoReporteVM : ViewModel()
             reporte = _state.value.reporte.copy(
                 latitud = lat,
                 longitud = lng,
+                municipio = Municipio.NAUCALPAN,
                 direccion = direccion ?: "Lat: $lat, Lng: $lng"
             )
         )
     }
 
-    fun setDia(dia: LocalDateTime?) {
+    fun setDia(dia: String?) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = dia))
     }
 
     fun crearReporte() {
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
+
+                _state.value = _state.value.copy(
+                    reporte = _state.value.reporte.copy(
+                        folio = "PRUEBA001"
+                    )
+                )
+
                 val response = reporteHandler.crearReporte(_state.value.reporte)
+                println("REPORTE: ${_state.value.reporte}")
+                println("HTTP CODE: ${response.code()}")
+                println("ERROR BODY: ${response.errorBody()?.string()}")
+                println("=========================")
                 if (response.isSuccessful) {
                     _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
                 } else {

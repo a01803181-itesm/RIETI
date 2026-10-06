@@ -8,7 +8,7 @@ data class Reporte(
     val folio: String? = null,
     val expediente: Expediente? = null,
     val edad: Int? = null,
-    val dia: LocalDateTime? = null,
+    val dia: String? = null,
     val tipoTrabajo: TipoTrabajo? = null,
     val numNinios: Int? = null,
     val direccion: String? = null,

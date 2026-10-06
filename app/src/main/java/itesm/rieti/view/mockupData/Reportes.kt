@@ -11,7 +11,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
         Reporte(
             folio = "20260906ATZL87",
             detalles_adicionales = "Vi a dos chicos de aprox. 14 años vendiendo mazapanes en el semáforo",
-            dia = LocalDateTime.of(2026, 9, 6, 14, 40),
+            dia = "2026-09-06T14:40:00",//LocalDateTime.of(2026, 9, 6, 14, 40),
             numNinios = 2,
             edad = 12,
             tipoTrabajo = TipoTrabajo.MENDICION_FORZADA,
@@ -21,7 +21,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
         Reporte(
             folio = "20260903ECAR64",
             detalles_adicionales = "Vi a una niña y un niño de aprox. 10 años lavando parabrisas en el semáforo",
-            dia = LocalDateTime.of(2026, 9, 3, 11, 18),
+            dia = "2026-09-03T11:18:00",//LocalDateTime.of(2026, 9, 3, 11, 18),
             expediente = ExpedienteMockups().values.toList()[1],
             numNinios = 2,
             edad = 10,
@@ -31,7 +31,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
         Reporte(
             folio = "20260829COAR24",
             detalles_adicionales = "Hay cinco jóvenes como de 15 años vendiendo chicles en la esquina",
-            dia = LocalDateTime.of(2026, 8, 29, 9, 46),
+            dia = "2026-08-29T09:46:00",//LocalDateTime.of(2026, 8, 29, 9, 46),
             expediente = ExpedienteMockups().values.toList()[2],
             numNinios = 5,
             edad = 15,
