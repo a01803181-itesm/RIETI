@@ -17,6 +17,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -47,6 +53,7 @@ import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.model.api.FormError
+import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import kotlinx.coroutines.launch
@@ -66,7 +73,6 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     var horarioTexto by remember { mutableStateOf("") }
     var fotoTexto by remember { mutableStateOf("") }
 
-    // Inicializar fecha y ubicación por defecto si no existen
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
             nuevoReporteVM.setDia(LocalDateTime.now())
@@ -153,27 +159,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                // Tipo trabajo
-                OutlinedTextField(
-                    value = nuevoReporteState.reporte.tipoTrabajo?.name ?: "",
-                    onValueChange = {
-                        nuevoReporteVM.setTipoTrabajoStr(it)
-                    },
-                    label = {
-                        Text(
-                            "Tipo Trabajo",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = tamLetra, fontWeight = FontWeight.ExtraBold),
-                    isError = nuevoReporteState.errors.contains(FormError.WorkTypeMissing),
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(altura)
-                )
-
+                TipoTrabajoDropdown(nuevoReporteVM, nuevoReporteState)
                 // Horario
                 OutlinedTextField(
                     value = horarioTexto,
@@ -283,6 +269,52 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TipoTrabajoDropdown(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+    ) {
+        OutlinedTextField(
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+            readOnly = true,
+            value = nuevoReporteVM.state.value.reporte.tipoTrabajo?.desc ?: "Tipo Trabajo",
+            onValueChange = {  },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            isError = nuevoReporteState.errors.contains(FormError.WorkTypeMissing),
+            supportingText = {
+                if (nuevoReporteState.errors.contains(FormError.WorkTypeMissing)) {
+                    Text(text = FormError.WorkTypeMissing.desc)
+                }
+            },
+            shape = RoundedCornerShape(12.dp)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            TipoTrabajo.entries.forEach {
+                DropdownMenuItem(
+                    text = { Text(it.desc) },
+                    onClick = {
+                        nuevoReporteVM.setTipoTrabajo(it)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
@@ -361,10 +393,10 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
         shape = RoundedCornerShape(12.dp),
         supportingText = {
             if (nuevoReporteState.errors.contains(FormError.SurnameIncomplete)) {
-                Text(text = FormError.SurnameIncomplete.toString())
+                Text(text = FormError.SurnameIncomplete.desc)
             }
             if (nuevoReporteState.errors.contains(FormError.SurnameMissing)) {
-                Text(text = FormError.SurnameMissing.toString())
+                Text(text = FormError.SurnameMissing.desc)
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),

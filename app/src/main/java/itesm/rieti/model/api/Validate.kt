@@ -2,7 +2,7 @@ package itesm.rieti.model.api
 
 import android.util.Log
 
-enum class FormError(desc: String) {
+enum class FormError(val desc: String) {
     SurnameMissing("Apellido paterno y materno es requerido"),
     SurnameIncomplete("Apellido materno es requerido"),
     WorkTypeMissing("Tipo de trabajo es requerido"),

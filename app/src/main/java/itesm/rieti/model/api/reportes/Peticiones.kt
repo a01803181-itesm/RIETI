@@ -8,6 +8,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface Peticiones {
+    @GET("v1/reportes/by-user/{user_email}")
+    suspend fun obtenerReporteByUser(@Path("user_email") email: String): Response<List<Reporte>>
     @GET("v1/reportes/{folio}")
     suspend fun obtenerReporte(@Path("folio") folio: String): Response<Reporte>
     @POST("v1/reportes")

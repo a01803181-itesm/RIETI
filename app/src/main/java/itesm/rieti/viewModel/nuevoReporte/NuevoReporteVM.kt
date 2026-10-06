@@ -18,47 +18,42 @@ class NuevoReporteVM : ViewModel()
     val validate = Validate
     val _state = MutableStateFlow(NuevoReporteState())
     val state: StateFlow<NuevoReporteState> = _state
-
     private fun assertFieldsCompletion(): Boolean {
-        // Limpiar errores previos
         _state.value.errors.clear()
 
-        val rawName = _state.value.rawName
-        val reporte = _state.value.reporte
         var hasMissingField = false
 
-        // 1. Validar primero si falta alguno de los campos obligatorios:
-        // rawName, ubicación (latitud/longitud o dirección), fecha (día), numNiños, tipoTrabajo
-        if (rawName.isBlank()) {
+        if (_state.value.rawName.isBlank()) {
             addError(FormError.SurnameMissing)
             hasMissingField = true
         }
-        if (reporte.numNinios == null) {
+        if (_state.value.reporte.numNinios == null) {
             addError(FormError.NumN)
             hasMissingField = true
         }
-        if (reporte.tipoTrabajo == null) {
+        if (_state.value.reporte.tipoTrabajo == null) {
             addError(FormError.WorkTypeMissing)
             hasMissingField = true
         }
-        if (reporte.dia == null) {
+        if (_state.value.reporte.dia == null) {
             addError(FormError.DateTimeMissing)
             hasMissingField = true
         }
-        if (reporte.direccion == null && (reporte.latitud == null || reporte.longitud == null)) {
+        if (_state.value.reporte.direccion == null
+            && (_state.value.reporte.latitud == null
+                    || _state.value.reporte.longitud == null)
+            ) {
             addError(FormError.LocationMissing)
             hasMissingField = true
         }
 
-        // Si falta alguno de los campos obligatorios, se detiene y lanza el/los error(es)
         if (hasMissingField) {
             return false
         }
 
-        // 2. Si no falta ningún campo obligatorio, se procede a dividir y validar el nombre completo en apellidos y nombre
         var isNameValid = false
         validate.fullName(
-            rawName,
+            _state.value.rawName,
             { nombre, apPaterno, apMaterno ->
                 _state.value = _state.value.copy(
                     reporte = _state.value.reporte.copy(
