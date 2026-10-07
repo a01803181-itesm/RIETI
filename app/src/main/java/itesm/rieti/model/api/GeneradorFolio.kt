@@ -1,5 +1,7 @@
 package itesm.rieti.model.api
 
+import itesm.rieti.model.enums.Municipio
+
 object GeneradorFolio {
-    fun reporte(municipioCode: String, fecha: String) = "RIETI-$municipioCode-$fecha"
+    fun reporte(municipio: Municipio, fecha: String) = "RIETI-${municipio.code}-$fecha"
 }

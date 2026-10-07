@@ -1,11 +1,12 @@
 package itesm.rieti.viewModel.nuevoReporte
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.FormError
+import itesm.rieti.model.api.GeneradorFolio
 import itesm.rieti.model.api.Validate
 import itesm.rieti.model.api.reportes.Manejador
-import itesm.rieti.model.enums.Municipio
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,108 +16,100 @@ import kotlinx.coroutines.launch
 class NuevoReporteVM : ViewModel()
 {
     val reporteHandler = Manejador
+    val generadorFolios = GeneradorFolio
     val validate = Validate
     val _state = MutableStateFlow(NuevoReporteState())
     val state: StateFlow<NuevoReporteState> = _state
-    fun hasErrors(status: Boolean) { _state.value = _state.value.copy(hasErrors = status) }
-    private fun assertFieldsCompletion(): Boolean {
-        _state.value.errors.clear()
-        if (_state.value.rawName.isBlank()) {
-            addError(FormError.SurnameMissing)
-            hasErrors(true)
+    fun setRawName(name: String) {
+        _state.value = _state.value.copy(rawName = name)
+        _state.value = _state.value.copy(errors = _state.value.errors - FormError.InvalidName)
+    }
+    fun setNNAs(number: String) {
+        try {
+            _state.value = _state.value.copy(reporte = _state.value.reporte.copy(numNinios = number.toInt()))
+            _state.value = _state.value.copy(errors = _state.value.errors - FormError.NNAMissing)
+        } catch (_: NumberFormatException) {
+            val newMap = _state.value.errors.toMutableMap()
+            newMap[FormError.NNAMissing] = "El campo debe ser un número entero positivo"
+            _state.value = _state.value.copy(errors = newMap)
         }
-        if (_state.value.reporte.numNinios == null) {
-            addError(FormError.NumN)
-            hasErrors(true)
+    }
+    fun setEdad(edad: String) {
+        try {
+            _state.value = _state.value.copy(reporte = _state.value.reporte.copy(edad = edad.toInt()))
+        } catch (_: NumberFormatException) {
+            val newMap = _state.value.errors.toMutableMap()
+            newMap[FormError.IllegalAgeFormat] = "El campo debe ser un número entero positivo"
+            _state.value = _state.value.copy(errors = newMap)
+        }
+    }
+    fun setHoraYFecha(datetime: String) {
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = datetime))
+        _state.value = _state.value.copy(errors = _state.value.errors - FormError.DateTimeMissing)
+    }
+    fun setCoords(latitude: Float, Longitude: Float) {
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(latitud = latitude))
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(longitud = Longitude))
+    }
+    fun setLocation(address: String) {
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(direccion = address))
+        _state.value = _state.value.copy(errors = _state.value.errors - FormError.AddressMissing)
+    }
+    fun setWorkType(workType: TipoTrabajo) {
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(tipoTrabajo = workType))
+        _state.value = _state.value.copy(errors = _state.value.errors - FormError.WorkTypeMissing)
+    }
+    fun setDetails(details: String) {
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(detalles_adicionales = details))
+    }
+    fun assertFieldsCompletion(): Boolean {
+        val newMap = mutableMapOf<FormError,String>()
+        if (_state.value.rawName != "") {
+            validate.fullName(
+                _state.value.rawName,
+                { nombre, apPaterno, apMaterno ->
+                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(nombre = nombre))
+                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(ap_paterno = apPaterno))
+                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(ap_materno = apMaterno))
+                },
+                { newMap[FormError.InvalidName] = it }
+            )
+        }
+        if (_state.value.reporte.numNinios < 1) {
+            newMap[FormError.NNAMissing] = "Número de NNAs debe ser mayor a 0"
         }
         if (_state.value.reporte.tipoTrabajo == null) {
-            addError(FormError.WorkTypeMissing)
-            hasErrors(true)
+            newMap[FormError.WorkTypeMissing] = "Tipo de trabajo no especificado"
         }
-        if (_state.value.reporte.dia == null) {
-            addError(FormError.DateTimeMissing)
-            hasErrors(true)
+        if (_state.value.reporte.municipio == null) {
+            newMap[FormError.LocationMissing] = "Municipio no especificado"
         }
-        if (_state.value.reporte.direccion == null
-            && (_state.value.reporte.latitud == null
-                    || _state.value.reporte.longitud == null)
-            ) {
-            addError(FormError.LocationMissing)
-            hasErrors(true)
-        }
-
-        validate.fullName(
-            _state.value.rawName,
-            { nombre, apPaterno, apMaterno ->
-                _state.value = _state.value.copy(
-                    reporte = _state.value.reporte.copy(
-                        nombre = nombre,
-                        ap_paterno = apPaterno,
-                        ap_materno = apMaterno
-                    )
-                )
-            },
-            {
-                addError(it)
-                hasErrors(true)
-            }
-        )
-        return _state.value.hasErrors
-    }
-    fun addError(error: FormError) {
-        if (!_state.value.errors.contains(error)) {
-            _state.value.errors.add(error)
-        }
-    }
-    fun popError(error: FormError) { _state.value.errors.remove(error) }
-    fun setNombreCompleto(nombre: String) {
-        _state.value = _state.value.copy(rawName = nombre)
-    }
-    fun setNumNinos(numStr: String) {
-        val num = numStr.toIntOrNull()
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(numNinios = num))
-    }
-    fun setEdad(edadStr: String) {
-        val edad = edadStr.toIntOrNull()
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(edad = edad))
-    }
-    fun setTipoTrabajo(tipoTrabajo: TipoTrabajo?) {
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(tipoTrabajo = tipoTrabajo))
-    }
-    fun setDetalles(detalles: String) {
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(detalles_adicionales = detalles))
-    }
-    fun setUbicacion(lat: Float, lng: Float, direccion: String? = null) {
-        _state.value = _state.value.copy(
-            reporte = _state.value.reporte.copy(
-                latitud = lat,
-                longitud = lng,
-                municipio = Municipio.NAUCALPAN,
-                direccion = direccion ?: "Lat: $lat, Lng: $lng"
-            )
-        )
-    }
-    fun setDia(dia: String?) {
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = dia))
+        _state.value = _state.value.copy(errors = newMap)
+        return newMap.isEmpty()
     }
     fun crearReporte() {
-        viewModelScope.launch {
-            if (assertFieldsCompletion()) {
+        if (assertFieldsCompletion()) {
+            viewModelScope.launch {
+                val folio = generadorFolios.reporte(
+                    _state.value.reporte.municipio!!,
+                    _state.value.reporte.dia!!.split("T")[0]
+                )
                 _state.value = _state.value.copy(
                     reporte = _state.value.reporte.copy(
-                        folio = "PRUEBA001"
+                        folio = folio
                     )
                 )
 
                 val response = reporteHandler.crearReporte(_state.value.reporte)
-                println("REPORTE: ${_state.value.reporte}")
-                println("HTTP CODE: ${response.code()}")
-                println("ERROR BODY: ${response.errorBody()?.string()}")
-                println("=========================")
+                Log.i("Reporte", "REPORTE: ${_state.value.reporte}")
+                Log.i("Reporte", "HTTP CODE: ${response.code()}")
+                Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
                 if (response.isSuccessful) {
                     _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
                 } else {
-                    addError(FormError.ServerError)
+                    val newMap = _state.value.errors.toMutableMap()
+                    newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"
+                    _state.value = _state.value.copy(errors = newMap)
                 }
             }
         }

@@ -1,5 +1,6 @@
 package itesm.rieti.view
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
@@ -80,7 +81,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
     val estadoScroll = rememberScrollState()
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
-            nuevoReporteVM.setDia(LocalDateTime.now().toString())
+            nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
         }
     }
 
@@ -138,12 +139,16 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             {
                 MapScreen(
                     onUbicacionSelected = { lat, lng ->
-                        nuevoReporteVM.setUbicacion(lat, lng)
+                        nuevoReporteVM.setCoords(lat, lng)
                     }
                 )
             }
 
             if (nuevoReporteState.errors.isNotEmpty()) {
+                Log.i("Form", "Missing fields")
+                nuevoReporteState.errors.forEach { error, string ->
+                    Log.i("Form", "$error: $string")
+                }
                 Text(
                     text = "Faltan campos por completar",
                     textAlign = TextAlign.Center,
@@ -228,22 +233,19 @@ fun CantidadNNA(
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
-        value = nuevoReporteState.reporte.numNinios?.toString() ?: "",
-        onValueChange = {
-            nuevoReporteVM.setNumNinos(it)
-            nuevoReporteVM.popError(FormError.NumN)
-        },
+        value = nuevoReporteState.reporte.numNinios.toString(),
+        onValueChange = { nuevoReporteVM.setNNAs(it) },
         label = {
             Text(
                 text = "Cantidad Niños",
                 style = MaterialTheme.typography.titleMedium
             )
         },
-        isError = nuevoReporteState.errors.contains(FormError.NumN),
+        isError = nuevoReporteState.errors.containsKey(FormError.NNAMissing),
         supportingText = {
-            if (nuevoReporteState.errors.contains(FormError.NumN)) {
+            if (nuevoReporteState.errors.containsKey(FormError.NNAMissing)) {
                 Text(
-                    text = FormError.NumN.desc,
+                    text = nuevoReporteState.errors[FormError.NNAMissing]!!,
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -270,6 +272,15 @@ fun Edad(
             )
         },
         shape = RoundedCornerShape(12.dp),
+        isError = nuevoReporteState.errors.contains(FormError.IllegalAgeFormat),
+        supportingText = {
+            if (nuevoReporteState.errors.contains(FormError.IllegalAgeFormat)) {
+                Text(
+                    text = nuevoReporteState.errors[FormError.IllegalAgeFormat]!!,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = modifier.fillMaxHeight()
     )
@@ -299,7 +310,10 @@ fun TipoTrabajoDropdown(
             isError = nuevoReporteState.errors.contains(FormError.WorkTypeMissing),
             supportingText = {
                 if (nuevoReporteState.errors.contains(FormError.WorkTypeMissing)) {
-                    Text(text = FormError.WorkTypeMissing.desc)
+                    Text(
+                        text = nuevoReporteState.errors[FormError.WorkTypeMissing]!!,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             shape = RoundedCornerShape(12.dp)
@@ -312,7 +326,7 @@ fun TipoTrabajoDropdown(
                 DropdownMenuItem(
                     text = { Text(text = it.desc) },
                     onClick = {
-                        nuevoReporteVM.setTipoTrabajo(it)
+                        nuevoReporteVM.setWorkType(it)
                         expanded = false
                     }
                 )
@@ -330,9 +344,9 @@ fun Horario(
     OutlinedTextField(
         value = nuevoReporteState.reporte.dia ?: "",
         onValueChange = {
-            nuevoReporteVM.setDia(it)
+            nuevoReporteVM.setHoraYFecha(it)
             if (it == "") {
-                nuevoReporteVM.setDia(LocalDateTime.now().toString())
+                nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
             }
         },
         label = {
@@ -356,7 +370,7 @@ fun Detalles(
 ) {
     OutlinedTextField(
         value = nuevoReporteState.reporte.detalles_adicionales ?: "",
-        onValueChange = { nuevoReporteVM.setDetalles(it) },
+        onValueChange = { nuevoReporteVM.setDetails(it) },
         label = {
             Text(
                 text = "Detalles",
@@ -374,7 +388,7 @@ fun Detalles(
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
-    onUbicacionSelected: (Float, Float) -> Unit = { _, _ -> }
+    onUbicacionSelected: (Float, Float) -> Unit
 )
 {
     val ubicacionInicial = LatLng(19.55310179726687, -99.28478736430407)
@@ -435,11 +449,7 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
 {
     OutlinedTextField(
         value = nuevoReporteState.rawName,
-        onValueChange = {
-            nuevoReporteVM.setNombreCompleto(it)
-            nuevoReporteVM.popError(FormError.SurnameIncomplete)
-            nuevoReporteVM.popError(FormError.SurnameMissing)
-        },
+        onValueChange = { nuevoReporteVM.setRawName(it) },
         label = {
             Text(
                 "Nombre Completo",
@@ -447,14 +457,14 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
             )
         },
         textStyle = TextStyle(fontSize = 18.sp),
-        isError = nuevoReporteState.errors.contains(FormError.SurnameMissing) || nuevoReporteState.errors.contains(FormError.SurnameIncomplete),
+        isError = nuevoReporteState.errors.contains(FormError.InvalidName),
         shape = RoundedCornerShape(12.dp),
         supportingText = {
-            if (nuevoReporteState.errors.contains(FormError.SurnameIncomplete)) {
-                Text(text = FormError.SurnameIncomplete.desc)
-            }
-            if (nuevoReporteState.errors.contains(FormError.SurnameMissing)) {
-                Text(text = FormError.SurnameMissing.desc)
+            if (nuevoReporteState.errors.contains(FormError.InvalidName)) {
+                Text(
+                    text = nuevoReporteState.errors[FormError.InvalidName]!!,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -469,9 +479,7 @@ fun BotonEnviarReporte(
     modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = {
-            nuevoReporteVM.crearReporte()
-        },
+        onClick = { nuevoReporteVM.crearReporte() },
         modifier = modifier
     ) {
         Text(

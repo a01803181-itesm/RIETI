@@ -5,12 +5,12 @@ import itesm.rieti.model.enums.TipoTrabajo
 import java.time.LocalDateTime
 
 data class Reporte(
-    val folio: String? = null,
+    val folio: String = "",
     val expediente: Expediente? = null,
     val edad: Int? = null,
     val dia: String? = null,
     val tipoTrabajo: TipoTrabajo? = null,
-    val numNinios: Int? = null,
+    val numNinios: Int = 0,
     val direccion: String? = null,
     val municipio: Municipio? = null,
     val latitud: Float? = null,
