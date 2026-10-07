@@ -34,7 +34,7 @@ import itesm.rieti.view.DetallesReporteActivity
 import itesm.rieti.view.mockupData.BorradorMockUps
 
 @Composable
-fun HistorialActivity(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, onEditar: () -> Unit, modifier: Modifier = Modifier) {
+fun HistorialActivity(mockupReportes: List<Reporte> = emptyList(), mockupBorradores: List<Borrador> = emptyList(), onEditar: () -> Unit = {}, modifier: Modifier = Modifier) {
     var reporteSeleccionado by remember { mutableStateOf<Reporte?>(null) }
     var opcionSeleccionada by remember { mutableIntStateOf(0) }
     val opciones = listOf("Reportes", "Borradores")
@@ -109,4 +109,5 @@ fun HistorialPreview() {
     val mockupReportes: List<Reporte> = ReporteMockups().values.toList()
     val mockupBorradores: List<Borrador> = BorradorMockUps().values.toList()
     HistorialActivity(mockupReportes, mockupBorradores, {})
+    // HistorialActivity()
 }
