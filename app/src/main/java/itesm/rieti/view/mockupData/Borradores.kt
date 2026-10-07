@@ -24,7 +24,7 @@ class BorradorMockUps : PreviewParameterProvider<Borrador> {
             descripcion = null,
             numeroNNA = null,
             rangoEdad = null,
-            tipoTrabajo = TipoTrabajo.MENDICION_FORZADA,
+            tipoTrabajo = TipoTrabajo.TRABAJO_EN_COMERCIO,
         ),
         Borrador(
             idBorrador = 3,
