@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -25,6 +26,7 @@ import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.view.inicioActivity.RegistroApp
 import itesm.rieti.viewModel.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 
 class MainActivity : ComponentActivity()
 {

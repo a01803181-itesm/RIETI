@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +17,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,11 +51,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,20 +73,21 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.TipoTrabajo
-import itesm.rieti.viewModel.connection.ConnectionVM
+import itesm.rieti.viewModel.network.NetworkVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @Composable
-fun NuevoReporte(modifier: Modifier = Modifier)
+fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
 {
     val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
-    val connectionVM: ConnectionVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
-    val connectionState by connectionVM.state.collectAsState()
+    val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
+
     val estadoScroll = rememberScrollState()
+
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
             nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
@@ -98,7 +107,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             fontSize = 24.sp,
             modifier = Modifier.fillMaxWidth()
         )
-        if (!connectionState.internetConnection) {
+        if (!networkConnectionState) {
             Spacer(modifier = Modifier.height(8.dp))
             OfflineHeader()
         }
@@ -113,30 +122,21 @@ fun NuevoReporte(modifier: Modifier = Modifier)
             NombreCompleto(nuevoReporteVM, nuevoReporteState)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth().wrapContentHeight(),
                 verticalAlignment = Alignment.CenterVertically
-            )
-            {
+            ) {
                 CantidadNNA(nuevoReporteVM, nuevoReporteState, modifier.weight(1f))
                 Edad(nuevoReporteVM, nuevoReporteState, modifier.weight(1f))
             }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            )
-            {
-                TipoTrabajoDropdown(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
-                Horario(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
-            }
+            TipoTrabajoDropdown(nuevoReporteVM, nuevoReporteState)
+            Horario(nuevoReporteVM, nuevoReporteState)
             Detalles(nuevoReporteVM, nuevoReporteState)
             TomarFoto(nuevoReporteVM, nuevoReporteState)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp)
-            )
-            {
+            ) {
                 MapScreen(
                     onUbicacionSelected = { lat, lng ->
                         nuevoReporteVM.setCoords(lat, lng)
@@ -162,7 +162,7 @@ fun NuevoReporte(modifier: Modifier = Modifier)
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 BotonGuardarBorrador(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
-                if (connectionState.internetConnection) {
+                if (networkConnectionState) {
                     BotonEnviarReporte(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
                 }
             }
@@ -234,25 +234,61 @@ fun CantidadNNA(
 ) {
     OutlinedTextField(
         value = nuevoReporteState.reporte.numNinios.toString(),
+        textStyle = TextStyle(textAlign = TextAlign.Center),
         onValueChange = { nuevoReporteVM.setNNAs(it) },
         label = {
             Text(
-                text = "Cantidad Niños",
-                style = MaterialTheme.typography.titleMedium
+                text = buildAnnotatedString {
+                    append("No. de NNAs")
+                    withStyle(SpanStyle(color = Color.Red)) {
+                        append(" *")
+                    }
+                },
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Left,
             )
         },
-        isError = nuevoReporteState.errors.containsKey(FormError.NNAMissing),
+        leadingIcon = {
+            IconButton(
+                onClick = { if (nuevoReporteState.reporte.numNinios > 1) nuevoReporteVM.setNNAs((nuevoReporteState.reporte.numNinios - 1).toString()) },
+                enabled = nuevoReporteState.reporte.numNinios > 1,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Remove,
+                    contentDescription = "Restar",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        trailingIcon = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = modifier.padding(4.dp)
+            ) {
+                IconButton(
+                    onClick = { nuevoReporteVM.setNNAs((nuevoReporteState.reporte.numNinios + 1).toString()) },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Sumar",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        shape = RoundedCornerShape(12.dp),
+        isError = nuevoReporteState.errors.contains(FormError.NNAMissing),
         supportingText = {
-            if (nuevoReporteState.errors.containsKey(FormError.NNAMissing)) {
+            if (nuevoReporteState.errors.contains(FormError.NNAMissing)) {
                 Text(
                     text = nuevoReporteState.errors[FormError.NNAMissing]!!,
                     color = MaterialTheme.colorScheme.error
                 )
             }
         },
-        shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = modifier.fillMaxHeight()
+        modifier = modifier
     )
 }
 
@@ -297,14 +333,25 @@ fun TipoTrabajoDropdown(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
-        modifier = modifier
+        modifier = modifier,
     ) {
         OutlinedTextField(
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth(),
             readOnly = true,
-            value = nuevoReporteVM.state.value.reporte.tipoTrabajo?.desc ?: "Tipo Trabajo",
+            value = nuevoReporteVM.state.value.reporte.tipoTrabajo?.desc ?: "",
+            label = {
+                Text(
+                    text = buildAnnotatedString {
+                        append("Tipo de trabajo")
+                        withStyle(SpanStyle(color = Color.Red)) {
+                            append(" *")
+                        }
+                    },
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
             onValueChange = { },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             isError = nuevoReporteState.errors.contains(FormError.WorkTypeMissing),
@@ -351,14 +398,21 @@ fun Horario(
         },
         label = {
             Text(
-                text = "Horario",
+                text = buildAnnotatedString {
+                    append("Horario")
+                    withStyle(SpanStyle(color = Color.Red)) {
+                        append(" *")
+                    }
+                },
                 style = MaterialTheme.typography.titleMedium
             )
         },
         isError = nuevoReporteState.errors.contains(FormError.DateTimeMissing),
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        modifier = modifier.height(90.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .height(90.dp)
     )
 }
 
@@ -452,7 +506,7 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
         onValueChange = { nuevoReporteVM.setRawName(it) },
         label = {
             Text(
-                "Nombre Completo",
+                "Nombre Completo (o Anónimo)",
                 style = MaterialTheme.typography.titleMedium
             )
         },
@@ -494,7 +548,7 @@ fun BotonGuardarBorrador(
     modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = {},
+        onClick = { nuevoReporteVM.guardarComoBorrador() },
         modifier = modifier
     ) {
         Text(

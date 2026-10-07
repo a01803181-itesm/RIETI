@@ -114,4 +114,7 @@ class NuevoReporteVM : ViewModel()
             }
         }
     }
+    fun guardarComoBorrador() {
+        // TODO: Guardar como borrador
+    }
 }
