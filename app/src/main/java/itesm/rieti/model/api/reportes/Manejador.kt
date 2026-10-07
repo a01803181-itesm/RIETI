@@ -4,7 +4,8 @@ import itesm.rieti.model.api.ManejadorAPI
 import itesm.rieti.model.esquemas.Reporte
 import retrofit2.Response
 
-object Manejador {
+object Manejador
+{
     private val servicio by lazy {
         ManejadorAPI.retrofit.create(Peticiones::class.java)
     }
