@@ -13,6 +13,8 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,19 +29,51 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.model.esquemas.Borrador
-import itesm.rieti.view.mockupData.ReporteMockups
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.DetallesReporteActivity
 import itesm.rieti.view.mockupData.BorradorMockUps
+import itesm.rieti.view.mockupData.ReporteMockups
+import itesm.rieti.viewModel.HistorialVM
 
 @Composable
-fun HistorialActivity(mockupReportes: List<Reporte> = emptyList(), mockupBorradores: List<Borrador> = emptyList(), onEditar: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun HistorialActivity(
+    correoUsuario: String? = null,
+    mockupReportes: List<Reporte> = emptyList(),
+    mockupBorradores: List<Borrador> = emptyList(),
+    historialVM: HistorialVM = viewModel(),
+    onEditar: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val reportesState by historialVM.reportes.collectAsState()
+    val borradoresState by historialVM.borradores.collectAsState()
+
+    LaunchedEffect(correoUsuario) {
+        if (!correoUsuario.isNullOrBlank()) {
+            historialVM.cargarReportes(correoUsuario)
+        }
+    }
+
+    val reportesParaMostrar = if (reportesState.isNotEmpty()) reportesState else mockupReportes
+    val borradoresParaMostrar = if (borradoresState.isNotEmpty()) borradoresState else mockupBorradores
+
     var reporteSeleccionado by remember { mutableStateOf<Reporte?>(null) }
     var opcionSeleccionada by remember { mutableIntStateOf(0) }
     val opciones = listOf("Reportes", "Borradores")
+
     if (reporteSeleccionado == null) {
-        MuestraHistorial(mockupReportes, mockupBorradores, opciones, opcionSeleccionada, { opcionSeleccionada = it }, reporteSeleccionado, { reporteSeleccionado = it }, onEditar, modifier)
+        MuestraHistorial(
+            mockupReportes = reportesParaMostrar,
+            mockupBorradores = borradoresParaMostrar,
+            opciones = opciones,
+            opcionSeleccionada = opcionSeleccionada,
+            onOpcion = { opcionSeleccionada = it },
+            reporteSeleccionado = reporteSeleccionado,
+            onReporte = { reporteSeleccionado = it },
+            onEditar = onEditar,
+            modifier = modifier
+        )
     } else {
         DetallesReporteActivity(
             onClose = { reporteSeleccionado = null },
@@ -49,7 +83,15 @@ fun HistorialActivity(mockupReportes: List<Reporte> = emptyList(), mockupBorrado
 }
 
 @Composable
-fun MuestraHistorial(mockupReportes: List<Reporte>, mockupBorradores: List<Borrador>, opciones: List<String>, opcionSeleccionada: Int, onOpcion: (Int) -> Unit, reporteSeleccionado: Reporte?, onReporte: (Reporte) -> Unit, onEditar: () -> Unit, modifier: Modifier = Modifier) {
+fun MuestraHistorial(mockupReportes: List<Reporte>,
+                     mockupBorradores: List<Borrador>,
+                     opciones: List<String>,
+                     opcionSeleccionada: Int,
+                     onOpcion: (Int) -> Unit,
+                     reporteSeleccionado: Reporte?,
+                     onReporte: (Reporte) -> Unit,
+                     onEditar: () -> Unit,
+                     modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .padding(all = 14.dp)
@@ -108,6 +150,9 @@ fun BarraToggle(opciones: List<String>, seleccionado: Int, onClick: (Int) -> Uni
 fun HistorialPreview() {
     val mockupReportes: List<Reporte> = ReporteMockups().values.toList()
     val mockupBorradores: List<Borrador> = BorradorMockUps().values.toList()
-    HistorialActivity(mockupReportes, mockupBorradores, {})
-    // HistorialActivity()
+    HistorialActivity(
+        mockupReportes = mockupReportes,
+        mockupBorradores = mockupBorradores,
+        onEditar = {}
+    )
 }
