@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,7 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.amplifyframework.predictions.models.AgeRange
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -513,30 +512,30 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
     )
     if (showHelpDialog) {
-        Dialog(onDismissRequest = { showHelpDialog = false }) {
-            Column(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .wrapContentHeight()
-                    .padding(16.dp)
-            ) {
+        AlertDialog(
+            onDismissRequest = { showHelpDialog = false },
+            confirmButton = {},
+            dismissButton = {},
+            title = {
                 Text(
                     text = "Nombre Completo (o Anónimo)",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.fillMaxWidth()
                 )
+            },
+            text = {
                 Text(
                     text = "En RIETI, nos preocupamos por la privacidad de los datos de nuestros usuarios;" +
-                            " nuestra aplicación solo guarda el correo electrónico de nuestros usuarios." +
-                            "\nPor lo que tiene la libertad de mandar el reporte de manera anónima" +
+                            " por ello, nuestra aplicación solo guarda su correo electrónico." +
+                            "\nTiene la libertad de decisión de mandar el reporte de manera anónima" +
                             " (dejar este campo vacío) o, en su caso, enviarlo con su nombre completo.",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-        }
+        )
     }
 }
 

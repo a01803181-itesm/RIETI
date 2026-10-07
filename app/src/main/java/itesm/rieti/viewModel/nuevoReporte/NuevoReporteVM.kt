@@ -84,6 +84,9 @@ class NuevoReporteVM : ViewModel()
         if (_state.value.reporte.tipoTrabajo == null) {
             newMap[FormError.WorkTypeMissing] = "Tipo de trabajo no especificado"
         }
+        if (_state.value.reporte.rangoEdad == null) {
+            newMap[FormError.AgeRangeMissing] = "Rango de edad no especificado"
+        }
         if (_state.value.reporte.municipio == null) {
             newMap[FormError.LocationMissing] = "Municipio no especificado"
         }
