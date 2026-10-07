@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -79,7 +80,8 @@ fun SeleccionarHorario(
     ) {
         IconButton(
             onClick = { showDatePicker = true },
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
+            shape = RectangleShape
         ) {
             Icon(
                 imageVector = Icons.Default.CalendarToday,
@@ -127,17 +129,15 @@ fun SeleccionarHorario(
                 TextButton(
                     onClick = {
                         showTimePicker = false
-                        if (tempDate != null) {
-                            val selectedTime =
-                                LocalTime.of(timePickerState.hour, timePickerState.minute)
-                            var datetime = LocalDateTime.of(tempDate, selectedTime)
+                        val selectedTime =
+                            LocalTime.of(timePickerState.hour, timePickerState.minute)
+                        var datetime = LocalDateTime.of(tempDate, selectedTime)
 
-                            val now = LocalDateTime.now()
-                            if (datetime.isAfter(now)) {
-                                datetime = now
-                            }
-                            nuevoReporteVM.setHoraYFecha(datetime.toString())
+                        val now = LocalDateTime.now()
+                        if (datetime.isAfter(now)) {
+                            datetime = now
                         }
+                        nuevoReporteVM.setHoraYFecha(datetime.toString())
                     }
                 ) {
                     Text("Aceptar")
