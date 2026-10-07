@@ -1,6 +1,9 @@
 package itesm.rieti.viewModel.nuevoReporte
 
+import android.net.Uri
 import android.util.Log
+import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.rememberDatePickerState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.FormError
@@ -61,6 +64,9 @@ class NuevoReporteVM : ViewModel()
     }
     fun setDetails(details: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(detalles_adicionales = details))
+    }
+    fun setImageUri(uri: Uri) {
+        _state.value = _state.value.copy(imageUri = uri)
     }
     fun assertFieldsCompletion(): Boolean {
         val newMap = mutableMapOf<FormError,String>()

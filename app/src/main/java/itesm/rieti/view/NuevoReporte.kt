@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,15 +17,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -37,6 +41,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -63,6 +68,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -73,6 +79,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.TipoTrabajo
+import itesm.rieti.view.nuevoReporte.CameraCaptureField
+import itesm.rieti.view.nuevoReporte.SeleccionarHorario
 import itesm.rieti.viewModel.network.NetworkVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
@@ -129,9 +137,12 @@ fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM
                 Edad(nuevoReporteVM, nuevoReporteState, modifier.weight(1f))
             }
             TipoTrabajoDropdown(nuevoReporteVM, nuevoReporteState)
-            Horario(nuevoReporteVM, nuevoReporteState)
+            SeleccionarHorario(nuevoReporteVM, nuevoReporteState)
             Detalles(nuevoReporteVM, nuevoReporteState)
-            TomarFoto(nuevoReporteVM, nuevoReporteState)
+            CameraCaptureField(
+                fotoUri = nuevoReporteState.imageUri,
+                onFotoCaptured = { nuevoReporteVM.setImageUri(it) },
+            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -196,34 +207,6 @@ fun OfflineHeader() {
             modifier = Modifier.size(25.dp),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
         )
-    }
-}
-@Composable
-fun TomarFoto(
-    nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Tomar foto",
-            style = MaterialTheme.typography.titleMedium
-        )
-        IconButton(
-            onClick = { },
-            shape = RectangleShape
-        ) {
-            Image(
-                painter = painterResource(R.drawable.camera),
-                contentDescription = "Tomar Foto",
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-                contentScale = ContentScale.Crop
-            )
-        }
     }
 }
 @Composable
@@ -381,41 +364,6 @@ fun TipoTrabajoDropdown(
         }
     }
 }
-
-@Composable
-fun Horario(
-    nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = nuevoReporteState.reporte.dia ?: "",
-        onValueChange = {
-            nuevoReporteVM.setHoraYFecha(it)
-            if (it == "") {
-                nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
-            }
-        },
-        label = {
-            Text(
-                text = buildAnnotatedString {
-                    append("Horario")
-                    withStyle(SpanStyle(color = Color.Red)) {
-                        append(" *")
-                    }
-                },
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        isError = nuevoReporteState.errors.contains(FormError.DateTimeMissing),
-        shape = RoundedCornerShape(12.dp),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        modifier = modifier
-            .fillMaxWidth()
-            .height(90.dp)
-    )
-}
-
 @Composable
 fun Detalles(
     nuevoReporteVM: NuevoReporteVM,
@@ -501,14 +449,28 @@ fun MapScreen(
 @Composable
 fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState, modifier: Modifier = Modifier)
 {
+    var showHelpDialog by remember { mutableStateOf(false) }
     OutlinedTextField(
         value = nuevoReporteState.rawName,
         onValueChange = { nuevoReporteVM.setRawName(it) },
         label = {
-            Text(
-                "Nombre Completo (o Anónimo)",
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Nombre Completo (o Anónimo)",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                IconButton(
+                    onClick = { showHelpDialog = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Ayuda",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         },
         textStyle = TextStyle(fontSize = 18.sp),
         isError = nuevoReporteState.errors.contains(FormError.InvalidName),
@@ -522,8 +484,34 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
     )
+    if (showHelpDialog) {
+        Dialog(onDismissRequest = { showHelpDialog = false }) {
+            Column(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .wrapContentHeight()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Nombre Completo (o Anónimo)",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = "En RIETI, nos preocupamos por la privacidad de los datos de nuestros usuarios;" +
+                            " nuestra aplicación solo guarda el correo electrónico de nuestros usuarios." +
+                            "\nPor lo que tiene la libertad de mandar el reporte de manera anónima" +
+                            " (dejar este campo vacío) o, en su caso, enviarlo con su nombre completo.",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
 }
 
 @Composable
