@@ -10,7 +10,7 @@ enum class FormError {
     DateTimeMissing,
     AddressMissing,
     LocationMissing,
-    IllegalAgeFormat
+    AgeRangeMissing,
 }
 object Validate {
     fun fullName(
