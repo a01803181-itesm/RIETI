@@ -108,7 +108,7 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
             Spacer(modifier.height(14.dp))
             ElementoLista("Fecha:", reporte.dia.toString())
             ElementoLista("Número de NNA:", reporte.numNinios.toString())
-            ElementoLista("Rango de edad:", reporte.edad.toString())
+            ElementoLista("Rango de edad:", reporte.rangoEdad.toString())
             ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo?.name ?: "")
             if (reporte.expediente != null) DetallesExpediente(reporte.expediente)
             Spacer(modifier.height(14.dp))

@@ -10,6 +10,7 @@ import itesm.rieti.model.api.FormError
 import itesm.rieti.model.api.GeneradorFolio
 import itesm.rieti.model.api.Validate
 import itesm.rieti.model.api.reportes.Manejador
+import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,14 +38,10 @@ class NuevoReporteVM : ViewModel()
             _state.value = _state.value.copy(errors = newMap)
         }
     }
-    fun setEdad(edad: String) {
-        try {
-            _state.value = _state.value.copy(reporte = _state.value.reporte.copy(edad = edad.toInt()))
-        } catch (_: NumberFormatException) {
-            val newMap = _state.value.errors.toMutableMap()
-            newMap[FormError.IllegalAgeFormat] = "El campo debe ser un número entero positivo"
-            _state.value = _state.value.copy(errors = newMap)
-        }
+    fun setRangoEdad(rangoEdad: RangoEdad) {
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(rangoEdad = rangoEdad))
+        val newMap = _state.value.errors - FormError.AgeRangeMissing
+        _state.value = _state.value.copy(errors = newMap)
     }
     fun setHoraYFecha(datetime: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = datetime))

@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.amplifyframework.predictions.models.AgeRange
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -72,6 +73,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
+import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.view.nuevoReporte.CameraCaptureField
 import itesm.rieti.view.nuevoReporte.SeleccionarHorario
@@ -269,34 +271,64 @@ fun CantidadNNA(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Edad(
     nuevoReporteVM: NuevoReporteVM,
     nuevoReporteState: NuevoReporteState,
     modifier: Modifier = Modifier
 ) {
-    OutlinedTextField(
-        value = nuevoReporteState.reporte.edad?.toString() ?: "",
-        onValueChange = { nuevoReporteVM.setEdad(it) },
-        label = {
-            Text(
-                text = "Edad de los Niños",
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        shape = RoundedCornerShape(12.dp),
-        isError = nuevoReporteState.errors.contains(FormError.IllegalAgeFormat),
-        supportingText = {
-            if (nuevoReporteState.errors.contains(FormError.IllegalAgeFormat)) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+            readOnly = true,
+            value = nuevoReporteVM.state.value.reporte.rangoEdad?.desc ?: "",
+            label = {
                 Text(
-                    text = nuevoReporteState.errors[FormError.IllegalAgeFormat]!!,
-                    color = MaterialTheme.colorScheme.error
+                    text = buildAnnotatedString {
+                        append("Rango de edades")
+                        withStyle(SpanStyle(color = Color.Red)) {
+                            append(" *")
+                        }
+                    },
+                    style = MaterialTheme.typography.titleMedium
+                )
+            },
+            onValueChange = { },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            isError = nuevoReporteState.errors.contains(FormError.AgeRangeMissing),
+            supportingText = {
+                if (nuevoReporteState.errors.contains(FormError.AgeRangeMissing)) {
+                    Text(
+                        text = nuevoReporteState.errors[FormError.AgeRangeMissing]!!,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            shape = RoundedCornerShape(12.dp)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            RangoEdad.entries.forEach {
+                DropdownMenuItem(
+                    text = { Text(text = it.desc) },
+                    onClick = {
+                        nuevoReporteVM.setRangoEdad(it)
+                        expanded = false
+                    }
                 )
             }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = modifier.fillMaxHeight()
-    )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
