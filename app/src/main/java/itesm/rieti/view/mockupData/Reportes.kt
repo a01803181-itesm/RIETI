@@ -15,7 +15,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             dia = "2026-09-06T14:40:00",
             numNinios = 2,
             rangoEdad = RangoEdad.PUBERTOS,
-            tipoTrabajo = TipoTrabajo.MENDICION_FORZADA,
+            tipoTrabajo = TipoTrabajo.CONSTRUCCION,
             municipio = Municipio.ATIZAPAN,
             expediente = ExpedienteMockups().values.toList()[0]
         ),
@@ -26,7 +26,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             expediente = ExpedienteMockups().values.toList()[1],
             numNinios = 2,
             rangoEdad = RangoEdad.PUBERTOS,
-            tipoTrabajo = TipoTrabajo.MENDICION_FORZADA,
+            tipoTrabajo = TipoTrabajo.TRABAJO_DOMESTICO,
             municipio = Municipio.ECATEPEC,
         ),
         Reporte(
@@ -36,7 +36,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             expediente = ExpedienteMockups().values.toList()[2],
             numNinios = 5,
             rangoEdad = RangoEdad.JOVENES,
-            tipoTrabajo = TipoTrabajo.MENDICION_FORZADA,
+            tipoTrabajo = TipoTrabajo.LIMPIEZA_DE_PARABRISAS,
             municipio = Municipio.COACALCO
         )
 

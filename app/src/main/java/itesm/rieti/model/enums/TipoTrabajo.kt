@@ -1,10 +1,14 @@
 package itesm.rieti.model.enums
 
 enum class TipoTrabajo(val desc: String) {
-    MENDICION_FORZADA("Mendición Forzada"),
-    EXPLOTACION_SEXUAL("Explotación Sexual"),
-    TRATA_DE_PERSONAS("Trata de Personas"),
-    UTILIZACION_PARA_ACTIVIDADES_ILICITAS("Utilización para actividades ilícitas"),
-    TRABAJO_PELIGROSO("Trabajo peligroso"),
-    OTRO("Otro")
+    VENTA_AMBULANTE("Venta ambulante"),
+    LIMPIEZA_DE_PARABRISAS("Limpieza de Parabrisas"),
+    MEDICIDAD("mendicidad"),
+    CARGA_Y_DESCARGA("Carga y descarga"),
+    TRABAJO_EN_COMERCIO("Trabajo en comercio"),
+    CAMPO("Campo"),
+    CONSTRUCCION("construcción"),
+    TRABAJO_DOMESTICO("trabajo doméstico"),
+    RECOLECCION_DE_RESIDUOS("recolección de residuos"),
+    OTRA_ACTIVIDAD("otra actividad"),
 }

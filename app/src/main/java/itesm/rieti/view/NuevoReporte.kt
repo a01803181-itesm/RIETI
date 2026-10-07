@@ -129,8 +129,8 @@ fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM
                 modifier = modifier.fillMaxWidth().wrapContentHeight(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CantidadNNA(nuevoReporteVM, nuevoReporteState, modifier.weight(1f))
-                Edad(nuevoReporteVM, nuevoReporteState, modifier.weight(1f))
+                CantidadNNA(nuevoReporteVM, nuevoReporteState, modifier.weight(4f))
+                Edad(nuevoReporteVM, nuevoReporteState, modifier.weight(5f))
             }
             TipoTrabajoDropdown(nuevoReporteVM, nuevoReporteState)
             SeleccionarHorario(nuevoReporteVM, nuevoReporteState)
@@ -293,7 +293,7 @@ fun Edad(
             label = {
                 Text(
                     text = buildAnnotatedString {
-                        append("Rango de edades")
+                        append("Rango edad")
                         withStyle(SpanStyle(color = Color.Red)) {
                             append(" *")
                         }
