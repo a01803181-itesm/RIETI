@@ -1,5 +1,6 @@
 package itesm.rieti.viewModel.nuevoReporte
 
+import android.location.Address
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -51,11 +52,11 @@ class NuevoReporteVM : ViewModel()
     }
     fun setLocation(address: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(direccion = address))
-        _state.value = _state.value.copy(errors = _state.value.errors - FormError.AddressMissing)
+        _state.value = _state.value.copy(errors = _state.value.errors - FormError.InvalidLocation)
     }
     fun setMunicipio(municipio: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(municipio = municipio))
-        _state.value = _state.value.copy(errors = _state.value.errors - FormError.LocationMissing)
+        _state.value = _state.value.copy(errors = _state.value.errors - FormError.InvalidLocation)
     }
     fun setWorkType(workType: TipoTrabajo) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(tipoTrabajo = workType))
@@ -66,6 +67,40 @@ class NuevoReporteVM : ViewModel()
     }
     fun setImageUri(uri: Uri) {
         _state.value = _state.value.copy(imageUri = uri)
+    }
+    fun validateAddress() {
+        val newErrors = _state.value.errors.toMutableMap()
+        if (_state.value.rawAddress != null) {
+            if (_state.value.rawAddress!!.countryName != "Mexico") {
+                newErrors[FormError.InvalidLocation] = "La dirección debe ser dentro de México"
+                Log.e("Address", "Address is not in Mexico")
+            } else {
+                Log.i("Address", "Address is not null, it is: ${_state.value.rawAddress}")
+                Log.i("Address", "Country: ${_state.value.rawAddress!!.countryName}")
+                if (_state.value.rawAddress!!.subAdminArea != null) {
+                    Log.i("Address", "Address includes a subAdminArea: ${_state.value.rawAddress!!.subAdminArea}")
+                    setMunicipio(_state.value.rawAddress!!.subAdminArea)
+                    newErrors.remove(FormError.InvalidLocation)
+                } else {
+                    Log.w("Address", "Address does not include a subAdminArea, relying on Locality")
+                    if (_state.value.rawAddress!!.locality != null) {
+                        Log.i("Address", "Locality is not null, it is: ${_state.value.rawAddress!!.locality}")
+                        setMunicipio(_state.value.rawAddress!!.locality)
+                        newErrors.remove(FormError.InvalidLocation)
+                    } else {
+                        newErrors[FormError.InvalidLocation] = "La dirección no tiene un municipio asignado"
+                    }
+                }
+                setLocation(_state.value.rawAddress!!.getAddressLine(0))
+            }
+        } else {
+            newErrors[FormError.InvalidLocation] = "La dirección es nula"
+        }
+        _state.value = _state.value.copy(errors = newErrors)
+    }
+    fun setAddress(address: Address?) {
+        _state.value = _state.value.copy(rawAddress = address)
+        validateAddress()
     }
     fun assertFieldsCompletion(): Boolean {
         val newMap = mutableMapOf<FormError,String>()
@@ -90,8 +125,9 @@ class NuevoReporteVM : ViewModel()
             newMap[FormError.AgeRangeMissing] = "Rango de edad no especificado"
         }
         if (_state.value.reporte.municipio == null) {
-            newMap[FormError.LocationMissing] = "Municipio no especificado"
+            newMap[FormError.InvalidLocation] = "Municipio no especificado"
         }
+        validateAddress()
         _state.value = _state.value.copy(errors = newMap)
         Log.e("Form", "Errors: ${_state.value.errors}")
         return newMap.isEmpty()

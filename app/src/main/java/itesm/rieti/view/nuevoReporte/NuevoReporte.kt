@@ -30,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -108,8 +109,7 @@ fun NuevoReporte(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networ
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState(), enabled = enableScroll),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-        )
-        {
+        ) {
             NombreCompleto(nuevoReporteVM, nuevoReporteState)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -145,8 +145,9 @@ fun NuevoReporte(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networ
             }
 
             if (nuevoReporteState.errors.isNotEmpty()) {
+                HorizontalDivider()
                 Text(
-                    text = "Faltan campos por completar",
+                    text = "Hay campos con errores",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error,

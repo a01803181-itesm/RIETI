@@ -4,6 +4,7 @@ import android.content.Context
 import android.location.Geocoder
 import android.util.Log
 import android.view.MotionEvent
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +39,7 @@ import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
+import itesm.rieti.model.api.FormError
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
@@ -55,20 +57,7 @@ suspend fun processAddressData(
     withContext(Dispatchers.IO) {
         val geocoder = Geocoder(context, Locale.getDefault())
         val address = geocoder.getFromLocation(centroActual.latitude, centroActual.longitude, 1)?.firstOrNull()
-        if (address != null) {
-            Log.i("Address", "Address is not null, it is: $address")
-            if (address.subAdminArea != null) {
-                Log.i("Address", "Address includes a subAdminArea: ${address.subAdminArea}")
-                nuevoReporteVM.setMunicipio(address.subAdminArea)
-            } else {
-                Log.w("Address", "Address does not include a subAdminArea, relying on Locality")
-                address.locality?.let {
-                    Log.i("Address", "Locality is not null, it is: ${address.locality}")
-                    nuevoReporteVM.setMunicipio(it)
-                }
-            }
-            nuevoReporteVM.setLocation(address.getAddressLine(0))
-        }
+        nuevoReporteVM.setAddress(address)
     }
 }
 @Composable
@@ -87,6 +76,7 @@ fun MapScreen(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(ubicacion!!.latitude, ubicacion!!.longitude), 15f)
     }
+    var dynamicModifier = modifier
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -132,7 +122,22 @@ fun MapScreen(
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Box (modifier = modifier.fillMaxSize()) {
+        if (nuevoReporteState.errors.contains(FormError.InvalidLocation)) {
+            Log.i("Address", "Error found WITHIN Mapa.kt")
+            dynamicModifier = modifier.border(
+                width = 3.dp,
+                color = MaterialTheme.colorScheme.error,
+                shape = MaterialTheme.shapes.medium
+            )
+            Text(
+                text = nuevoReporteState.errors[FormError.InvalidLocation]!!,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        }
+        Box (modifier = dynamicModifier.fillMaxSize()) {
             GoogleMap(
                 modifier = Modifier
                     .fillMaxWidth()

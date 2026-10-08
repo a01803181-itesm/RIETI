@@ -8,8 +8,7 @@ enum class FormError {
     WorkTypeMissing,
     NNAMissing,
     DateTimeMissing,
-    AddressMissing,
-    LocationMissing,
+    InvalidLocation,
     AgeRangeMissing,
 }
 object Validate {
