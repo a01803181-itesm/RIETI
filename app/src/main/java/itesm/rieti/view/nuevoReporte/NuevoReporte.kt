@@ -1,6 +1,5 @@
-package itesm.rieti.view
+package itesm.rieti.view.nuevoReporte
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,7 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -44,7 +41,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,34 +58,27 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraMoveStartedReason
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
-import itesm.rieti.view.nuevoReporte.CameraCaptureField
-import itesm.rieti.view.nuevoReporte.SeleccionarHorario
+import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.network.NetworkVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @Composable
-fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
+fun NuevoReporte(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
 {
     val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
 
-    val estadoScroll = rememberScrollState()
+    val context = LocalContext.current
+
+    var enableScroll by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
@@ -101,8 +90,7 @@ fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
-    )
-    {
+    ) {
         Text(
             text = "Nuevo Reporte",
             textAlign = TextAlign.Center,
@@ -118,7 +106,7 @@ fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(estadoScroll),
+                .verticalScroll(rememberScrollState(), enabled = enableScroll),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         )
         {
@@ -141,20 +129,22 @@ fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(400.dp)
             ) {
                 MapScreen(
+                    context = context,
+                    nuevoReporteVM = nuevoReporteVM,
+                    nuevoReporteState = nuevoReporteState,
+                    ubicacionVM = ubicacionVM,
                     onUbicacionSelected = { lat, lng ->
                         nuevoReporteVM.setCoords(lat, lng)
-                    }
+                    },
+                    onCameraIdle = { enableScroll = true },
+                    onCameraMoved = { enableScroll = false }
                 )
             }
 
             if (nuevoReporteState.errors.isNotEmpty()) {
-                Log.i("Form", "Missing fields")
-                nuevoReporteState.errors.forEach { error, string ->
-                    Log.i("Form", "$error: $string")
-                }
                 Text(
                     text = "Faltan campos por completar",
                     textAlign = TextAlign.Center,
@@ -167,9 +157,9 @@ fun NuevoReporte(modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                BotonGuardarBorrador(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
+                BotonGuardarBorrador(nuevoReporteVM, Modifier.weight(1f))
                 if (networkConnectionState) {
-                    BotonEnviarReporte(nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
+                    BotonEnviarReporte(nuevoReporteVM, Modifier.weight(1f))
                 }
             }
         }
@@ -411,66 +401,6 @@ fun Detalles(
             .height(180.dp)
     )
 }
-
-@Composable
-fun MapScreen(
-    modifier: Modifier = Modifier,
-    onUbicacionSelected: (Float, Float) -> Unit
-)
-{
-    val ubicacionInicial = LatLng(19.55310179726687, -99.28478736430407)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(ubicacionInicial, 15f)
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-
-    // Establecer la ubicación inicial por defecto
-    LaunchedEffect(Unit) {
-        onUbicacionSelected(ubicacionInicial.latitude.toFloat(), ubicacionInicial.longitude.toFloat())
-    }
-
-    // Escuchar cuando la cámara deje de moverse (Equivalente a OnCameraIdle / dragend)
-    LaunchedEffect(cameraPositionState.isMoving)
-    {
-        if (!cameraPositionState.isMoving)
-        {
-            if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE)
-            {
-                val centroActual = cameraPositionState.position.target
-                onUbicacionSelected(centroActual.latitude.toFloat(), centroActual.longitude.toFloat())
-            }
-        }
-    }
-
-    Box (modifier = modifier.fillMaxSize())
-    {
-        GoogleMap(
-            modifier = Modifier
-                .fillMaxWidth(),
-            cameraPositionState = cameraPositionState,
-            onMapClick = { latLng ->
-                onUbicacionSelected(latLng.latitude.toFloat(), latLng.longitude.toFloat())
-                coroutineScope.launch {
-                    cameraPositionState.animate(
-                        update = CameraUpdateFactory.newLatLng(latLng),
-                        durationMs = 1000
-                    )
-                }
-            }
-        )
-        // Pin
-        Icon(
-            imageVector = Icons.Default.LocationOn,
-            contentDescription = "Centro del mapa",
-            tint = Color.Black,
-            modifier = modifier
-                .size(16.dp)
-                .align(Alignment.Center)
-        )
-    }
-}
-
 @Composable
 fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState, modifier: Modifier = Modifier)
 {
@@ -509,7 +439,7 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+        modifier = modifier.fillMaxWidth().padding(top = 4.dp)
     )
     if (showHelpDialog) {
         AlertDialog(
@@ -542,7 +472,6 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
 @Composable
 fun BotonEnviarReporte(
     nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
     modifier: Modifier = Modifier
 ) {
     Button(
@@ -557,7 +486,6 @@ fun BotonEnviarReporte(
 @Composable
 fun BotonGuardarBorrador(
     nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
     modifier: Modifier = Modifier
 ) {
     Button(
@@ -572,7 +500,7 @@ fun BotonGuardarBorrador(
 
 @Preview(showBackground = true)
 @Composable
-fun ReportePreview()
+fun ReportePreview(ubicacionVM: UbicacionVM = UbicacionVM())
 {
-    NuevoReporte()
+    NuevoReporte(ubicacionVM)
 }

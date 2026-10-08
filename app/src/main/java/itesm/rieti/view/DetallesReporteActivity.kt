@@ -118,7 +118,7 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
                 fontSize = 16.sp
             )
             Text(
-                text = reporte.municipio?.name ?: "",
+                text = reporte.municipio ?: "",
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp
             )

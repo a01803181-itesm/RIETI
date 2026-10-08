@@ -1,11 +1,9 @@
 package itesm.rieti.view.mockupData
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import itesm.rieti.model.enums.Municipio
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
-import java.time.LocalDateTime
 
 class ReporteMockups : PreviewParameterProvider<Reporte> {
     override val values = sequenceOf(
@@ -16,7 +14,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             numNinios = 2,
             rangoEdad = RangoEdad.PUBERTOS,
             tipoTrabajo = TipoTrabajo.CONSTRUCCION,
-            municipio = Municipio.ATIZAPAN,
+            municipio = "Atizapán",
             expediente = ExpedienteMockups().values.toList()[0]
         ),
         Reporte(
@@ -27,7 +25,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             numNinios = 2,
             rangoEdad = RangoEdad.PUBERTOS,
             tipoTrabajo = TipoTrabajo.TRABAJO_DOMESTICO,
-            municipio = Municipio.ECATEPEC,
+            municipio = "Ecatepec",
         ),
         Reporte(
             folio = "20260829COAR24",
@@ -37,8 +35,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             numNinios = 5,
             rangoEdad = RangoEdad.JOVENES,
             tipoTrabajo = TipoTrabajo.LIMPIEZA_DE_PARABRISAS,
-            municipio = Municipio.COACALCO
+            municipio = "Coacalco"
         )
-
     )
 }

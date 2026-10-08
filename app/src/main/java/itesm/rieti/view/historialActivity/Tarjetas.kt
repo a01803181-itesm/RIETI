@@ -48,12 +48,12 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
                             modifier = modifier.weight(1f)
                         ) {
                             Text(
-                                text = reporte.municipio?.name ?: "",
+                                text = reporte.municipio ?: "",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                             )
                             Text(
-                                text = reporte.folio ?: "",
+                                text = reporte.folio,
                                 fontWeight = FontWeight.Light,
                                 fontSize = 10.sp,
                             )
@@ -77,12 +77,12 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
                     modifier = modifier.weight(1f)
                 ) {
                     Text(
-                        text = reporte.municipio?.name ?: "",
+                        text = reporte.municipio ?: "",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                     )
                     Text(
-                        text = reporte.folio ?: "",
+                        text = reporte.folio,
                         fontWeight = FontWeight.Light,
                         fontSize = 10.sp,
                     )
@@ -142,7 +142,7 @@ fun TarjetaBorrador(borrador: Borrador, onEditar: () -> Unit, modifier: Modifier
                         modifier = modifier.weight(1f)
                     ) {
                         Text(
-                            text = borrador.municipio.name,
+                            text = borrador.municipio ?: "",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                         )

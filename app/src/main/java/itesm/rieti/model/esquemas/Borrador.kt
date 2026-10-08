@@ -1,6 +1,5 @@
 package itesm.rieti.model.esquemas
 
-import itesm.rieti.model.enums.Municipio
 import itesm.rieti.model.enums.TipoTrabajo
 import java.time.LocalDateTime
 
@@ -11,5 +10,5 @@ data class Borrador(
     val numeroNNA: Int?,
     val rangoEdad: String?,
     val tipoTrabajo: TipoTrabajo?,
-    val municipio: Municipio
+    val municipio: String?
 )

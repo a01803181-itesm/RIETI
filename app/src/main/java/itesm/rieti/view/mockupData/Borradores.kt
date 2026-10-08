@@ -1,7 +1,6 @@
 package itesm.rieti.view.mockupData
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import itesm.rieti.model.enums.Municipio
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Borrador
 import java.time.LocalDateTime
@@ -11,7 +10,7 @@ class BorradorMockUps : PreviewParameterProvider<Borrador> {
         Borrador(
             idBorrador = 1,
             fechaYHora = LocalDateTime.of(2026, 9, 9, 10, 6),
-            municipio = Municipio.NAUCALPAN,
+            municipio = "Naucalpan",
             descripcion = null,
             numeroNNA = null,
             rangoEdad = null,
@@ -20,7 +19,7 @@ class BorradorMockUps : PreviewParameterProvider<Borrador> {
         Borrador(
             idBorrador = 2,
             fechaYHora = LocalDateTime.of(2026, 9, 8, 13, 14),
-            municipio = Municipio.CUAUTITLAN,
+            municipio = "Cuautitlan",
             descripcion = null,
             numeroNNA = null,
             rangoEdad = null,
@@ -29,7 +28,7 @@ class BorradorMockUps : PreviewParameterProvider<Borrador> {
         Borrador(
             idBorrador = 3,
             fechaYHora = LocalDateTime.of(2026, 9, 2, 8, 40),
-            municipio = Municipio.HUIXQUILUCAN,
+            municipio = "Huixquilucan",
             descripcion = "Vi a",
             numeroNNA = null,
             rangoEdad = null,

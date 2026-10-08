@@ -1,9 +1,7 @@
 package itesm.rieti.model.esquemas
 
-import itesm.rieti.model.enums.Municipio
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
-import java.time.LocalDateTime
 
 data class Reporte(
     val folio: String = "",
@@ -13,7 +11,7 @@ data class Reporte(
     val tipoTrabajo: TipoTrabajo? = null,
     val numNinios: Int = 0,
     val direccion: String? = null,
-    val municipio: Municipio? = null,
+    val municipio: String? = null,
     val latitud: Float? = null,
     val longitud: Float? = null,
     val nombre: String? = null,

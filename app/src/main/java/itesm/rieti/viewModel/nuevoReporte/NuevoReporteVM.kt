@@ -2,8 +2,6 @@ package itesm.rieti.viewModel.nuevoReporte
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.rememberDatePickerState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.FormError
@@ -55,6 +53,10 @@ class NuevoReporteVM : ViewModel()
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(direccion = address))
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.AddressMissing)
     }
+    fun setMunicipio(municipio: String) {
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(municipio = municipio))
+        _state.value = _state.value.copy(errors = _state.value.errors - FormError.LocationMissing)
+    }
     fun setWorkType(workType: TipoTrabajo) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(tipoTrabajo = workType))
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.WorkTypeMissing)
@@ -91,6 +93,7 @@ class NuevoReporteVM : ViewModel()
             newMap[FormError.LocationMissing] = "Municipio no especificado"
         }
         _state.value = _state.value.copy(errors = newMap)
+        Log.e("Form", "Errors: ${_state.value.errors}")
         return newMap.isEmpty()
     }
     fun crearReporte() {
@@ -105,18 +108,17 @@ class NuevoReporteVM : ViewModel()
                         folio = folio
                     )
                 )
-
-                val response = reporteHandler.crearReporte(_state.value.reporte)
-                Log.i("Reporte", "REPORTE: ${_state.value.reporte}")
-                Log.i("Reporte", "HTTP CODE: ${response.code()}")
-                Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
-                if (response.isSuccessful) {
-                    _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
-                } else {
-                    val newMap = _state.value.errors.toMutableMap()
-                    newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"
-                    _state.value = _state.value.copy(errors = newMap)
-                }
+//                val response = reporteHandler.crearReporte(_state.value.reporte)
+//                Log.i("Reporte", "REPORTE: ${_state.value.reporte}")
+//                Log.i("Reporte", "HTTP CODE: ${response.code()}")
+//                Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
+//                if (response.isSuccessful) {
+//                    _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
+//                } else {
+//                    val newMap = _state.value.errors.toMutableMap()
+//                    newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"
+//                    _state.value = _state.value.copy(errors = newMap)
+//                }
             }
         }
     }

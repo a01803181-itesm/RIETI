@@ -13,13 +13,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import itesm.rieti.view.historialActivity.HistorialActivity
+import itesm.rieti.view.nuevoReporte.NuevoReporte
+import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    authVM: AuthVM = viewModel(),
-    modifier: Modifier = Modifier
+    ubicacionVM: UbicacionVM,
+    modifier: Modifier = Modifier,
+    authVM: AuthVM = viewModel()
 ) {
     val authState by authVM.authState.collectAsState()
     val correoUsuario: String? = authState.usuario?.correoU
@@ -30,7 +33,7 @@ fun AppNavHost(
         modifier = modifier.fillMaxSize()
     )
     {
-        composable(Pantalla.RUTA_INICIO) { NuevoReporte() }
+        composable(Pantalla.RUTA_INICIO) { NuevoReporte(ubicacionVM) }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) {
             var mostrarHistorial by remember { mutableStateOf(true) }
@@ -42,7 +45,7 @@ fun AppNavHost(
                     onEditar = { mostrarHistorial = false }
                 )
             } else {
-                NuevoReporte()
+                NuevoReporte(ubicacionVM)
             }
         }
         composable(Pantalla.RUTA_CUENTA) { ConfigApp() }

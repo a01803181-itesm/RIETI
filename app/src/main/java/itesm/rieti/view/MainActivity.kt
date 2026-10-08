@@ -24,9 +24,8 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
 import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.view.inicioActivity.RegistroApp
-import itesm.rieti.viewModel.UbicacionVM
+import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
-import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 
 class MainActivity : ComponentActivity()
 {
@@ -51,7 +50,7 @@ class MainActivity : ComponentActivity()
         setContent {
             val authState by authVM.authState.collectAsState()
             RIETITheme {
-                if (!authState.loggedIn) RegistroApp() else RIETIApp()
+                if (!authState.loggedIn) RegistroApp() else RIETIApp(ubicacionVM)
             }
         }
     }
@@ -62,7 +61,6 @@ class MainActivity : ComponentActivity()
     override fun onStart()
     {
         super.onStart()
-        ubicacionVM.iniciarActualizaciones()
     }
 
     /**
@@ -76,13 +74,15 @@ class MainActivity : ComponentActivity()
     }
 }
 @Composable
-fun RIETIApp(modifier: Modifier = Modifier)
+fun RIETIApp(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier)
 {
     val navController = rememberNavController()
+    ubicacionVM.iniciarActualizaciones()
     Scaffold(
         content = { innerPadding ->
             AppNavHost(
                 navController = navController,
+                ubicacionVM = ubicacionVM,
                 modifier = modifier.padding(innerPadding)
             )
         },
@@ -124,8 +124,8 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun GreetingPreview(ubicacionVM: UbicacionVM = UbicacionVM()) {
     RIETITheme {
-        RIETIApp()
+        RIETIApp(ubicacionVM)
     }
 }

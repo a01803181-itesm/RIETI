@@ -13,7 +13,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import itesm.rieti.viewModel.UbicacionVM
+import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 
 /**
  * Clase encargada de obtener la ubicacion del dispositivo validando los permisos

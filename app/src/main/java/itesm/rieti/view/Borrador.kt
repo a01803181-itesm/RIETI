@@ -2,14 +2,14 @@ package itesm.rieti.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
+import itesm.rieti.view.nuevoReporte.NuevoReporte
+import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 
 @Composable
-fun Borrador(modifier: Modifier = Modifier)
+fun Borrador(ubicacionVM: UbicacionVM = UbicacionVM(), modifier: Modifier = Modifier)
 {
-    NuevoReporte()
+    NuevoReporte(ubicacionVM)
 }
 
 @Preview(showBackground = true)
