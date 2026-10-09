@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -37,7 +39,10 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.DefaultMapUiSettings
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.model.api.FormError
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
@@ -74,7 +79,7 @@ fun MapScreen(
     val ubicacion by ubicacionVM.ubicacion.collectAsState()
     if (ubicacion == null) return
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(ubicacion!!.latitude, ubicacion!!.longitude), 15f)
+        position = CameraPosition.fromLatLngZoom(LatLng(ubicacion!!.latitude, ubicacion!!.longitude), 35f)
     }
     var dynamicModifier = modifier
 
@@ -148,6 +153,7 @@ fun MapScreen(
                         false
                     },
                 cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = true),
                 onMapClick = { latLng ->
                     onUbicacionSelected(latLng.latitude.toFloat(), latLng.longitude.toFloat())
                     coroutineScope.launch {
@@ -163,6 +169,7 @@ fun MapScreen(
                 contentDescription = "Centro del mapa",
                 tint = Color.Red,
                 modifier = modifier
+                    .padding(bottom = 35.dp)
                     .size(32.dp)
                     .align(Alignment.Center)
             )

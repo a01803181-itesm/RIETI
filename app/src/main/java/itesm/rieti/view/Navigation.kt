@@ -14,39 +14,35 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import itesm.rieti.view.historialActivity.HistorialActivity
 import itesm.rieti.view.nuevoReporte.NuevoReporte
+import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.history.HistorialState
+import itesm.rieti.viewModel.history.HistorialVM
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    authVM: AuthVM,
+    authState: AuthState,
     ubicacionVM: UbicacionVM,
-    modifier: Modifier = Modifier,
-    authVM: AuthVM = viewModel()
+    historialVM: HistorialVM,
+    historialState: HistorialState,
+    modifier: Modifier = Modifier
 ) {
-    val authState by authVM.authState.collectAsState()
-    val correoUsuario: String? = authState.usuario?.correoU
-
     NavHost(
         navController = navController,
         startDestination = Pantalla.RUTA_INICIO,
         modifier = modifier.fillMaxSize()
-    )
-    {
+    ) {
         composable(Pantalla.RUTA_INICIO) { NuevoReporte(ubicacionVM) }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) {
-            var mostrarHistorial by remember { mutableStateOf(true) }
-
-            if (mostrarHistorial)
-            {
-                HistorialActivity(
-                    correoUsuario = correoUsuario,
-                    onEditar = { mostrarHistorial = false }
-                )
-            } else {
-                NuevoReporte(ubicacionVM)
-            }
+            HistorialActivity(
+                authState,
+                historialVM,
+                historialState
+            )
         }
         composable(Pantalla.RUTA_CUENTA) { ConfigApp() }
     }

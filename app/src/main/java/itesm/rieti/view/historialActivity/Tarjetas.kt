@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,18 +27,24 @@ import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.mockupData.BorradorMockUps
 import itesm.rieti.view.mockupData.ReporteMockups
+import itesm.rieti.viewModel.history.HistorialVM
 
 @Composable
-fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Unit, modifier: Modifier = Modifier) {
+fun TarjetaReporte(
+    historialVM: HistorialVM,
+    reporte: Reporte,
+    modifier: Modifier = Modifier
+) {
     Card(
-        onClick = { onReporte(reporte) },
+        onClick = { historialVM.setReporteSeleccionado(reporte) },
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .testTag(testId)
     ) {
         Column(
-            modifier = modifier.wrapContentHeight().padding(all = 18.dp)
+            modifier = modifier
+                .wrapContentHeight()
+                .padding(all = 18.dp)
         ) {
             if (reporte.expediente != null) {
                 DosColumnas(
@@ -113,7 +118,7 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
                     horizontalAlignment = Alignment.End
                 ) {
                     IconButton(
-                        onClick = { onReporte(reporte) },
+                        onClick = { historialVM.setReporteSeleccionado(reporte) },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Color.Transparent
                         )
@@ -131,10 +136,20 @@ fun TarjetaReporte(testId: String, reporte: Reporte, onReporte: (Reporte) -> Uni
 }
 
 @Composable
-fun TarjetaBorrador(borrador: Borrador, onEditar: () -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+fun TarjetaBorrador(
+    historialVM: HistorialVM,
+    borrador: Borrador,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
         Column(
-            modifier = modifier.wrapContentHeight().padding(all = 18.dp)
+            modifier = modifier
+                .wrapContentHeight()
+                .padding(all = 18.dp)
         ) {
             DosColumnas(
                 contenidoColumna1 = {
@@ -188,7 +203,7 @@ fun TarjetaBorrador(borrador: Borrador, onEditar: () -> Unit, modifier: Modifier
                     horizontalAlignment = Alignment.End
                 ) {
                     IconButton(
-                        onClick = { onEditar() },
+                        onClick = { historialVM.setBorradorSeleccionado(borrador) },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Color.Transparent
                         )
@@ -217,14 +232,14 @@ fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @C
 
 @Preview
 @Composable
-fun TarjetaReportePreview() {
+fun TarjetaReportePreview(historialVM: HistorialVM = HistorialVM()) {
     val reporte: Reporte = ReporteMockups().values.toList()[0]
-    TarjetaReporte("test", reporte, {})
+    TarjetaReporte(historialVM, reporte)
 }
 
 @Preview
 @Composable
-fun TarjetaBorradorPreview() {
+fun TarjetaBorradorPreview(historialVM: HistorialVM = HistorialVM()) {
     val borrador: Borrador = BorradorMockUps().values.toList()[0]
-    TarjetaBorrador(borrador, {})
+    TarjetaBorrador(historialVM, borrador)
 }

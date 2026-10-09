@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,14 +23,17 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
 import itesm.rieti.ui.theme.RIETITheme
 import itesm.rieti.view.inicioActivity.RegistroApp
+import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.history.HistorialVM
 
 class MainActivity : ComponentActivity()
 {
     /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
     private val ubicacionVM: UbicacionVM by viewModels()
     private val authVM: AuthVM by viewModels()
+    private val historialVM: HistorialVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -50,7 +52,7 @@ class MainActivity : ComponentActivity()
         setContent {
             val authState by authVM.authState.collectAsState()
             RIETITheme {
-                if (!authState.loggedIn) RegistroApp() else RIETIApp(ubicacionVM)
+                if (!authState.loggedIn) RegistroApp() else RIETIApp(authVM, authState, ubicacionVM, historialVM)
             }
         }
     }
@@ -74,14 +76,26 @@ class MainActivity : ComponentActivity()
     }
 }
 @Composable
-fun RIETIApp(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier)
-{
+fun RIETIApp(
+    authVM: AuthVM,
+    authState: AuthState,
+    ubicacionVM: UbicacionVM,
+    historialVM: HistorialVM,
+    modifier: Modifier = Modifier
+) {
     val navController = rememberNavController()
     ubicacionVM.iniciarActualizaciones()
+    historialVM.cargarReportes(authState.usuario!!)
+    val historialState by historialVM.state.collectAsState()
+
     Scaffold(
         content = { innerPadding ->
             AppNavHost(
                 navController = navController,
+                authVM = authVM,
+                authState = authState,
+                historialVM = historialVM,
+                historialState = historialState,
                 ubicacionVM = ubicacionVM,
                 modifier = modifier.padding(innerPadding)
             )
@@ -124,8 +138,18 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview(ubicacionVM: UbicacionVM = UbicacionVM()) {
+fun GreetingPreview(
+    authVM: AuthVM = AuthVM(),
+    authState: AuthState = AuthState(),
+    historialVM: HistorialVM = HistorialVM(),
+    ubicacionVM: UbicacionVM = UbicacionVM()
+) {
     RIETITheme {
-        RIETIApp(ubicacionVM)
+        RIETIApp(
+            authVM,
+            authState,
+            ubicacionVM,
+            historialVM,
+        )
     }
 }

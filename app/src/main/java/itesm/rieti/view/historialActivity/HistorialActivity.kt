@@ -1,5 +1,6 @@
 package itesm.rieti.view.historialActivity
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -16,82 +18,58 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import itesm.rieti.R
 import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.DetallesReporteActivity
 import itesm.rieti.view.mockupData.BorradorMockUps
 import itesm.rieti.view.mockupData.ReporteMockups
-import itesm.rieti.viewModel.HistorialVM
+import itesm.rieti.viewModel.auth.AuthState
+import itesm.rieti.viewModel.history.HistorialState
+import itesm.rieti.viewModel.history.HistorialVM
+import itesm.rieti.viewModel.history.HistoryView
 
 @Composable
 fun HistorialActivity(
-    correoUsuario: String? = null,
-    mockupReportes: List<Reporte> = emptyList(),
-    mockupBorradores: List<Borrador> = emptyList(),
-    historialVM: HistorialVM = viewModel(),
-    onEditar: () -> Unit = {},
+    authState: AuthState,
+    historialVM: HistorialVM,
+    historialState: HistorialState,
     modifier: Modifier = Modifier
 ) {
-    val reportesState by historialVM.reportes.collectAsState()
-    val borradoresState by historialVM.borradores.collectAsState()
-
-    LaunchedEffect(correoUsuario) {
-        if (!correoUsuario.isNullOrBlank()) {
-            historialVM.cargarReportes(correoUsuario)
+    LaunchedEffect(historialState.reportes) {
+        if (historialState.reportes.isEmpty()) {
+            historialVM.cargarReportes(authState.usuario!!)
         }
     }
 
-    val reportesParaMostrar = if (reportesState.isNotEmpty()) reportesState else mockupReportes
-    val borradoresParaMostrar = if (borradoresState.isNotEmpty()) borradoresState else mockupBorradores
-
-    var reporteSeleccionado by remember { mutableStateOf<Reporte?>(null) }
-    var opcionSeleccionada by remember { mutableIntStateOf(0) }
-    val opciones = listOf("Reportes", "Borradores")
-
-    if (reporteSeleccionado == null) {
+    if (historialState.selectedReporte == null) {
         MuestraHistorial(
-            mockupReportes = reportesParaMostrar,
-            mockupBorradores = borradoresParaMostrar,
-            opciones = opciones,
-            opcionSeleccionada = opcionSeleccionada,
-            onOpcion = { opcionSeleccionada = it },
-            reporteSeleccionado = reporteSeleccionado,
-            onReporte = { reporteSeleccionado = it },
-            onEditar = onEditar,
+            historialVM = historialVM,
+            historialState = historialState,
             modifier = modifier
         )
     } else {
-        DetallesReporteActivity(
-            onClose = { reporteSeleccionado = null },
-            reporte = reporteSeleccionado!!
-        )
+        DetallesReporteActivity(historialVM, historialState)
     }
 }
 
 @Composable
-fun MuestraHistorial(mockupReportes: List<Reporte>,
-                     mockupBorradores: List<Borrador>,
-                     opciones: List<String>,
-                     opcionSeleccionada: Int,
-                     onOpcion: (Int) -> Unit,
-                     reporteSeleccionado: Reporte?,
-                     onReporte: (Reporte) -> Unit,
-                     onEditar: () -> Unit,
-                     modifier: Modifier = Modifier) {
+fun MuestraHistorial(
+    historialVM: HistorialVM,
+    historialState: HistorialState,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .padding(all = 14.dp)
@@ -111,35 +89,68 @@ fun MuestraHistorial(mockupReportes: List<Reporte>,
         Spacer(Modifier.height(12.dp))
         GrillaKPIs()
         Spacer(Modifier.height(12.dp))
-        BarraToggle(opciones, opcionSeleccionada, { onOpcion(it) })
+        BarraToggle(historialVM, historialState)
         Spacer(Modifier.height(6.dp))
-        LazyColumn {
-            when (opcionSeleccionada) {
-                0 -> {
-                    items(mockupReportes) { reporte ->
-                        TarjetaReporte(reporte.folio ?: "", reporte, onReporte)
+        when (historialState.selectedView) {
+            HistoryView.REPORTES -> {
+                if (historialState.reportes.isEmpty()) {
+                    EmptyLayout("No hay reportes")
+                } else {
+                    LazyColumn {
+                        items(historialState.reportes) { reporte ->
+                            TarjetaReporte(historialVM, reporte)
+                        }
                     }
                 }
-                1 -> {
-                    items(mockupBorradores) { borrador ->
-                        TarjetaBorrador(borrador, onEditar)
+            }
+            HistoryView.BORRADORES -> {
+                if (historialState.borradores.isEmpty()) {
+                    EmptyLayout("No hay borradores")
+                } else {
+                    LazyColumn {
+                        items(historialState.borradores) { borrador ->
+                            TarjetaBorrador(historialVM, borrador)
+                        }
                     }
                 }
             }
         }
     }
 }
+@Composable
+fun EmptyLayout(desc: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(R.drawable.no_records),
+            contentDescription = desc,
+            modifier = Modifier.height(200.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+        )
+        Text(
+            text = desc,
+            style = MaterialTheme.typography.headlineSmall
+        )
+    }
+}
 
 @Composable
-fun BarraToggle(opciones: List<String>, seleccionado: Int, onClick: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun BarraToggle(
+    historialVM: HistorialVM,
+    historialState: HistorialState,
+    modifier: Modifier = Modifier
+) {
     SingleChoiceSegmentedButtonRow(modifier = modifier) {
-        opciones.forEachIndexed { numero, etiqueta ->
+        HistoryView.entries.forEachIndexed { numero, view ->
             SegmentedButton(
-                selected = seleccionado == numero,
-                onClick = { onClick(numero) },
-                shape = SegmentedButtonDefaults.itemShape(index = numero, count = opciones.size)
+                selected = historialState.selectedView == view,
+                onClick = { historialVM.setView(view) },
+                shape = SegmentedButtonDefaults.itemShape(index = numero, count = HistoryView.entries.size)
             ) {
-                Text(text = etiqueta)
+                Text(text = view.desc)
             }
         }
     }
@@ -147,12 +158,10 @@ fun BarraToggle(opciones: List<String>, seleccionado: Int, onClick: (Int) -> Uni
 
 @Preview(showBackground = true)
 @Composable
-fun HistorialPreview() {
-    val mockupReportes: List<Reporte> = ReporteMockups().values.toList()
-    val mockupBorradores: List<Borrador> = BorradorMockUps().values.toList()
+fun HistorialPreview(historialVM: HistorialVM = HistorialVM()) {
     HistorialActivity(
-        mockupReportes = mockupReportes,
-        mockupBorradores = mockupBorradores,
-        onEditar = {}
+        authState = AuthState(),
+        historialVM = historialVM,
+        historialState = HistorialState()
     )
 }

@@ -32,9 +32,15 @@ import itesm.rieti.model.enums.Status
 import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.mockupData.ReporteMockups
+import itesm.rieti.viewModel.history.HistorialState
+import itesm.rieti.viewModel.history.HistorialVM
 
 @Composable
-fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Modifier = Modifier) {
+fun DetallesReporteActivity(
+    historialVM: HistorialVM,
+    historialState: HistorialState,
+    modifier: Modifier = Modifier
+) {
     val estadoScroll = rememberScrollState()
     Column(
         modifier = modifier
@@ -48,7 +54,7 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
             horizontalArrangement = Arrangement.Center
         ) {
             IconButton(
-                onClick = { onClose() },
+                onClick = { historialVM.setReporteSeleccionado(null) },
                 modifier = modifier.weight(1f).size(25.dp)
             ) {
                 Icon(
@@ -66,12 +72,12 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
             IconButton(
                 onClick = { },
                 modifier = modifier.weight(1f).size(25.dp),
-                enabled = reporte.expediente != null && reporte.expediente.status == Status.REGISTRADO
+                enabled = historialState.selectedReporte!!.expediente != null && historialState.selectedReporte.expediente.status == Status.REGISTRADO
             ) {
                 Icon(
                     painter = painterResource(R.drawable.pencil),
                     contentDescription = "Edit Report Details",
-                    tint = if (reporte.expediente != null && reporte.expediente.status == Status.REGISTRADO) MaterialTheme.colorScheme.onSurface else Color.Transparent
+                    tint = if (historialState.selectedReporte.expediente != null && historialState.selectedReporte.expediente.status == Status.REGISTRADO) MaterialTheme.colorScheme.onSurface else Color.Transparent
                 )
             }
         }
@@ -80,7 +86,7 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Folio: ${reporte.folio}",
+                text = "Folio: ${historialState.selectedReporte!!.folio}",
                 fontWeight = FontWeight.Light,
                 modifier = modifier.padding(end = 8.dp),
                 textAlign = TextAlign.Center
@@ -101,16 +107,16 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
         ) {
             Spacer(modifier.height(14.dp))
             Text(
-                text = reporte.detalles_adicionales ?: "",
+                text = historialState.selectedReporte!!.detalles_adicionales ?: "",
                 fontWeight = FontWeight.Normal,
                 fontSize = 18.sp,
             )
             Spacer(modifier.height(14.dp))
-            ElementoLista("Fecha:", reporte.dia.toString())
-            ElementoLista("Número de NNA:", reporte.numNinios.toString())
-            ElementoLista("Rango de edad:", reporte.rangoEdad.toString())
-            ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo?.name ?: "")
-            if (reporte.expediente != null) DetallesExpediente(reporte.expediente)
+            ElementoLista("Fecha:", historialState.selectedReporte.dia.toString())
+            ElementoLista("Número de NNA:", historialState.selectedReporte.numNinios.toString())
+            ElementoLista("Rango de edad:", historialState.selectedReporte.rangoEdad.toString())
+            ElementoLista("Tipo de trabajo:", historialState.selectedReporte.tipoTrabajo?.name ?: "")
+            if (historialState.selectedReporte.expediente != null) DetallesExpediente(historialState.selectedReporte.expediente)
             Spacer(modifier.height(14.dp))
             Text(
                 text = "Ubicación",
@@ -118,7 +124,7 @@ fun DetallesReporteActivity(onClose: () -> Unit, reporte: Reporte, modifier: Mod
                 fontSize = 16.sp
             )
             Text(
-                text = reporte.municipio ?: "",
+                text = historialState.selectedReporte.municipio ?: "",
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp
             )
@@ -171,7 +177,6 @@ fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier
 
 @Preview(showBackground = true)
 @Composable
-fun DetallesReportePreview() {
-    val reporte: Reporte = ReporteMockups().values.toList()[0]
-    DetallesReporteActivity({}, reporte)
+fun DetallesReportePreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {
+    DetallesReporteActivity(historialVM, historialState)
 }
