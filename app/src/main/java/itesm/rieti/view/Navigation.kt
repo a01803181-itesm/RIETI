@@ -44,6 +44,6 @@ fun AppNavHost(
                 historialState
             )
         }
-        composable(Pantalla.RUTA_CUENTA) { ConfigApp() }
+        composable(Pantalla.RUTA_CUENTA) { ConfigApp(historialVM) }
     }
 }

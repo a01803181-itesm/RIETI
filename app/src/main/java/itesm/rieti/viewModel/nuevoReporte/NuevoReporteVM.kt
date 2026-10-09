@@ -138,7 +138,7 @@ class NuevoReporteVM : ViewModel()
             viewModelScope.launch {
                 val folio = generadorFolios.reporte(
                     _state.value.reporte.municipio!!,
-                    _state.value.reporte.dia!!.split("T")[0]
+                    _state.value.reporte.dia!!
                 )
                 _state.value = _state.value.copy(
                     reporte = _state.value.reporte.copy(

@@ -56,9 +56,10 @@ import itesm.rieti.viewModel.FontSize
 import itesm.rieti.viewModel.Theme
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.config.ConfigVM
+import itesm.rieti.viewModel.history.HistorialVM
 
 @Composable
-fun ConfigApp(modifier: Modifier = Modifier) {
+fun ConfigApp(historialVM: HistorialVM, modifier: Modifier = Modifier) {
     val scrollState = rememberScrollState()
     val configVM: ConfigVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val configState by configVM.state.collectAsState()
@@ -76,7 +77,7 @@ fun ConfigApp(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(12.dp))
         TamanioLetra(configVM, configState)
         Spacer(modifier = Modifier.height(16.dp))
-        Cuenta(authVM)
+        Cuenta(historialVM, authVM)
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
@@ -227,7 +228,7 @@ fun TamanioLetra(
 
 
 @Composable
-fun Cuenta(authVM: AuthVM, modifier: Modifier = Modifier) {
+fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
     val scrollState = rememberScrollState()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -288,7 +289,7 @@ fun Cuenta(authVM: AuthVM, modifier: Modifier = Modifier) {
             contentDescription = "Cerrar Sesión",
             modifier = Modifier
                 .size(50.dp)
-                .clickable { authVM.signOut() },
+                .clickable { authVM.signOut({ historialVM.flush() }) },
             contentScale = ContentScale.Crop,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
         )
@@ -304,6 +305,6 @@ fun Cuenta(authVM: AuthVM, modifier: Modifier = Modifier) {
 @Preview
     (showBackground = true)
 @Composable
-fun ConfigPreview() {
-    ConfigApp()
+fun ConfigPreview(historialVM: HistorialVM = HistorialVM()) {
+    ConfigApp(historialVM)
 }

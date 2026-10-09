@@ -41,4 +41,7 @@ class HistorialVM : ViewModel()
     fun setView(view: HistoryView) {
         _state.value = _state.value.copy(selectedView = view)
     }
+    fun flush() {
+        _state.value = HistorialState()
+    }
 }
