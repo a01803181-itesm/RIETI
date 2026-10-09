@@ -1,11 +1,12 @@
 package itesm.rieti.model.esquemas
 
+import com.google.gson.annotations.SerializedName
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 
 data class Reporte(
     val folio: String = "",
-    val expediente: Expediente? = null,
+    @SerializedName("edad")
     val rangoEdad: RangoEdad? = null,
     val dia: String? = null,
     val tipoTrabajo: TipoTrabajo? = null,

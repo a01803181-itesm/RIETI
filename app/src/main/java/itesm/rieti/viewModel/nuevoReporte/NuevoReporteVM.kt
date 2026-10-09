@@ -12,6 +12,7 @@ import itesm.rieti.model.api.reportes.Manejador
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -132,7 +133,7 @@ class NuevoReporteVM : ViewModel()
         Log.e("Form", "Errors: ${_state.value.errors}")
         return newMap.isEmpty()
     }
-    fun crearReporte() {
+    fun crearReporte(usuario: Usuario) {
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
                 val folio = generadorFolios.reporte(
@@ -144,17 +145,19 @@ class NuevoReporteVM : ViewModel()
                         folio = folio
                     )
                 )
-//                val response = reporteHandler.crearReporte(_state.value.reporte)
-//                Log.i("Reporte", "REPORTE: ${_state.value.reporte}")
-//                Log.i("Reporte", "HTTP CODE: ${response.code()}")
-//                Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
-//                if (response.isSuccessful) {
-//                    _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
-//                } else {
-//                    val newMap = _state.value.errors.toMutableMap()
-//                    newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"
-//                    _state.value = _state.value.copy(errors = newMap)
-//                }
+                _state.value = _state.value.copy(reporte = _state.value.reporte.copy(correoU = usuario.correoU))
+                val response = reporteHandler.crearReporte(_state.value.reporte)
+                Log.i("Reporte", "REPORTE: ${_state.value.reporte}")
+                Log.i("Reporte", "HTTP CODE: ${response.code()}")
+                Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
+                if (response.isSuccessful) {
+                    Log.i("Reporte", "Reporte creado exitosamente")
+                    _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
+                } else {
+                    val newMap = _state.value.errors.toMutableMap()
+                    newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"
+                    _state.value = _state.value.copy(errors = newMap)
+                }
             }
         }
     }

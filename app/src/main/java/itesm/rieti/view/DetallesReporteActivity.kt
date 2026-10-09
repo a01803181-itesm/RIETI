@@ -72,12 +72,12 @@ fun DetallesReporteActivity(
             IconButton(
                 onClick = { },
                 modifier = modifier.weight(1f).size(25.dp),
-                enabled = historialState.selectedReporte!!.expediente != null && historialState.selectedReporte.expediente.status == Status.REGISTRADO
+                enabled = historialState.selectedReporte!!.folioE != null // TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.expediente.status == Status.REGISTRADO
             ) {
                 Icon(
                     painter = painterResource(R.drawable.pencil),
                     contentDescription = "Edit Report Details",
-                    tint = if (historialState.selectedReporte.expediente != null && historialState.selectedReporte.expediente.status == Status.REGISTRADO) MaterialTheme.colorScheme.onSurface else Color.Transparent
+                    tint = if (historialState.selectedReporte.folioE != null /* TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.expediente.status == Status.REGISTRADO*/) MaterialTheme.colorScheme.onSurface else Color.Transparent
                 )
             }
         }
@@ -116,7 +116,7 @@ fun DetallesReporteActivity(
             ElementoLista("Número de NNA:", historialState.selectedReporte.numNinios.toString())
             ElementoLista("Rango de edad:", historialState.selectedReporte.rangoEdad.toString())
             ElementoLista("Tipo de trabajo:", historialState.selectedReporte.tipoTrabajo?.name ?: "")
-            if (historialState.selectedReporte.expediente != null) DetallesExpediente(historialState.selectedReporte.expediente)
+            // TODO: Adapt legacy logic to new DB structure: if (historialState.selectedReporte.reporte != null) DetallesExpediente(historialState.selectedReporte.reporte)
             Spacer(modifier.height(14.dp))
             Text(
                 text = "Ubicación",

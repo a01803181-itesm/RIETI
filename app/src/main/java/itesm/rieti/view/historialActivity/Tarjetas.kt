@@ -46,7 +46,7 @@ fun TarjetaReporte(
                 .wrapContentHeight()
                 .padding(all = 18.dp)
         ) {
-            if (reporte.expediente != null) {
+            if (reporte.folioE != null) {
                 DosColumnas(
                     contenidoColumna1 = {
                         Column(
@@ -70,7 +70,7 @@ fun TarjetaReporte(
                             horizontalAlignment = Alignment.End
                         ) {
                             Text(
-                                text = reporte.expediente.status.name,
+                                text = reporte.folioE, /*TODO: Adapt legacy logic to new DB structure: reporte.reporte.status.name*/
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp,
                             )

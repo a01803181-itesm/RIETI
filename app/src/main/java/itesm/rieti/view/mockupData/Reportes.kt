@@ -15,13 +15,13 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             rangoEdad = RangoEdad.PUBERTOS,
             tipoTrabajo = TipoTrabajo.CONSTRUCCION,
             municipio = "Atizapán",
-            expediente = ExpedienteMockups().values.toList()[0]
+            folioE = ExpedienteMockups().values.toList()[0].folioExpediente
         ),
         Reporte(
             folio = "20260903ECAR64",
             detalles_adicionales = "Vi a una niña y un niño de aprox. 10 años lavando parabrisas en el semáforo",
             dia = "2026-09-03T11:18:00",
-            expediente = ExpedienteMockups().values.toList()[1],
+            folioE = ExpedienteMockups().values.toList()[1].folioExpediente,
             numNinios = 2,
             rangoEdad = RangoEdad.PUBERTOS,
             tipoTrabajo = TipoTrabajo.TRABAJO_DOMESTICO,
@@ -31,7 +31,7 @@ class ReporteMockups : PreviewParameterProvider<Reporte> {
             folio = "20260829COAR24",
             detalles_adicionales = "Hay cinco jóvenes como de 15 años vendiendo chicles en la esquina",
             dia = "2026-08-29T09:46:00",
-            expediente = ExpedienteMockups().values.toList()[2],
+            folioE = ExpedienteMockups().values.toList()[2].folioExpediente,
             numNinios = 5,
             rangoEdad = RangoEdad.JOVENES,
             tipoTrabajo = TipoTrabajo.LIMPIEZA_DE_PARABRISAS,

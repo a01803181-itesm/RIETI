@@ -64,6 +64,7 @@ import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
+import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.network.NetworkVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
@@ -71,7 +72,7 @@ import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import java.time.LocalDateTime
 
 @Composable
-fun NuevoReporte(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
+fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
 {
     val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
@@ -147,7 +148,7 @@ fun NuevoReporte(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networ
             if (nuevoReporteState.errors.isNotEmpty()) {
                 HorizontalDivider()
                 Text(
-                    text = "Hay campos con errores",
+                    text = if (nuevoReporteState.errors.contains(FormError.ServerError)) nuevoReporteState.errors[FormError.ServerError]!! else "Hay campos con errores",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error,
@@ -160,7 +161,7 @@ fun NuevoReporte(ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networ
             ) {
                 BotonGuardarBorrador(nuevoReporteVM, Modifier.weight(1f))
                 if (networkConnectionState) {
-                    BotonEnviarReporte(nuevoReporteVM, Modifier.weight(1f))
+                    BotonEnviarReporte(authState, nuevoReporteVM, Modifier.weight(1f))
                 }
             }
         }
@@ -472,11 +473,12 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
 
 @Composable
 fun BotonEnviarReporte(
+    authState: AuthState,
     nuevoReporteVM: NuevoReporteVM,
     modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = { nuevoReporteVM.crearReporte() },
+        onClick = { nuevoReporteVM.crearReporte(authState.usuario!!) },
         modifier = modifier
     ) {
         Text(
@@ -501,7 +503,7 @@ fun BotonGuardarBorrador(
 
 @Preview(showBackground = true)
 @Composable
-fun ReportePreview(ubicacionVM: UbicacionVM = UbicacionVM())
+fun ReportePreview(authState: AuthState = AuthState(), ubicacionVM: UbicacionVM = UbicacionVM())
 {
-    NuevoReporte(ubicacionVM)
+    NuevoReporte(authState, ubicacionVM)
 }

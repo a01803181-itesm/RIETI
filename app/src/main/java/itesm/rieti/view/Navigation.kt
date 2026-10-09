@@ -35,7 +35,7 @@ fun AppNavHost(
         startDestination = Pantalla.RUTA_INICIO,
         modifier = modifier.fillMaxSize()
     ) {
-        composable(Pantalla.RUTA_INICIO) { NuevoReporte(ubicacionVM) }
+        composable(Pantalla.RUTA_INICIO) { NuevoReporte(authState, ubicacionVM) }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) {
             HistorialActivity(
