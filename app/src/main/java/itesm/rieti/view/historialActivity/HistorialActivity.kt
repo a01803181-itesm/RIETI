@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,8 +17,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -30,11 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import itesm.rieti.R
-import itesm.rieti.model.esquemas.Borrador
-import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.view.DetallesReporteActivity
-import itesm.rieti.view.mockupData.BorradorMockUps
-import itesm.rieti.view.mockupData.ReporteMockups
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
@@ -74,9 +69,7 @@ fun MuestraHistorial(
         modifier = modifier
             .padding(all = 14.dp)
             .fillMaxSize()
-            .semantics {
-                testTagsAsResourceId = true
-            },
+            .semantics { testTagsAsResourceId = true },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -87,7 +80,7 @@ fun MuestraHistorial(
             modifier = Modifier.testTag("historyTitle")
         )
         Spacer(Modifier.height(12.dp))
-        GrillaKPIs()
+        GrillaKPIs(historialState)
         Spacer(Modifier.height(12.dp))
         BarraToggle(historialVM, historialState)
         Spacer(Modifier.height(6.dp))
@@ -127,12 +120,14 @@ fun EmptyLayout(desc: String, modifier: Modifier = Modifier) {
         Image(
             painter = painterResource(R.drawable.no_records),
             contentDescription = desc,
-            modifier = Modifier.height(200.dp),
+            modifier = Modifier.height(200.dp).offset(x = 20.dp),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
         )
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = desc,
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }
@@ -164,4 +159,10 @@ fun HistorialPreview(historialVM: HistorialVM = HistorialVM()) {
         historialVM = historialVM,
         historialState = HistorialState()
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmptyHeaderPreview() {
+    EmptyLayout("No hay reportes")
 }

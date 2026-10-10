@@ -215,10 +215,15 @@ fun Encabezado(modifier: Modifier = Modifier) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Rieti",
+            text = "RIETI",
             fontWeight = FontWeight.Bold,
             fontSize = 32.sp,
             color = MaterialTheme.colorScheme.onSurface
+        )
+        Image(
+            painter = painterResource(R.drawable.logo_rieti_only_vectors),
+            contentDescription = "RIETI",
+            modifier = modifier.size(100.dp)
         )
     }
 }
