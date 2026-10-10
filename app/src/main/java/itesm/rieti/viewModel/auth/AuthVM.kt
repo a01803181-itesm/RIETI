@@ -7,8 +7,6 @@ import itesm.rieti.model.api.usuarios.Manejador
 import itesm.rieti.model.auth.Auth
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
-import itesm.rieti.viewModel.history.HistorialState
-import itesm.rieti.viewModel.history.HistorialVM
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

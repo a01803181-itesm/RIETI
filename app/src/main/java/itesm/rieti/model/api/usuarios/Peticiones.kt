@@ -9,8 +9,6 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface Peticiones {
-    @GET("v1/usuarios/{user_email}")
-    suspend fun obtenerUsuario(@Path("user_email") correo: String): Response<Usuario>
     @GET("v1/usuarios/check-email/{email}")
     suspend fun checkEmail(@Path("email") email: String): Response<CheckEmail>
     @POST("v1/usuarios")

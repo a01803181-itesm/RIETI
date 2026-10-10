@@ -1,4 +1,4 @@
-package itesm.rieti.view.nuevoReporte
+package itesm.rieti.view.nuevoReporteActivity
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -69,7 +69,7 @@ fun SeleccionarHorario(
     val dateFormatted = try {
         if (nuevoReporteState.reporte.dia != null) {
             val parsed = LocalDateTime.parse(nuevoReporteState.reporte.dia)
-            parsed.format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"))
+            parsed.format(DateTimeFormatter.ofPattern("d MMM uuuu hh:mm a"))
         } else ""
     } catch (_: Exception) { "" }
 

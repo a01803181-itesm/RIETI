@@ -1,8 +1,6 @@
 package itesm.rieti.model.api
 
 import itesm.rieti.model.auth.Auth
-import itesm.rieti.model.esquemas.Reporte
-import itesm.rieti.model.esquemas.Usuario
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Interceptor
@@ -27,9 +25,9 @@ object ManejadorAPI {
     val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
         .build()
-    val retrofit by lazy {
+    val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(Config.BaseURL)
+            .baseUrl(Config.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

@@ -1,4 +1,4 @@
-package itesm.rieti.view.nuevoReporte
+package itesm.rieti.view.nuevoReporteActivity
 
 import android.content.Context
 import android.location.Geocoder
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -39,10 +38,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
-import com.google.maps.android.compose.DefaultMapUiSettings
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.model.api.FormError
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
@@ -60,9 +57,14 @@ suspend fun processAddressData(
 ) {
     val centroActual = cameraPositionState.position.target
     withContext(Dispatchers.IO) {
-        val geocoder = Geocoder(context, Locale.getDefault())
-        val address = geocoder.getFromLocation(centroActual.latitude, centroActual.longitude, 1)?.firstOrNull()
-        nuevoReporteVM.setAddress(address)
+        try {
+            val geocoder = Geocoder(context, Locale.getDefault())
+            val address = geocoder.getFromLocation(centroActual.latitude, centroActual.longitude, 1)?.firstOrNull()
+            nuevoReporteVM.setAddress(address)
+        } catch (e: Exception) {
+            Log.e("Ubicacion", "Error al obtener la dirección: ${e.message}", e)
+            nuevoReporteVM.setAddress(null)
+        }
     }
 }
 @Composable

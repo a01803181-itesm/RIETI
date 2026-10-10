@@ -8,11 +8,8 @@ import aws.sdk.kotlin.services.cognitoidentityprovider.model.LimitExceededExcept
 import aws.sdk.kotlin.services.cognitoidentityprovider.model.NotAuthorizedException
 import aws.sdk.kotlin.services.cognitoidentityprovider.model.UserNotFoundException
 import com.amplifyframework.auth.AuthUserAttributeKey
-import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.options.AuthSignUpOptions
 import com.amplifyframework.core.Amplify
-import itesm.rieti.model.esquemas.Provider
-import itesm.rieti.model.esquemas.Usuario
 
 object Cognito {
     fun mapError(error: Exception): String {
@@ -44,7 +41,6 @@ object Cognito {
                     Log.i("AmplifyAuth", "Sign-in successful, fetching credentials...")
                     Amplify.Auth.fetchUserAttributes(
                         { attributes ->
-                            val email = attributes.find { it.key == AuthUserAttributeKey.email() }?.value.orEmpty()
                             val sub = attributes.find { it.key.keyString == "sub" }?.value.orEmpty()
                             onSuccess(sub)
                         },

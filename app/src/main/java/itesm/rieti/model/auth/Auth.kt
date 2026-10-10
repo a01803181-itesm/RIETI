@@ -1,17 +1,12 @@
 package itesm.rieti.model.auth
 
 import android.util.Log
-import com.amplifyframework.auth.AuthUserAttribute
 import com.amplifyframework.auth.AuthUserAttributeKey
 import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.core.Amplify
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.Interceptor
-import kotlin.coroutines.resume
 
 object Auth {
     fun checkCachedSession(onSessionValid: (Usuario, String, String) -> Unit, onRequireAuth: () -> Unit) {

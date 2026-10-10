@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.amplifyframework.core.Amplify
 import itesm.rieti.model.api.usuarios.Manejador
 import itesm.rieti.model.auth.Google
-import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
 import kotlinx.coroutines.launch
 

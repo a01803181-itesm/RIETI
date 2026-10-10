@@ -1,4 +1,4 @@
-package itesm.rieti.view.nuevoReporte
+package itesm.rieti.view.nuevoReporteActivity
 
 import android.content.Context
 import android.net.Uri

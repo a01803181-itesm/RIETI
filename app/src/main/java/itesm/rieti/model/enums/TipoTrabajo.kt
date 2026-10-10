@@ -8,7 +8,7 @@ enum class TipoTrabajo(val desc: String) {
     @SerializedName("LIMPIEZA_DE_PARABRISAS")
     LIMPIEZA_DE_PARABRISAS("Limpieza de Parabrisas"),
     @SerializedName("MENDICIDAD")
-    MEDICIDAD("mendicidad"),
+    MENDICIDAD("Mendicidad"),
     @SerializedName("CARGA_Y_DESCARGA")
     CARGA_Y_DESCARGA("Carga y descarga"),
     @SerializedName("TRABAJO_EN_COMERCIO")

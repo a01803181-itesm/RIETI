@@ -30,11 +30,9 @@ class Ubicacion(
     private val activity: ComponentActivity,
     private val viewModel: UbicacionVM
 ) {
-
     /** Cliente de proveedor de ubicación fusionada para consultar la ubicación del dispositivo. */
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(activity)
-
     /** Lanzador para solicitar permisos de ubicación en tiempo de ejecución. */
     private val locationPermissionLauncher: ActivityResultLauncher<Array<String>> =
         activity.registerForActivityResult(
@@ -50,7 +48,6 @@ class Ubicacion(
                 println("El usuario rechazó el permiso de ubicación")
             }
         }
-
     /**
      * Inicia el proceso de actualización de ubicación.
      * Verifica los permisos necesarios; si están concedidos, obtiene la última ubicación e inicia
@@ -64,7 +61,6 @@ class Ubicacion(
             solicitarPermisoUbicacion()
         }
     }
-
     /**
      * Comprueba si la aplicación tiene concedido al menos uno de los permisos de ubicación
      * ([Manifest.permission.ACCESS_FINE_LOCATION] o [Manifest.permission.ACCESS_COARSE_LOCATION]).
@@ -81,7 +77,6 @@ class Ubicacion(
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
     }
-
     /**
      * Lanza la solicitud interactiva para que el usuario conceda los permisos de ubicación
      * precisa y aproximada.
@@ -94,7 +89,6 @@ class Ubicacion(
             )
         )
     }
-
     /**
      * Consulta la última ubicación conocida del dispositivo de forma asíncrona.
      * Si la consulta es exitosa, notifica al [viewModel] con la nueva ubicación.
@@ -115,7 +109,6 @@ class Ubicacion(
             println("Error al obtener la última ubicación: ${e.message}")
         }
     }
-
     /**
      * Inicia la recepción periódica de actualizaciones de ubicación utilizando
      * [LocationRequest] con alta precisión.
@@ -143,14 +136,12 @@ class Ubicacion(
             println("Error al solicitar actualizaciones de ubicación: ${e.message}")
         }
     }
-
     /**
      * Detiene la recepción de actualizaciones periódicas de ubicación para liberar recursos.
      */
     fun detenerActualizaciones() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
-
     /**
      * Callback invocado por [FusedLocationProviderClient] cuando hay nuevos resultados de ubicación.
      */

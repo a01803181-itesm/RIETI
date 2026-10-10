@@ -22,7 +22,7 @@ class NuevoReporteVM : ViewModel()
     val reporteHandler = Manejador
     val generadorFolios = GeneradorFolio
     val validate = Validate
-    val _state = MutableStateFlow(NuevoReporteState())
+    private val _state = MutableStateFlow(NuevoReporteState())
     val state: StateFlow<NuevoReporteState> = _state
     fun setRawName(name: String) {
         _state.value = _state.value.copy(rawName = name)
@@ -47,9 +47,9 @@ class NuevoReporteVM : ViewModel()
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = datetime))
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.DateTimeMissing)
     }
-    fun setCoords(latitude: Float, Longitude: Float) {
+    fun setCoords(latitude: Float, longitude: Float) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(latitud = latitude))
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(longitud = Longitude))
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(longitud = longitude))
     }
     fun setLocation(address: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(direccion = address))
@@ -64,7 +64,7 @@ class NuevoReporteVM : ViewModel()
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.WorkTypeMissing)
     }
     fun setDetails(details: String) {
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(detalles_adicionales = details))
+        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(detallesAdicionales = details))
     }
     fun setImageUri(uri: Uri) {
         _state.value = _state.value.copy(imageUri = uri)
@@ -110,8 +110,8 @@ class NuevoReporteVM : ViewModel()
                 _state.value.rawName,
                 { nombre, apPaterno, apMaterno ->
                     _state.value = _state.value.copy(reporte = _state.value.reporte.copy(nombre = nombre))
-                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(ap_paterno = apPaterno))
-                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(ap_materno = apMaterno))
+                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(apPaterno = apPaterno))
+                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(apMaterno = apMaterno))
                 },
                 { newMap[FormError.InvalidName] = it }
             )

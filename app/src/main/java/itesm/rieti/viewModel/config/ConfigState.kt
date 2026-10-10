@@ -1,4 +1,4 @@
-package itesm.rieti.viewModel
+package itesm.rieti.viewModel.config
 
 enum class Theme(val desc: String) {
     LIGHT("Claro"),

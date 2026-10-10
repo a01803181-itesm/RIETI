@@ -9,15 +9,9 @@ object Manejador {
     private val servicio by lazy {
         ManejadorAPI.retrofit.create(Peticiones::class.java)
     }
-
-    suspend fun obtenerUsuario(correo: String): Response<Usuario> {
-        return servicio.obtenerUsuario(correo)
-    }
-
     suspend fun checkEmail(email: String): Response<CheckEmail> {
         return servicio.checkEmail(email)
     }
-
     suspend fun crearUsuario(usuario: Usuario): Response<Usuario> {
         return servicio.crearUsuario(usuario)
     }

@@ -1,4 +1,4 @@
-package itesm.rieti.view
+package itesm.rieti.view.historialActivity
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -28,10 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import itesm.rieti.R
-import itesm.rieti.model.enums.Status
 import itesm.rieti.model.esquemas.Expediente
-import itesm.rieti.model.esquemas.Reporte
-import itesm.rieti.view.mockupData.ReporteMockups
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 
@@ -107,7 +104,7 @@ fun DetallesReporteActivity(
         ) {
             Spacer(modifier.height(14.dp))
             Text(
-                text = historialState.selectedReporte!!.detalles_adicionales ?: "",
+                text = historialState.selectedReporte!!.detallesAdicionales ?: "",
                 fontWeight = FontWeight.Normal,
                 fontSize = 18.sp,
             )

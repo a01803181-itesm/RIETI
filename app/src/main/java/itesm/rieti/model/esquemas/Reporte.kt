@@ -16,9 +16,12 @@ data class Reporte(
     val latitud: Float? = null,
     val longitud: Float? = null,
     val nombre: String? = null,
-    val ap_paterno: String? = null,
-    val ap_materno: String? = null,
-    val detalles_adicionales: String? = null,
+    @SerializedName("ap_paterno")
+    val apPaterno: String? = null,
+    @SerializedName("ap_materno")
+    val apMaterno: String? = null,
+    @SerializedName("detalles_adicionales")
+    val detallesAdicionales: String? = null,
     val correoU: String? = null,
     val folioE: String? = null,
     val correoAl: String? = null

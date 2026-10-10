@@ -25,9 +25,10 @@ import androidx.compose.ui.unit.sp
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Reporte
-import itesm.rieti.view.mockupData.BorradorMockUps
-import itesm.rieti.view.mockupData.ReporteMockups
+import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun TarjetaReporte(
@@ -46,56 +47,19 @@ fun TarjetaReporte(
                 .wrapContentHeight()
                 .padding(all = 18.dp)
         ) {
-            if (reporte.folioE != null) {
-                DosColumnas(
-                    contenidoColumna1 = {
-                        Column(
-                            modifier = modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = reporte.municipio ?: "",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                            )
-                            Text(
-                                text = reporte.folio,
-                                fontWeight = FontWeight.Light,
-                                fontSize = 10.sp,
-                            )
-                        }
-                    },
-                    contenidoColumna2 = {
-                        Column(
-                            modifier = modifier.weight(1f),
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            Text(
-                                text = reporte.folioE, /*TODO: Adapt legacy logic to new DB structure: reporte.reporte.status.name*/
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 14.sp,
-                            )
-                        }
-                    }
-                )
-            } else {
-                Column(
-                    modifier = modifier.weight(1f)
-                ) {
-                    Text(
-                        text = reporte.municipio ?: "",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                    )
-                    Text(
-                        text = reporte.folio,
-                        fontWeight = FontWeight.Light,
-                        fontSize = 10.sp,
-                    )
-                }
-            }
+            Text(
+                text = reporte.municipio ?: "",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+            )
+            Text(
+                text = reporte.folio,
+                fontWeight = FontWeight.Light,
+                fontSize = 10.sp,
+            )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = reporte.detalles_adicionales ?: "",
+                text = reporte.detallesAdicionales ?: reporte.direccion!!,
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
             )
@@ -107,8 +71,12 @@ fun TarjetaReporte(
                 Column(
                     modifier = modifier.weight(1f)
                 ) {
+                    val dateFormatted = try {
+                        val parsed = LocalDateTime.parse(reporte.dia!!)
+                        parsed.format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
+                    } catch (_: Exception) { reporte.dia!! }
                     Text(
-                        text = reporte.dia.toString(),
+                        text = dateFormatted,
                         fontWeight = FontWeight.Light,
                         fontSize = 14.sp
                     )
@@ -232,14 +200,12 @@ fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @C
 
 @Preview
 @Composable
-fun TarjetaReportePreview(historialVM: HistorialVM = HistorialVM()) {
-    val reporte: Reporte = ReporteMockups().values.toList()[0]
-    TarjetaReporte(historialVM, reporte)
+fun TarjetaReportePreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {
+    TarjetaReporte(historialVM, historialState.reportes[0])
 }
 
 @Preview
 @Composable
-fun TarjetaBorradorPreview(historialVM: HistorialVM = HistorialVM()) {
-    val borrador: Borrador = BorradorMockUps().values.toList()[0]
-    TarjetaBorrador(historialVM, borrador)
+fun TarjetaBorradorPreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {
+    TarjetaBorrador(historialVM, historialState.borradores[0])
 }

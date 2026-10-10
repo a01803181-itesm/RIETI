@@ -11,8 +11,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import itesm.rieti.ui.theme.RIETITheme
-import itesm.rieti.view.Pantalla
-import itesm.rieti.view.RIETIApp
+import itesm.rieti.view.mainActivity.Pantalla
+import itesm.rieti.view.mainActivity.RIETIApp
 import itesm.rieti.view.RegistroApp
 import itesm.rieti.viewModel.api.UsuarioVM
 import org.junit.Rule

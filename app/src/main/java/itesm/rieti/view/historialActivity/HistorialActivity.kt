@@ -1,5 +1,6 @@
 package itesm.rieti.view.historialActivity
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import itesm.rieti.R
-import itesm.rieti.view.DetallesReporteActivity
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
@@ -89,8 +89,9 @@ fun MuestraHistorial(
                 if (historialState.reportes.isEmpty()) {
                     EmptyLayout("No hay reportes")
                 } else {
-                    LazyColumn {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(historialState.reportes) { reporte ->
+                            Log.i("Reporte", "Reporte data: $reporte")
                             TarjetaReporte(historialVM, reporte)
                         }
                     }

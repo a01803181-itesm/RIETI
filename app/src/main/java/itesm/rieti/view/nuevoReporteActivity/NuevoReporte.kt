@@ -1,4 +1,4 @@
-package itesm.rieti.view.nuevoReporte
+package itesm.rieti.view.nuevoReporteActivity
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
@@ -388,7 +388,7 @@ fun Detalles(
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
-        value = nuevoReporteState.reporte.detalles_adicionales ?: "",
+        value = nuevoReporteState.reporte.detallesAdicionales ?: "",
         onValueChange = { nuevoReporteVM.setDetails(it) },
         label = {
             Text(

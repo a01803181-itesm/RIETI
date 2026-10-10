@@ -1,4 +1,4 @@
-package itesm.rieti.view
+package itesm.rieti.view.configActivity
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
@@ -20,7 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -32,15 +31,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,19 +46,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Provider
-import itesm.rieti.viewModel.ConfigState
-import itesm.rieti.viewModel.FontSize
-import itesm.rieti.viewModel.Theme
+import itesm.rieti.viewModel.config.ConfigState
+import itesm.rieti.viewModel.config.FontSize
+import itesm.rieti.viewModel.config.Theme
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.history.HistorialVM
 
 @Composable
-fun ConfigApp(historialVM: HistorialVM, modifier: Modifier = Modifier) {
+fun ConfigApp(
+    authVM: AuthVM,
+    historialVM: HistorialVM,
+    modifier: Modifier = Modifier
+) {
     val scrollState = rememberScrollState()
     val configVM: ConfigVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val configState by configVM.state.collectAsState()
-    val authVM: AuthVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     Column (modifier = modifier
         .fillMaxSize()
         .padding((18.dp))
@@ -87,7 +85,7 @@ fun Perfil(authVM: AuthVM, modifier: Modifier = Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = modifier.padding(bottom = 16.dp)
         ) {
             if (authState.pictureURL != null) {
                 val highPictureURL = authState.pictureURL!!.replace(Regex("s\\d+-c"), "s400-c")
@@ -236,7 +234,7 @@ fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifi
             text = "Cuenta",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             textAlign = TextAlign.Left
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -289,7 +287,7 @@ fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifi
             contentDescription = "Cerrar Sesión",
             modifier = Modifier
                 .size(50.dp)
-                .clickable { authVM.signOut({ historialVM.flush() }) },
+                .clickable { authVM.signOut { historialVM.flush() } },
             contentScale = ContentScale.Crop,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
         )
@@ -302,9 +300,8 @@ fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifi
     }
 }
 
-@Preview
-    (showBackground = true)
+@Preview(showBackground = true)
 @Composable
-fun ConfigPreview(historialVM: HistorialVM = HistorialVM()) {
-    ConfigApp(historialVM)
+fun ConfigPreview(authVM: AuthVM = AuthVM(), historialVM: HistorialVM = HistorialVM()) {
+    ConfigApp(authVM, historialVM)
 }

@@ -170,10 +170,10 @@ fun OTPCodeInput(
 ) {
     BasicTextField(
         value = code,
-        onValueChange = {
-            if (it.length <= otpLength && it.all { it.isDigit() }) {
-                onCodeChange(it)
-                if (it.length == otpLength) onCodeComplete(it)
+        onValueChange = { code ->
+            if (code.length <= otpLength && code.all { it.isDigit() }) {
+                onCodeChange(code)
+                if (code.length == otpLength) onCodeComplete(code)
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),

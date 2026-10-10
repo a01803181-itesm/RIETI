@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.amplifyframework.core.Amplify
 import itesm.rieti.model.api.usuarios.Manejador
 import itesm.rieti.model.auth.Cognito
-import itesm.rieti.model.esquemas.Provider
-import itesm.rieti.model.esquemas.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -88,22 +86,26 @@ class CognitoVM : ViewModel() {
             viewModelScope.launch {
                 val response = userAPIHandler.checkEmail(email)
                 if (response.isSuccessful) {
-                    if (response.body()?.exists == true && response.body()?.provider == "cognito") {
-                        Amplify.Auth.resetPassword(
-                            email,
-                            {
-                                Log.i("Auth", "Password reset code sent to $email")
-                                onSuccess()
-                            },
-                            {
-                                Log.e("Auth", "Failed to reset password", it)
-                                onError(it.message)
-                            }
-                        )
-                    } else if (response.body()?.exists == true && response.body()?.provider == "google") {
-                        onError("No es posible restablecer la contraseña. La cuenta está vinculada con Google")
-                    } else {
-                        onError("El correo electrónico no está registrado")
+                    when (response.body()?.exists) {
+                        true if response.body()?.provider == "cognito" -> {
+                            Amplify.Auth.resetPassword(
+                                email,
+                                {
+                                    Log.i("Auth", "Password reset code sent to $email")
+                                    onSuccess()
+                                },
+                                {
+                                    Log.e("Auth", "Failed to reset password", it)
+                                    onError(it.message)
+                                }
+                            )
+                        }
+                        true if response.body()?.provider == "google" -> {
+                            onError("No es posible restablecer la contraseña. La cuenta está vinculada con Google")
+                        }
+                        else -> {
+                            onError("El correo electrónico no está registrado")
+                        }
                     }
                 } else {
                     onError("Error de conexión al servidor. ${response.code()}: ${response.message()}.")

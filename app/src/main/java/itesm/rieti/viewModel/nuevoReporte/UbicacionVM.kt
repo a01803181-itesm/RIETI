@@ -1,15 +1,11 @@
 package itesm.rieti.viewModel.nuevoReporte
 
-import android.content.Context
 import android.location.Location
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.ubicacion.Ubicacion
-import itesm.rieti.model.ubicacion.obtenerDireccion
-import itesm.rieti.view.MainActivity
+import itesm.rieti.view.mainActivity.MainActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 /**
  * ViewModel encargado de gestionar y exponer el estado de la ubicación actual del dispositivo
@@ -41,7 +37,7 @@ class UbicacionVM: ViewModel()
     /**
      * Inicializa la instancia de [Ubicacion] vinculada a la actividad principal.
      *
-     * @param activity La [itesm.rieti.view.MainActivity] que alojará los launchers de permisos de ubicación.
+     * @param activity La [MainActivity] que alojará los launchers de permisos de ubicación.
      */
     fun crearAdministradorUbicacion(activity: MainActivity) {
         administradorUbicacion = Ubicacion(activity, this)
@@ -59,19 +55,5 @@ class UbicacionVM: ViewModel()
      */
     fun detenerActualizaciones() {
         administradorUbicacion.detenerActualizaciones()
-    }
-
-    fun obtenerUbicacion(context: Context, onSuccess: (String) -> Unit) {
-        viewModelScope.launch {
-            if (_ubicacion.value != null) {
-                onSuccess(
-                    obtenerDireccion(
-                        context,
-                        _ubicacion.value!!.latitude,
-                        _ubicacion.value!!.longitude
-                    )
-                )
-            }
-        }
     }
 }

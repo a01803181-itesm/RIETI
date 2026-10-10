@@ -1,4 +1,4 @@
-package itesm.rieti.view
+package itesm.rieti.view.mainActivity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -106,7 +106,7 @@ fun RIETIApp(
 
 @Composable
 fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) {
-    BottomAppBar {
+    BottomAppBar(modifier = modifier) {
         val pilaNavegacion by navController.currentBackStackEntryAsState()
         val pantallaActual = pilaNavegacion?.destination
 
