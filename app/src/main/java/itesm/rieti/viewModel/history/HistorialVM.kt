@@ -11,11 +11,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel encargado de la lógica y la manipulación de datos en la sección del historial 
+ * del usuario (reportes finalizados y borradores).
+ */
 class HistorialVM : ViewModel()
 {
     private val handler = Manejador
     private val _state = MutableStateFlow(HistorialState())
+    
+    /**
+     * Estado observable del historial (contiene la lista de reportes, borradores y opciones seleccionadas).
+     */
     val state: StateFlow<HistorialState> = _state
+
+    /**
+     * Carga de manera asíncrona los reportes enviados por el usuario desde el servidor.
+     *
+     * @param usuario El [Usuario] activo, necesario para obtener sus reportes asociados.
+     */
     fun cargarReportes(usuario: Usuario) {
         viewModelScope.launch {
             try {
@@ -39,15 +53,37 @@ class HistorialVM : ViewModel()
             }
         }
     }
+
+    /**
+     * Establece el reporte seleccionado actualmente para visualizar sus detalles.
+     *
+     * @param reporte Objeto [Reporte] elegido o `null` para deseleccionar.
+     */
     fun setReporteSeleccionado(reporte: Reporte?) {
         _state.value = _state.value.copy(selectedReporte = reporte)
     }
+
+    /**
+     * Establece el borrador seleccionado actualmente para continuar su edición o ver detalles.
+     *
+     * @param borrador Objeto [Borrador] elegido o `null` para deseleccionar.
+     */
     fun setBorradorSeleccionado(borrador: Borrador?) {
         _state.value = _state.value.copy(selectedBorrador = borrador)
     }
+
+    /**
+     * Cambia la vista actual en la pantalla de historial (por ejemplo, entre reportes y borradores).
+     *
+     * @param view Nueva [HistoryView] a visualizar.
+     */
     fun setView(view: HistoryView) {
         _state.value = _state.value.copy(selectedView = view)
     }
+
+    /**
+     * Limpia completamente el estado actual del historial, devolviéndolo a su forma inicial por defecto.
+     */
     fun flush() {
         _state.value = HistorialState()
     }

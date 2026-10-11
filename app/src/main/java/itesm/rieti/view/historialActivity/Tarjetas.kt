@@ -30,6 +30,13 @@ import itesm.rieti.viewModel.history.HistorialVM
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+/**
+ * Componente de tarjeta para mostrar información resumida de un reporte.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param reporte Datos del reporte a mostrar.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun TarjetaReporte(
     historialVM: HistorialVM,
@@ -103,6 +110,13 @@ fun TarjetaReporte(
     }
 }
 
+/**
+ * Componente de tarjeta para mostrar información de un borrador guardado.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param borrador Datos del borrador a mostrar.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun TarjetaBorrador(
     historialVM: HistorialVM,
@@ -187,6 +201,13 @@ fun TarjetaBorrador(
         }
     }
 }
+/**
+ * Función auxiliar para crear un diseño de dos columnas.
+ *
+ * @param contenidoColumna1 Contenido de la primera columna.
+ * @param contenidoColumna2 Contenido de la segunda columna.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @Composable () -> Unit, modifier: Modifier = Modifier) {
     Row(
@@ -198,12 +219,24 @@ fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @C
     }
 }
 
+/**
+ * Vista previa de la tarjeta de reporte.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial.
+ */
 @Preview
 @Composable
 fun TarjetaReportePreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {
     TarjetaReporte(historialVM, historialState.reportes[0])
 }
 
+/**
+ * Vista previa de la tarjeta de borrador.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial.
+ */
 @Preview
 @Composable
 fun TarjetaBorradorPreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {

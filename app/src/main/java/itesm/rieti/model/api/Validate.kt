@@ -2,6 +2,9 @@ package itesm.rieti.model.api
 
 import android.util.Log
 
+/**
+ * Enumeración que representa los posibles errores en los formularios.
+ */
 enum class FormError {
     InvalidName,
     ServerError,
@@ -11,7 +14,18 @@ enum class FormError {
     InvalidLocation,
     AgeRangeMissing,
 }
+
+/**
+ * Objeto de validación de diferentes formatos y campos.
+ */
 object Validate {
+    /**
+     * Valida el formato del nombre completo, extrayendo el primer nombre y los apellidos.
+     *
+     * @param name Nombre completo ingresado por el usuario.
+     * @param onSuccess Callback invocado al ser exitoso, entregando nombre, apellido paterno y apellido materno.
+     * @param onError Callback invocado al fallar la validación, entregando el mensaje de error.
+     */
     fun fullName(
         name: String,
         onSuccess: (String, String, String) -> Unit,

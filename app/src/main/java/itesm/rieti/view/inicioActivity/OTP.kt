@@ -31,6 +31,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.auth.CognitoVM
 
+/**
+ * Pantalla para ingresar el código OTP (One Time Password) de registro.
+ *
+ * @param cognitoVM ViewModel de AWS Cognito.
+ */
 @Composable
 fun OTPSignUpScreen(
     cognitoVM: CognitoVM
@@ -79,6 +84,13 @@ fun OTPSignUpScreen(
     }
 }
 
+/**
+ * Pantalla para ingresar el código OTP de recuperación de contraseña y la nueva contraseña.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param cognitoVM ViewModel de AWS Cognito.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun OTPRecoverPasswordScreen(
     authVM: AuthVM,
@@ -160,6 +172,15 @@ fun OTPRecoverPasswordScreen(
     }
 }
 
+/**
+ * Componente para introducir un código OTP, compuesto por varias cajas de dígitos.
+ *
+ * @param code Código actual introducido.
+ * @param onCodeChange Callback que se invoca cuando el código cambia.
+ * @param onCodeComplete Callback que se invoca cuando el código alcanza la longitud requerida.
+ * @param modifier Modificador para la vista.
+ * @param otpLength Longitud total del código OTP (por defecto 6).
+ */
 @Composable
 fun OTPCodeInput(
     code: String,
@@ -197,6 +218,12 @@ fun OTPCodeInput(
     )
 }
 
+/**
+ * Caja individual que muestra un único dígito del código OTP.
+ *
+ * @param char Carácter a mostrar.
+ * @param isFocused Booleano que indica si la caja tiene el foco actual.
+ */
 @Composable
 fun DigitBox(
     char: String,
@@ -231,6 +258,11 @@ fun DigitBox(
     }
 }
 
+/**
+ * Vista previa de la pantalla de ingreso del código OTP para el registro.
+ *
+ * @param cognitoVM ViewModel de AWS Cognito.
+ */
 @Preview(showBackground = true)
 @Composable
 fun OTPSignUpCodeInputPreview(cognitoVM: CognitoVM = CognitoVM()) {

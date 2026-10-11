@@ -16,24 +16,17 @@ import com.google.android.gms.location.Priority
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 
 /**
- * Clase encargada de obtener la ubicacion del dispositivo validando los permisos
- * y actualizando cada cierto tiempo la ubicacion.
+ * Clase que encapsula la lógica de obtención y monitoreo de la ubicación geográfica del usuario.
  *
- * @author César Ariel Rodríguez Sandoval
- * @date 2026-09
- *
- * @property activity La actividad que contiene el ViewModel.
- * @property viewModel El viewmodel que gestiona la ubicación del dispositivo.
+ * @param activity La actividad principal desde donde se requieren los permisos y los servicios de ubicación.
+ * @param viewModel El ViewModel asociado donde se actualizarán los datos de ubicación.
  */
-
 class Ubicacion(
     private val activity: ComponentActivity,
     private val viewModel: UbicacionVM
 ) {
-    /** Cliente de proveedor de ubicación fusionada para consultar la ubicación del dispositivo. */
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(activity)
-    /** Lanzador para solicitar permisos de ubicación en tiempo de ejecución. */
     private val locationPermissionLauncher: ActivityResultLauncher<Array<String>> =
         activity.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -49,9 +42,8 @@ class Ubicacion(
             }
         }
     /**
-     * Inicia el proceso de actualización de ubicación.
-     * Verifica los permisos necesarios; si están concedidos, obtiene la última ubicación e inicia
-     * las actualizaciones periódicas. De lo contrario, solicita los permisos correspondientes.
+     * Inicia la recolección de actualizaciones de ubicación si se cuenta con permisos. 
+     * Si no, solicita los permisos al usuario.
      */
     fun iniciarActualizaciones() {
         if (tienePermisoUbicacion()) {
@@ -61,12 +53,6 @@ class Ubicacion(
             solicitarPermisoUbicacion()
         }
     }
-    /**
-     * Comprueba si la aplicación tiene concedido al menos uno de los permisos de ubicación
-     * ([Manifest.permission.ACCESS_FINE_LOCATION] o [Manifest.permission.ACCESS_COARSE_LOCATION]).
-     *
-     * @return `true` si se cuenta con al menos un permiso de ubicación, `false` en caso contrario.
-     */
     private fun tienePermisoUbicacion(): Boolean {
         return ContextCompat.checkSelfPermission(
             activity,
@@ -77,10 +63,6 @@ class Ubicacion(
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
     }
-    /**
-     * Lanza la solicitud interactiva para que el usuario conceda los permisos de ubicación
-     * precisa y aproximada.
-     */
     private fun solicitarPermisoUbicacion() {
         locationPermissionLauncher.launch(
             arrayOf(
@@ -89,10 +71,6 @@ class Ubicacion(
             )
         )
     }
-    /**
-     * Consulta la última ubicación conocida del dispositivo de forma asíncrona.
-     * Si la consulta es exitosa, notifica al [viewModel] con la nueva ubicación.
-     */
     private fun obtenerUltimaUbicacion() {
         if (!tienePermisoUbicacion()) {
             println("No tiene permiso de acceder a la última ubicación")
@@ -109,10 +87,6 @@ class Ubicacion(
             println("Error al obtener la última ubicación: ${e.message}")
         }
     }
-    /**
-     * Inicia la recepción periódica de actualizaciones de ubicación utilizando
-     * [LocationRequest] con alta precisión.
-     */
     private fun iniciarActualizacionesUbicacion() {
         if (!tienePermisoUbicacion()){
             println("No tiene permiso de actualizar ubicación")
@@ -137,14 +111,11 @@ class Ubicacion(
         }
     }
     /**
-     * Detiene la recepción de actualizaciones periódicas de ubicación para liberar recursos.
+     * Detiene las actualizaciones continuas de ubicación, liberando así los recursos del sistema.
      */
     fun detenerActualizaciones() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
-    /**
-     * Callback invocado por [FusedLocationProviderClient] cuando hay nuevos resultados de ubicación.
-     */
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             //for (location in result.locations) {

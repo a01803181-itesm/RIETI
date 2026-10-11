@@ -8,7 +8,16 @@ import com.amplifyframework.core.Amplify
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
 
+/**
+ * Objeto encargado de gestionar la autenticación utilizando AWS Amplify.
+ */
 object Auth {
+    /**
+     * Verifica si existe una sesión válida en caché.
+     * 
+     * @param onSessionValid Callback ejecutado si la sesión es válida. Retorna el usuario, sub (subject) y la URL de su imagen de perfil.
+     * @param onRequireAuth Callback ejecutado si no hay sesión activa o hubo un error al obtenerla.
+     */
     fun checkCachedSession(onSessionValid: (Usuario, String, String) -> Unit, onRequireAuth: () -> Unit) {
         Log.i("Auth", "Starting checkAuth")
         Amplify.Auth.fetchAuthSession(
@@ -45,6 +54,11 @@ object Auth {
             }
         )
     }
+    /**
+     * Cierra la sesión actual del usuario eliminando los tokens de autenticación.
+     *
+     * @param onComplete Callback ejecutado al terminar el proceso de cierre de sesión (con o sin éxito).
+     */
     fun signOut(onComplete: () -> Unit) {
         Amplify.Auth.signOut { result ->
             when (result) {
@@ -63,6 +77,11 @@ object Auth {
             }
         }
     }
+    /**
+     * Obtiene el token de acceso (Bearer Token) del usuario autenticado.
+     *
+     * @param onResult Callback que retorna el token de acceso, o null si no se pudo obtener.
+     */
     fun getBearerToken(onResult: (String?) -> Unit) {
         Amplify.Auth.fetchAuthSession(
             { session ->

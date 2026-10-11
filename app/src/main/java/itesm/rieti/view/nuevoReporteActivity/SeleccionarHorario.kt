@@ -40,6 +40,13 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.Instant
 
+/**
+ * Componente que permite seleccionar una fecha y hora utilizando selectores modales.
+ *
+ * @param nuevoReporteVM ViewModel del nuevo reporte para guardar la fecha y hora seleccionada.
+ * @param nuevoReporteState Estado actual del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeleccionarHorario(

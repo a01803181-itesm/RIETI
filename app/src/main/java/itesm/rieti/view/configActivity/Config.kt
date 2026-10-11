@@ -53,6 +53,15 @@ import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.history.HistorialVM
 
+/**
+ * Pantalla de configuración principal de la aplicación.
+ * Permite al usuario ver su perfil, cambiar la apariencia (tema y tamaño de letra),
+ * y gestionar su cuenta.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param historialVM ViewModel del historial de reportes.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun ConfigApp(
     authVM: AuthVM,
@@ -79,6 +88,12 @@ fun ConfigApp(
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+/**
+ * Componente que muestra la imagen de perfil y el correo del usuario actual.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Perfil(authVM: AuthVM, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
@@ -127,6 +142,13 @@ fun Perfil(authVM: AuthVM, modifier: Modifier = Modifier) {
         )
     }
 }
+/**
+ * Componente que permite seleccionar el tema (apariencia) de la aplicación.
+ *
+ * @param configVM ViewModel de la configuración.
+ * @param configState Estado de la configuración actual.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Apariencia(
     configVM: ConfigVM,
@@ -178,6 +200,13 @@ fun Apariencia(
     }
 }
 
+/**
+ * Componente que permite seleccionar el tamaño de letra de la aplicación.
+ *
+ * @param configVM ViewModel de la configuración.
+ * @param configState Estado de la configuración actual.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun TamanioLetra(
     configVM: ConfigVM,
@@ -225,6 +254,13 @@ fun TamanioLetra(
 }
 
 
+/**
+ * Componente que muestra los detalles de la cuenta y la opción de cerrar sesión.
+ *
+ * @param historialVM ViewModel del historial de reportes.
+ * @param authVM ViewModel de autenticación.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
@@ -300,6 +336,12 @@ fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifi
     }
 }
 
+/**
+ * Vista previa de la pantalla de configuración.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param historialVM ViewModel del historial de reportes.
+ */
 @Preview(showBackground = true)
 @Composable
 fun ConfigPreview(authVM: AuthVM = AuthVM(), historialVM: HistorialVM = HistorialVM()) {

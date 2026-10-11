@@ -32,6 +32,13 @@ import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 
+/**
+ * Pantalla que muestra los detalles completos de un reporte seleccionado.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial actual.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun DetallesReporteActivity(
     historialVM: HistorialVM,
@@ -136,6 +143,12 @@ fun DetallesReporteActivity(
     }
 }
 
+/**
+ * Componente que muestra los detalles específicos de un expediente asociado a un reporte.
+ *
+ * @param expediente El expediente a mostrar.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun DetallesExpediente(expediente: Expediente, modifier: Modifier = Modifier) {
     Spacer(modifier.height(14.dp))
@@ -151,6 +164,13 @@ fun DetallesExpediente(expediente: Expediente, modifier: Modifier = Modifier) {
     ElementoLista("Última Actualización:", expediente.ultimaActualizacion.toString())
 }
 
+/**
+ * Componente de interfaz de usuario que representa un elemento en una lista con una etiqueta y su valor.
+ *
+ * @param etiqueta Texto que describe el valor.
+ * @param valor Texto del valor a mostrar.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier) {
     Row(
@@ -172,6 +192,12 @@ fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier
     }
 }
 
+/**
+ * Vista previa de los detalles de un reporte.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial.
+ */
 @Preview(showBackground = true)
 @Composable
 fun DetallesReportePreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {

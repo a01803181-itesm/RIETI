@@ -71,6 +71,15 @@ import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import java.time.LocalDateTime
 
+/**
+ * Pantalla principal para la creación de un nuevo reporte.
+ * Contiene los campos necesarios como nombre, número de NNA, tipo de trabajo, detalles, foto y ubicación.
+ *
+ * @param authState Estado de autenticación.
+ * @param ubicacionVM ViewModel de ubicación.
+ * @param modifier Modificador para la vista.
+ * @param networkVM ViewModel que verifica la conexión a red.
+ */
 @Composable
 fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
 {
@@ -167,6 +176,9 @@ fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modif
         }
     }
 }
+/**
+ * Componente que muestra una alerta indicando que el dispositivo está sin conexión (modo offline).
+ */
 @Composable
 fun OfflineHeader() {
     Row(
@@ -196,6 +208,13 @@ fun OfflineHeader() {
         )
     }
 }
+/**
+ * Campo para ingresar o ajustar la cantidad de Niños, Niñas o Adolescentes (NNA).
+ *
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param nuevoReporteState Estado del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun CantidadNNA(
     nuevoReporteVM: NuevoReporteVM,
@@ -262,6 +281,13 @@ fun CantidadNNA(
     )
 }
 
+/**
+ * Menú desplegable para seleccionar el rango de edad.
+ *
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param nuevoReporteState Estado del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Edad(
@@ -322,6 +348,13 @@ fun Edad(
     }
 }
 
+/**
+ * Menú desplegable para seleccionar el tipo de trabajo reportado.
+ *
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param nuevoReporteState Estado del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TipoTrabajoDropdown(
@@ -381,6 +414,13 @@ fun TipoTrabajoDropdown(
         }
     }
 }
+/**
+ * Campo de texto para ingresar detalles adicionales sobre el reporte.
+ *
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param nuevoReporteState Estado del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Detalles(
     nuevoReporteVM: NuevoReporteVM,
@@ -403,6 +443,13 @@ fun Detalles(
             .height(180.dp)
     )
 }
+/**
+ * Campo de texto para ingresar el nombre completo del reportante o dejarlo en blanco (Anónimo).
+ *
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param nuevoReporteState Estado del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState, modifier: Modifier = Modifier)
 {
@@ -471,6 +518,13 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
     }
 }
 
+/**
+ * Botón para enviar un reporte a los servidores.
+ *
+ * @param authState Estado de autenticación del usuario.
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun BotonEnviarReporte(
     authState: AuthState,
@@ -486,6 +540,12 @@ fun BotonEnviarReporte(
         )
     }
 }
+/**
+ * Botón para guardar el reporte actual como borrador local.
+ *
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun BotonGuardarBorrador(
     nuevoReporteVM: NuevoReporteVM,
@@ -501,6 +561,12 @@ fun BotonGuardarBorrador(
     }
 }
 
+/**
+ * Vista previa de la pantalla de nuevo reporte.
+ *
+ * @param authState Estado de autenticación.
+ * @param ubicacionVM ViewModel de ubicación.
+ */
 @Preview(showBackground = true)
 @Composable
 fun ReportePreview(authState: AuthState = AuthState(), ubicacionVM: UbicacionVM = UbicacionVM())

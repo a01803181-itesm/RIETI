@@ -10,9 +10,22 @@ import itesm.rieti.model.auth.Google
 import itesm.rieti.model.esquemas.Usuario
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel encargado de manejar la autenticación mediante Google.
+ */
 class GoogleVM : ViewModel() {
     private val userAPIHandler = Manejador
     private val googleAuth = Google
+
+    /**
+     * Autentica al usuario utilizando el flujo de Google e interactuando con la API para 
+     * validar la existencia o el registro del usuario.
+     *
+     * @param activity Actividad desde donde se inicia el flujo de autenticación.
+     * @param onSuccess Callback llamado tras un inicio de sesión o registro exitoso. Recibe el 
+     * [Usuario], el identificador (sub) y la URL de la foto de perfil.
+     * @param onError Callback llamado cuando ocurre un error en la autenticación o verificación.
+     */
     fun authenticate(
         activity: Activity,
         onSuccess: (Usuario, String, String) -> Unit,

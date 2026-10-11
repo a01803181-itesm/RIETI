@@ -28,9 +28,12 @@ import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.history.HistorialVM
 
+/**
+ * Actividad principal de la aplicación.
+ * Configura la inyección de dependencias, AWS Cognito y el contenido principal de Compose.
+ */
 class MainActivity : ComponentActivity()
 {
-    /** ViewModel para gestionar el estado de la ubicación del dispositivo. */
     private val ubicacionVM: UbicacionVM by viewModels()
     private val authVM: AuthVM by viewModels()
     private val historialVM: HistorialVM by viewModels()
@@ -57,24 +60,27 @@ class MainActivity : ComponentActivity()
         }
     }
 
-    /**
-     * Se ejecuta al iniciar la app e inicia la solicitud de actualizaciones de ubicación.
-     */
     override fun onStart()
     {
         super.onStart()
     }
 
-    /**
-     * Se ejecuta al detener la ap y detiene las actualizaciones de ubicación para
-     * no consumir recursos del dispositivo.
-     */
     override fun onStop()
     {
         super.onStop()
         ubicacionVM.detenerActualizaciones()
     }
 }
+/**
+ * Componente principal que define la estructura básica de la app con un Scaffold,
+ * navegación y barra inferior.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param authState Estado de la autenticación.
+ * @param ubicacionVM ViewModel de ubicación.
+ * @param historialVM ViewModel del historial.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun RIETIApp(
     authVM: AuthVM,
@@ -104,6 +110,12 @@ fun RIETIApp(
     )
 }
 
+/**
+ * Barra de navegación inferior (BottomAppBar) de la aplicación.
+ *
+ * @param navController Controlador de navegación para cambiar de pantalla.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) {
     BottomAppBar(modifier = modifier) {
@@ -136,6 +148,14 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
     }
 }
 
+/**
+ * Vista previa de la aplicación completa de RIETI.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param authState Estado de autenticación.
+ * @param historialVM ViewModel del historial.
+ * @param ubicacionVM ViewModel de ubicación.
+ */
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview(

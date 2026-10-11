@@ -19,6 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import itesm.rieti.viewModel.history.HistorialState
 
+/**
+ * Enumeración que representa los Indicadores Clave de Rendimiento (KPIs).
+ *
+ * @property desc Descripción legible del KPI.
+ * @property color Color asociado al KPI.
+ */
 enum class KPI(val desc: String, val color: Color) {
     REPORTES_TOTALES(desc = "Reportes Totales", color = Color(rgb(86, 193, 214))),
     EN_PROGRESO(desc = "En Progreso", color = Color(rgb(206, 124, 71))),
@@ -26,6 +32,12 @@ enum class KPI(val desc: String, val color: Color) {
     PENDIENTES(desc = "Pendientes", color = Color(rgb(255, 62, 68)))
 }
 
+/**
+ * Componente que organiza y muestra una cuadrícula de KPIs basada en el estado del historial.
+ *
+ * @param historialState Estado del historial.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun GrillaKPIs(
     historialState: HistorialState,
@@ -62,6 +74,12 @@ fun GrillaKPIs(
     }
 }
 
+/**
+ * Componente que representa una fila dentro de la cuadrícula de KPIs.
+ *
+ * @param modifier Modificador para la vista.
+ * @param content Contenido composable que se mostrará en la fila.
+ */
 @Composable
 fun FilaKPIs(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Row(
@@ -70,6 +88,13 @@ fun FilaKPIs(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     ) { content() }
 }
 
+/**
+ * Tarjeta individual que muestra el nombre y valor de un KPI.
+ *
+ * @param kpi El tipo de KPI a mostrar.
+ * @param value Valor actual del KPI.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun TarjetaKPI(
     kpi: KPI,

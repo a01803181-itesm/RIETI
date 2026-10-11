@@ -17,17 +17,50 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel encargado de la lógica y la validación del formulario de 
+ * creación de un nuevo reporte de incidentes.
+ */
 class NuevoReporteVM : ViewModel()
 {
+    /**
+     * Interfaz con el manejador de la API de reportes.
+     */
     val reporteHandler = Manejador
+    
+    /**
+     * Utilidad para generar los folios de los reportes.
+     */
     val generadorFolios = GeneradorFolio
+    
+    /**
+     * Utilidad de validaciones de campos del formulario.
+     */
     val validate = Validate
+    
     private val _state = MutableStateFlow(NuevoReporteState())
+    
+    /**
+     * Estado observable del formulario del nuevo reporte.
+     */
     val state: StateFlow<NuevoReporteState> = _state
+
+    /**
+     * Actualiza el nombre capturado de forma cruda y limpia posibles errores previos de nombre.
+     *
+     * @param name Nombre completo ingresado en el campo del formulario.
+     */
     fun setRawName(name: String) {
         _state.value = _state.value.copy(rawName = name)
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.InvalidName)
     }
+
+    /**
+     * Actualiza la cantidad de Niños, Niñas y Adolescentes (NNA) involucrados, validando 
+     * su formato entero.
+     *
+     * @param number Texto del número capturado en el formulario.
+     */
     fun setNNAs(number: String) {
         try {
             _state.value = _state.value.copy(reporte = _state.value.reporte.copy(numNinios = number.toInt()))
@@ -38,37 +71,91 @@ class NuevoReporteVM : ViewModel()
             _state.value = _state.value.copy(errors = newMap)
         }
     }
+
+    /**
+     * Actualiza el rango de edad percibido de los menores involucrados.
+     *
+     * @param rangoEdad Opción [RangoEdad] seleccionada.
+     */
     fun setRangoEdad(rangoEdad: RangoEdad) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(rangoEdad = rangoEdad))
         val newMap = _state.value.errors - FormError.AgeRangeMissing
         _state.value = _state.value.copy(errors = newMap)
     }
+
+    /**
+     * Actualiza la fecha y la hora del reporte capturado por el usuario.
+     *
+     * @param datetime Cadena con formato de fecha y hora.
+     */
     fun setHoraYFecha(datetime: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = datetime))
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.DateTimeMissing)
     }
+
+    /**
+     * Guarda las coordenadas (latitud y longitud) obtenidas de la ubicación actual.
+     *
+     * @param latitude Valor numérico de latitud.
+     * @param longitude Valor numérico de longitud.
+     */
     fun setCoords(latitude: Float, longitude: Float) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(latitud = latitude))
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(longitud = longitude))
     }
+
+    /**
+     * Actualiza la dirección literal (calle, número) resuelta a partir de las coordenadas.
+     *
+     * @param address Línea de la dirección.
+     */
     fun setLocation(address: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(direccion = address))
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.InvalidLocation)
     }
+
+    /**
+     * Actualiza el municipio asociado al incidente reportado.
+     *
+     * @param municipio Nombre del municipio.
+     */
     fun setMunicipio(municipio: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(municipio = municipio))
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.InvalidLocation)
     }
+
+    /**
+     * Configura el tipo de trabajo reportado en el incidente.
+     *
+     * @param workType Clasificación del [TipoTrabajo].
+     */
     fun setWorkType(workType: TipoTrabajo) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(tipoTrabajo = workType))
         _state.value = _state.value.copy(errors = _state.value.errors - FormError.WorkTypeMissing)
     }
+
+    /**
+     * Agrega detalles o descripciones adicionales proporcionadas por el usuario.
+     *
+     * @param details Información extra.
+     */
     fun setDetails(details: String) {
         _state.value = _state.value.copy(reporte = _state.value.reporte.copy(detallesAdicionales = details))
     }
+
+    /**
+     * Adjunta la imagen fotográfica o evidencia a enviar en el reporte.
+     *
+     * @param uri [Uri] correspondiente al recurso de la imagen en el dispositivo.
+     */
     fun setImageUri(uri: Uri) {
         _state.value = _state.value.copy(imageUri = uri)
     }
+
+    /**
+     * Analiza el objeto `Address` para asegurar que el evento se reporta dentro de México, 
+     * extrayendo su municipio y la dirección literal si es válido, o registrando errores en caso opuesto.
+     */
     fun validateAddress() {
         val newErrors = _state.value.errors.toMutableMap()
         if (_state.value.rawAddress != null) {
@@ -99,10 +186,24 @@ class NuevoReporteVM : ViewModel()
         }
         _state.value = _state.value.copy(errors = newErrors)
     }
+
+    /**
+     * Establece el objeto `Address` completo obtenido a través de los servicios de ubicación,
+     * invocando su validación de forma automática.
+     *
+     * @param address Dirección cruda proporcionada por la geocodificación.
+     */
     fun setAddress(address: Address?) {
         _state.value = _state.value.copy(rawAddress = address)
         validateAddress()
     }
+
+    /**
+     * Comprueba si todos los campos requeridos en el reporte están completos y son consistentes.
+     * Actualiza el estado con los errores detectados en caso de haber omisiones o fallas lógicas.
+     *
+     * @return `true` si el reporte no contiene errores, `false` en caso contrario.
+     */
     fun assertFieldsCompletion(): Boolean {
         val newMap = mutableMapOf<FormError,String>()
         if (_state.value.rawName != "") {
@@ -133,6 +234,13 @@ class NuevoReporteVM : ViewModel()
         Log.e("Form", "Errors: ${_state.value.errors}")
         return newMap.isEmpty()
     }
+
+    /**
+     * Valida el formulario y en caso de éxito genera un folio único y envía 
+     * el reporte al servidor a través del API.
+     *
+     * @param usuario El [Usuario] actual que envía el reporte, usado para relacionarlo por su correo.
+     */
     fun crearReporte(usuario: Usuario) {
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
@@ -161,6 +269,11 @@ class NuevoReporteVM : ViewModel()
             }
         }
     }
+
+    /**
+     * Mantiene los datos capturados y los guarda localmente como un borrador 
+     * para reanudar el proceso en otro momento (aún por implementar en su totalidad).
+     */
     fun guardarComoBorrador() {
         // TODO: Guardar como borrador
     }

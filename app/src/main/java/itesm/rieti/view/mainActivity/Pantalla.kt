@@ -7,12 +7,22 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.ui.graphics.vector.ImageVector
 
+/**
+ * Clase sellada que representa una pantalla en la navegación de la aplicación.
+ *
+ * @property ruta Ruta única que identifica la pantalla.
+ * @property etiqueta Nombre legible de la pantalla.
+ * @property icono Icono asociado a la pantalla.
+ */
 sealed class Pantalla (
     val ruta: String,
     val etiqueta: String,
     val icono: ImageVector
 ) {
-    companion object {
+    /**
+         * Objeto que agrupa las constantes de rutas y la lista de pantallas disponibles.
+         */
+        companion object {
         var listaPantallas = listOf(Inicio, SIPINNA, HistorialReportes, Cuenta)
         const val RUTA_INICIO = "Inicio"
         const val RUTA_SIPINNA = "SIPINNA"

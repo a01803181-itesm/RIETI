@@ -15,6 +15,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import itesm.rieti.view.inicioActivity.Encabezado
 
+/**
+ * Pantalla de la aplicación que muestra la información de Acerca De.
+ * Muestra un encabezado y un cuerpo de texto con información sobre SIPINNA y RIETI.
+ *
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun AcercaDeApp(modifier: Modifier = Modifier) {
     Column(
@@ -28,6 +34,11 @@ fun AcercaDeApp(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Componente que muestra el texto descriptivo de la pantalla Acerca De.
+ *
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun CuerpoAcercaDeApp(modifier: Modifier = Modifier) {
     Text(
@@ -49,6 +60,9 @@ fun CuerpoAcercaDeApp(modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * Vista previa de la pantalla Acerca De.
+ */
 @Preview(showBackground = true)
 @Composable
 fun Preview() {

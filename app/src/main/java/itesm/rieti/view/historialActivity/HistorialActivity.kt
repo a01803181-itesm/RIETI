@@ -35,6 +35,15 @@ import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.history.HistoryView
 
+/**
+ * Actividad principal del historial que determina si mostrar la lista de reportes
+ * o los detalles de un reporte seleccionado.
+ *
+ * @param authState Estado de autenticación del usuario.
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun HistorialActivity(
     authState: AuthState,
@@ -59,6 +68,14 @@ fun HistorialActivity(
     }
 }
 
+/**
+ * Componente que muestra la lista principal del historial, incluyendo KPIs,
+ * botones de alternancia y la lista de reportes o borradores.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun MuestraHistorial(
     historialVM: HistorialVM,
@@ -111,6 +128,12 @@ fun MuestraHistorial(
         }
     }
 }
+/**
+ * Pantalla que se muestra cuando no hay elementos en la lista (vacía).
+ *
+ * @param desc Descripción a mostrar cuando no hay elementos.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun EmptyLayout(desc: String, modifier: Modifier = Modifier) {
     Column(
@@ -133,6 +156,13 @@ fun EmptyLayout(desc: String, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Barra de botones para alternar entre las vistas de reportes y borradores.
+ *
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun BarraToggle(
     historialVM: HistorialVM,
@@ -152,6 +182,11 @@ fun BarraToggle(
     }
 }
 
+/**
+ * Vista previa de la pantalla del historial.
+ *
+ * @param historialVM ViewModel del historial.
+ */
 @Preview(showBackground = true)
 @Composable
 fun HistorialPreview(historialVM: HistorialVM = HistorialVM()) {
@@ -162,6 +197,9 @@ fun HistorialPreview(historialVM: HistorialVM = HistorialVM()) {
     )
 }
 
+/**
+ * Vista previa de la pantalla vacía de historial.
+ */
 @Preview(showBackground = true)
 @Composable
 fun EmptyHeaderPreview() {

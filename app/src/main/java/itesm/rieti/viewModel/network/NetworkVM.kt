@@ -8,8 +8,21 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * ViewModel encargado de monitorear el estado de conectividad a la red 
+ * y proveerlo de forma reactiva al resto de la aplicación.
+ *
+ * @param context Contexto requerido para instanciar el [Monitor] de red.
+ */
 class NetworkVM(context: Context) : ViewModel() {
+    /**
+     * Monitor de conectividad que evalúa cambios en el estado de red.
+     */
     val networkMonitor = Monitor(context)
+    
+    /**
+     * Estado observable que indica si existe o no una conexión a internet disponible de manera continua.
+     */
     val isNetworkAvailable: StateFlow<Boolean> = networkMonitor.isConnected
         .stateIn(
             scope = viewModelScope,

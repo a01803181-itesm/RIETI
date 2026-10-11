@@ -35,12 +35,25 @@ import androidx.core.content.FileProvider
 import coil3.compose.AsyncImage
 import java.io.File
 
+/**
+ * Crea un URI temporal para guardar una imagen capturada por la cámara.
+ *
+ * @param context Contexto de la aplicación.
+ * @return Un Uri apuntando al archivo de imagen temporal.
+ */
 fun createTempImageURI(context: Context): Uri {
     val tempFileDir = File(context.cacheDir, "images").apply { mkdirs() }
     val tempFile = File.createTempFile("evidencia_", ".jpg", tempFileDir)
     return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", tempFile)
 }
 
+/**
+ * Componente visual que permite capturar una foto o visualizar la foto ya tomada.
+ *
+ * @param fotoUri URI de la foto capturada, o null si no se ha tomado.
+ * @param onFotoCaptured Callback ejecutado cuando se toma una foto exitosamente.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun CameraCaptureField(
     fotoUri: Uri?,

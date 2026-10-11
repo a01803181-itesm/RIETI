@@ -50,6 +50,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
+/**
+ * Procesa y obtiene la dirección física a partir de la ubicación actual de la cámara del mapa.
+ *
+ * @param context Contexto de la aplicación.
+ * @param nuevoReporteVM ViewModel para guardar los datos del nuevo reporte.
+ * @param cameraPositionState Estado de la posición de la cámara del mapa.
+ */
 suspend fun processAddressData(
     context: Context,
     nuevoReporteVM: NuevoReporteVM,
@@ -67,6 +74,18 @@ suspend fun processAddressData(
         }
     }
 }
+/**
+ * Componente de mapa interactivo para seleccionar la ubicación de un nuevo reporte.
+ *
+ * @param context Contexto de la aplicación.
+ * @param ubicacionVM ViewModel que maneja la ubicación del dispositivo.
+ * @param nuevoReporteVM ViewModel del nuevo reporte.
+ * @param nuevoReporteState Estado actual del nuevo reporte.
+ * @param modifier Modificador para la vista.
+ * @param onCameraMoved Callback cuando la cámara empieza a moverse.
+ * @param onCameraIdle Callback cuando la cámara deja de moverse.
+ * @param onUbicacionSelected Callback con las coordenadas seleccionadas al pulsar en el mapa.
+ */
 @Composable
 fun MapScreen(
     context: Context,
@@ -87,7 +106,6 @@ fun MapScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    // Establecer la ubicación inicial por defecto
     LaunchedEffect(Unit) {
         if (ubicacion != null) {
             onUbicacionSelected(ubicacion!!.latitude.toFloat(), ubicacion!!.longitude.toFloat())
@@ -95,7 +113,6 @@ fun MapScreen(
         }
     }
 
-    // Escuchar cuando la cámara deje de moverse (Equivalente a OnCameraIdle / dragend)
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
             onCameraIdle()

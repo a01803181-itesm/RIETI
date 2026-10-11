@@ -8,7 +8,16 @@ import com.amplifyframework.core.Amplify
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
 
+/**
+ * Objeto para gestionar la autenticación a través del proveedor de Google.
+ */
 object Google {
+    /**
+     * Inicia el proceso de autenticación con Google. Verifica si ya existe una sesión, y en caso contrario lanza la interfaz de autenticación web.
+     *
+     * @param activity Actividad desde donde se inicia el inicio de sesión.
+     * @param onSuccessData Callback invocado al obtener éxito en la autenticación, con los datos del usuario.
+     */
     fun authenticate(activity: Activity, onSuccessData: (Usuario, String, String) -> Unit) {
         Amplify.Auth.fetchAuthSession(
             { session ->

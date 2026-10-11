@@ -40,7 +40,11 @@ import itesm.rieti.viewModel.auth.CognitoState
 import itesm.rieti.viewModel.auth.CognitoVM
 import itesm.rieti.viewModel.auth.GoogleVM
 
-//Contenedor principal
+/**
+ * Pantalla principal de registro e inicio de sesión de la aplicación.
+ *
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun RegistroApp(modifier: Modifier = Modifier) {
     val cognitoVM: CognitoVM = viewModel()
@@ -76,7 +80,13 @@ fun RegistroApp(modifier: Modifier = Modifier) {
     }
 }
 
-//Contenedor del cuerpo
+/**
+ * Componente que muestra los campos y botones principales para iniciar sesión o registrarse.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param cognitoVM ViewModel de AWS Cognito.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
     val authState by authVM.authState.collectAsState()
@@ -146,6 +156,15 @@ fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifie
     }
 }
 
+/**
+ * Botón para realizar la acción de inicio de sesión o registro.
+ *
+ * @param authState Estado de la autenticación.
+ * @param cognitoState Estado de AWS Cognito.
+ * @param authVM ViewModel de autenticación.
+ * @param onRegistro Callback que se ejecuta al presionar el botón y estar los datos validados.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun BotonRegistro(
     authState: AuthState,
@@ -170,6 +189,12 @@ fun BotonRegistro(
     }
 }
 
+/**
+ * Botón para iniciar sesión utilizando Google.
+ *
+ * @param authVM ViewModel de autenticación.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun BotonGoogle(authVM: AuthVM, modifier: Modifier = Modifier) {
     val googleVM: GoogleVM = viewModel()
@@ -204,7 +229,11 @@ fun BotonGoogle(authVM: AuthVM, modifier: Modifier = Modifier) {
     }
 }
 
-//Header
+/**
+ * Encabezado de la pantalla de inicio con el logotipo de RIETI.
+ *
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Encabezado(modifier: Modifier = Modifier) {
     Row(
@@ -228,6 +257,11 @@ fun Encabezado(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Textos de título para la pantalla de inicio de sesión.
+ *
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun TitulosLogin(modifier: Modifier = Modifier) {
     Column(
@@ -248,6 +282,12 @@ fun TitulosLogin(modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Componente auxiliar para agregar espacio vertical.
+ *
+ * @param distancia Altura del espacio en Dp.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Espacio(distancia: Dp, modifier: Modifier = Modifier) {
     Spacer(
@@ -255,6 +295,13 @@ fun Espacio(distancia: Dp, modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * Campo de texto para ingresar el correo electrónico.
+ *
+ * @param correo Correo electrónico actual.
+ * @param onCorreoChange Callback que se ejecuta cuando el texto cambia.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Correo(
     correo: String,
@@ -280,6 +327,13 @@ fun Correo(
     }
 }
 
+/**
+ * Campo de texto para ingresar la contraseña.
+ *
+ * @param contrasena Contraseña actual.
+ * @param contrasenaChange Callback que se ejecuta cuando el texto cambia.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun Contrasena(
     contrasena: String,
@@ -305,6 +359,9 @@ fun Contrasena(
     }
 }
 
+/**
+ * Vista previa de la pantalla principal de registro/inicio.
+ */
 @Preview(showBackground = true)
 @Composable
 fun MainAppPreview() {

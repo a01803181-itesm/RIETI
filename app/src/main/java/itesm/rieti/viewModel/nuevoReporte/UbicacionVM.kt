@@ -8,50 +8,49 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * ViewModel encargado de gestionar y exponer el estado de la ubicación actual del dispositivo
- * de forma reactiva utilizando Coroutine Flows.
- *
- * @author Roberto Martínez
- * @date 2026
+ * ViewModel que actúa como enlace para manejar y distribuir 
+ * la ubicación en tiempo real del dispositivo en la interfaz.
  */
 class UbicacionVM: ViewModel()
 {
-    /** Estado mutable interno que almacena la última ubicación obtenida. */
     private val _ubicacion = MutableStateFlow<Location?>(null)
-
-    /** Administrador encargado de la lógica de permisos y peticiones de ubicación. */
     private lateinit var administradorUbicacion: Ubicacion
-
-    /** Estado observable públicamente que emite los cambios de ubicación a la UI. */
+    
+    /**
+     * Estado observable con la ubicación actual obtenida por el dispositivo.
+     */
     val ubicacion: StateFlow<Location?> = _ubicacion
 
     /**
-     * Actualiza el valor actual de la ubicación con una nueva instancia de [Location].
+     * Reemplaza la ubicación alojada en el estado por un nuevo valor de coordenadas.
      *
-     * @param nuevaUbicacion La nueva ubicación obtenida por el proveedor de GPS.
+     * @param nuevaUbicacion Objeto [Location] proveído por los servicios de ubicación del sistema.
      */
     fun actualizarUbicacion(nuevaUbicacion: Location) {
         _ubicacion.value = nuevaUbicacion
     }
 
     /**
-     * Inicializa la instancia de [Ubicacion] vinculada a la actividad principal.
+     * Instancia el objeto encargado de interactuar directamente con la API de ubicación del sistema,
+     * relacionándolo con la Actividad actual y este ViewModel.
      *
-     * @param activity La [MainActivity] que alojará los launchers de permisos de ubicación.
+     * @param activity Contexto principal (generalmente [MainActivity]) para gestionar permisos e instancias del sistema.
      */
     fun crearAdministradorUbicacion(activity: MainActivity) {
         administradorUbicacion = Ubicacion(activity, this)
     }
 
     /**
-     * Inicia la gestión de permisos y las actualizaciones continuas de ubicación a través de [administradorUbicacion].
+     * Solicita al administrador iniciar las peticiones constantes de actualizaciones de ubicación 
+     * para rastrear el desplazamiento del dispositivo.
      */
     fun iniciarActualizaciones() {
         administradorUbicacion.iniciarActualizaciones()
     }
 
     /**
-     * Detiene la recepción de actualizaciones de ubicación a través de [administradorUbicacion].
+     * Instruye al administrador detener las solicitudes de actualizaciones de ubicación 
+     * para ahorrar batería e interrumpir rastreos inactivos.
      */
     fun detenerActualizaciones() {
         administradorUbicacion.detenerActualizaciones()

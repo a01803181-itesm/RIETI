@@ -1,5 +1,16 @@
 package itesm.rieti.model.api
+
+/**
+ * Objeto encargado de generar folios para los reportes.
+ */
 object GeneradorFolio {
+    /**
+     * Genera un folio único para un reporte basado en el municipio y la fecha.
+     *
+     * @param municipio Nombre del municipio.
+     * @param fecha Fecha de generación del reporte.
+     * @return El folio generado como una cadena de texto.
+     */
     fun reporte(municipio: String, fecha: String): String {
         val munNames = municipio.split(" ")
         return when (munNames.size) {

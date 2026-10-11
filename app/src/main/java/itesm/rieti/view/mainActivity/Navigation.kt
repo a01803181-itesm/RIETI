@@ -16,6 +16,18 @@ import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 
+/**
+ * Define el grafo de navegación principal de la aplicación, asociando rutas con sus
+ * respectivas pantallas.
+ *
+ * @param navController Controlador de navegación.
+ * @param authVM ViewModel de autenticación.
+ * @param authState Estado de autenticación.
+ * @param ubicacionVM ViewModel de ubicación.
+ * @param historialVM ViewModel del historial.
+ * @param historialState Estado del historial.
+ * @param modifier Modificador para la vista.
+ */
 @Composable
 fun AppNavHost(
     navController: NavHostController,

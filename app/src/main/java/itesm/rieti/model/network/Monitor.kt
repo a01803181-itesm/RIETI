@@ -9,8 +9,17 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
+/**
+ * Clase responsable de monitorear el estado de la conexión a internet del dispositivo.
+ *
+ * @param context El contexto de la aplicación, usado para obtener el ConnectivityManager.
+ */
 class Monitor(context: Context) {
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    
+    /**
+     * Flujo reactivo (Flow) que emite true si el dispositivo cuenta con conexión a internet, o false en caso contrario.
+     */
     val isConnected: Flow<Boolean> = callbackFlow {
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
