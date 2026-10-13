@@ -27,6 +27,7 @@ import itesm.rieti.view.inicioActivity.RegistroApp
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.network.NetworkVM
 
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity()
     private val ubicacionVM: UbicacionVM by viewModels()
     private val authVM: AuthVM by viewModels()
     private val historialVM: HistorialVM by viewModels()
+    private val configVM: ConfigVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -55,7 +57,8 @@ class MainActivity : ComponentActivity()
 
         enableEdgeToEdge()
         setContent {
-            RIETITheme {
+            val configState by configVM.state.collectAsState()
+            RIETITheme(theme = configState.theme) {
                 MainContent(authVM, ubicacionVM, historialVM)
             }
         }
