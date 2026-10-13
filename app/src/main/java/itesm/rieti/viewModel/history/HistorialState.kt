@@ -1,7 +1,9 @@
 package itesm.rieti.viewModel.history
 
 import itesm.rieti.model.esquemas.Borrador
+import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.ReporteResponse
 
 /**
  * Enumeración que define las posibles vistas disponibles en la pantalla de historial.
@@ -28,8 +30,8 @@ enum class HistoryView(val desc: String) {
  * @property errorBorradores Mensaje de error relacionado a la carga de borradores, si lo hay.
  */
 data class HistorialState(
-    val reportes: List<Reporte> = emptyList(),
-    val selectedReporte: Reporte? = null,
+    val reportes: List<ReporteResponse> = emptyList(),
+    val selectedReporte: ReporteResponse? = null,
     val errorReportes: String? = null,
     val borradores: List<Borrador> = emptyList(),
     val selectedBorrador: Borrador? = null,

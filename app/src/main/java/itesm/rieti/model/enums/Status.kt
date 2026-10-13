@@ -5,19 +5,19 @@ package itesm.rieti.model.enums
  */
 enum class Status {
     /** Expediente recién registrado. */
-    REGISTRADO, 
+    REGISTRADO,
     /** Expediente en proceso de revisión. */
-    EN_REVISION, 
+    EN_REVISION,
     /** Expediente con seguimiento activo. */
-    EN_SEGUIMIENTO, 
+    EN_SEGUIMIENTO,
     /** Expediente canalizado a las instituciones correspondientes. */
     CANALIZADO,
     /** Expediente cuyo proceso ha finalizado con éxito. */
-    CONCLUIDO, 
+    CONCLUIDO,
     /** Expediente almacenado y archivado. */
-    ARCHIVADO, 
+    ARCHIVADO,
     /** Expediente cancelado por algún motivo válido. */
-    CANCELADO, 
+    CANCELADO,
     /** Expediente de un NNA reincidente. */
     REINCIDENTE
 }

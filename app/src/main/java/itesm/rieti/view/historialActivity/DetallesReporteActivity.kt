@@ -76,12 +76,12 @@ fun DetallesReporteActivity(
             IconButton(
                 onClick = { },
                 modifier = modifier.weight(1f).size(25.dp),
-                enabled = historialState.selectedReporte!!.folioE != null // TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.expediente.status == Status.REGISTRADO
+                enabled = historialState.selectedReporte!!.reporte.folioE != null // TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.reporte.expediente.status == Status.REGISTRADO
             ) {
                 Icon(
                     painter = painterResource(R.drawable.pencil),
                     contentDescription = "Edit Report Details",
-                    tint = if (historialState.selectedReporte.folioE != null /* TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.expediente.status == Status.REGISTRADO*/) MaterialTheme.colorScheme.onSurface else Color.Transparent
+                    tint = if (historialState.selectedReporte.reporte.folioE != null /* TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.reporte.expediente.status == Status.REGISTRADO*/) MaterialTheme.colorScheme.onSurface else Color.Transparent
                 )
             }
         }
@@ -90,7 +90,7 @@ fun DetallesReporteActivity(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Folio: ${historialState.selectedReporte!!.folio}",
+                text = "Folio: ${historialState.selectedReporte!!.reporte.folio}",
                 fontWeight = FontWeight.Light,
                 modifier = modifier.padding(end = 8.dp),
                 textAlign = TextAlign.Center
@@ -111,16 +111,16 @@ fun DetallesReporteActivity(
         ) {
             Spacer(modifier.height(14.dp))
             Text(
-                text = historialState.selectedReporte!!.detallesAdicionales ?: "",
+                text = historialState.selectedReporte!!.reporte.detallesAdicionales ?: "",
                 fontWeight = FontWeight.Normal,
                 fontSize = 18.sp,
             )
             Spacer(modifier.height(14.dp))
-            ElementoLista("Fecha:", historialState.selectedReporte.dia.toString())
-            ElementoLista("Número de NNA:", historialState.selectedReporte.numNinios.toString())
-            ElementoLista("Rango de edad:", historialState.selectedReporte.rangoEdad.toString())
-            ElementoLista("Tipo de trabajo:", historialState.selectedReporte.tipoTrabajo?.name ?: "")
-            // TODO: Adapt legacy logic to new DB structure: if (historialState.selectedReporte.reporte != null) DetallesExpediente(historialState.selectedReporte.reporte)
+            ElementoLista("Fecha:", historialState.selectedReporte.reporte.dia.toString())
+            ElementoLista("Número de NNA:", historialState.selectedReporte.reporte.numNinios.toString())
+            ElementoLista("Rango de edad:", historialState.selectedReporte.reporte.rangoEdad.toString())
+            ElementoLista("Tipo de trabajo:", historialState.selectedReporte.reporte.tipoTrabajo?.name ?: "")
+            // TODO: Adapt legacy logic to new DB structure: if (historialState.selectedReporte.reporte.reporte != null) DetallesExpediente(historialState.selectedReporte.reporte.reporte)
             Spacer(modifier.height(14.dp))
             Text(
                 text = "Ubicación",
@@ -128,7 +128,7 @@ fun DetallesReporteActivity(
                 fontSize = 16.sp
             )
             Text(
-                text = historialState.selectedReporte.municipio ?: "",
+                text = historialState.selectedReporte.reporte.municipio ?: "",
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp
             )

@@ -46,3 +46,8 @@ data class Reporte(
     val folioE: String? = null,
     val correoAl: String? = null
 )
+
+data class ReporteResponse(
+    val reporte: Reporte = Reporte(),
+    val expediente: Expediente? = null
+)

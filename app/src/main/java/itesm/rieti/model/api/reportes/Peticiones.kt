@@ -1,6 +1,7 @@
 package itesm.rieti.model.api.reportes
 
 import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.ReporteResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -18,7 +19,7 @@ interface Peticiones {
      * @return Una respuesta HTTP con la lista de reportes.
      */
     @GET("v1/reportes/by-user/{user_email}")
-    suspend fun obtenerReporteByUser(@Path("user_email") email: String): Response<List<Reporte>>
+    suspend fun obtenerReporteByUser(@Path("user_email") email: String): Response<List<ReporteResponse>>
     
     /**
      * Realiza una petición POST para crear un reporte.

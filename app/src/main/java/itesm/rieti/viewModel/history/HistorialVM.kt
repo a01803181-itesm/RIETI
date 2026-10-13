@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.reportes.Manejador
 import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.model.esquemas.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +36,7 @@ class HistorialVM : ViewModel()
             try {
                 Log.i("Reportes", "Cargando reportes")
                 val response = handler.obtenerReportesDeUsuario(usuario)
+                Log.i("Reportes", "Respuesta del servidor: $response")
                 if (response.isSuccessful) {
                     if (response.body() != null && response.body()!!.isNotEmpty()) {
                         Log.i("Reportes", "Reportes cargados: ${response.body()}")
@@ -59,7 +61,7 @@ class HistorialVM : ViewModel()
      *
      * @param reporte Objeto [Reporte] elegido o `null` para deseleccionar.
      */
-    fun setReporteSeleccionado(reporte: Reporte?) {
+    fun setReporteSeleccionado(reporte: ReporteResponse?) {
         _state.value = _state.value.copy(selectedReporte = reporte)
     }
 

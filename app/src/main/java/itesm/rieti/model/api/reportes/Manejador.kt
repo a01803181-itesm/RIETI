@@ -2,6 +2,7 @@ package itesm.rieti.model.api.reportes
 
 import itesm.rieti.model.api.ManejadorAPI
 import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.model.esquemas.Usuario
 import retrofit2.Response
 
@@ -20,7 +21,7 @@ object Manejador
      * @param user Objeto [Usuario] del cual obtener los reportes.
      * @return Una respuesta HTTP que contiene la lista de reportes.
      */
-    suspend fun obtenerReportesDeUsuario(user: Usuario): Response<List<Reporte>> {
+    suspend fun obtenerReportesDeUsuario(user: Usuario): Response<List<ReporteResponse>> {
         return servicio.obtenerReporteByUser(user.correoU)
     }
     

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import itesm.rieti.model.enums.Status
 import itesm.rieti.viewModel.history.HistorialState
 
 /**
@@ -27,7 +28,7 @@ import itesm.rieti.viewModel.history.HistorialState
  */
 enum class KPI(val desc: String, val color: Color) {
     REPORTES_TOTALES(desc = "Reportes Totales", color = Color(rgb(86, 193, 214))),
-    EN_PROGRESO(desc = "En Progreso", color = Color(rgb(206, 124, 71))),
+    EN_SEGUIMIENTO(desc = "En Seguimiento", color = Color(rgb(206, 124, 71))),
     COMPLETADOS(desc = "Completados", color = Color(rgb(117, 205, 85))),
     PENDIENTES(desc = "Pendientes", color = Color(rgb(255, 62, 68)))
 }
@@ -54,20 +55,20 @@ fun GrillaKPIs(
                 modifier = Modifier.weight(1f)
             )
             TarjetaKPI(
-                kpi = KPI.EN_PROGRESO,
-                value = 0, // TODO: Obtener el número de reportes en progreso
+                kpi = KPI.EN_SEGUIMIENTO,
+                value = historialState.reportes.filter { it.expediente?.status == Status.EN_SEGUIMIENTO }.size, // TODO: Review
                 modifier = Modifier.weight(1f)
             )
         }
         FilaKPIs(modifier = modifier.weight(1f)) {
             TarjetaKPI(
                 kpi = KPI.COMPLETADOS,
-                value = 0, // TODO: Obtener el número de reportes completados
+                value = historialState.reportes.filter { it.expediente?.status == Status.CONCLUIDO }.size, // TODO: Review
                 modifier = Modifier.weight(1f)
             )
             TarjetaKPI(
                 kpi = KPI.PENDIENTES,
-                value = 0, // TODO: Obtener el número de reportes pendientes
+                value = historialState.reportes.filter { it.expediente?.status == Status.EN_REVISION }.size, // TODO: Obtener el número de reportes pendientes
                 modifier = Modifier.weight(1f)
             )
         }

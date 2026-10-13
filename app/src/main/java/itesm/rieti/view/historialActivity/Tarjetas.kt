@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Borrador
-import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import java.time.LocalDateTime
@@ -34,17 +34,17 @@ import java.time.format.DateTimeFormatter
  * Componente de tarjeta para mostrar información resumida de un reporte.
  *
  * @param historialVM ViewModel del historial.
- * @param reporte Datos del reporte a mostrar.
+ * @param response Datos del reporte a mostrar.
  * @param modifier Modificador para la vista.
  */
 @Composable
 fun TarjetaReporte(
     historialVM: HistorialVM,
-    reporte: Reporte,
+    response: ReporteResponse,
     modifier: Modifier = Modifier
 ) {
     Card(
-        onClick = { historialVM.setReporteSeleccionado(reporte) },
+        onClick = { historialVM.setReporteSeleccionado(response) },
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
@@ -55,18 +55,18 @@ fun TarjetaReporte(
                 .padding(all = 18.dp)
         ) {
             Text(
-                text = reporte.municipio ?: "",
+                text = response.reporte.municipio ?: "",
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
             )
             Text(
-                text = reporte.folio,
+                text = response.reporte.folio,
                 fontWeight = FontWeight.Light,
                 fontSize = 10.sp,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = reporte.detallesAdicionales ?: reporte.direccion!!,
+                text = response.reporte.detallesAdicionales ?: response.reporte.direccion!!,
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
             )
@@ -79,9 +79,9 @@ fun TarjetaReporte(
                     modifier = modifier.weight(1f)
                 ) {
                     val dateFormatted = try {
-                        val parsed = LocalDateTime.parse(reporte.dia!!)
+                        val parsed = LocalDateTime.parse(response.reporte.dia!!)
                         parsed.format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
-                    } catch (_: Exception) { reporte.dia!! }
+                    } catch (_: Exception) { response.reporte.dia!! }
                     Text(
                         text = dateFormatted,
                         fontWeight = FontWeight.Light,
@@ -93,7 +93,7 @@ fun TarjetaReporte(
                     horizontalAlignment = Alignment.End
                 ) {
                     IconButton(
-                        onClick = { historialVM.setReporteSeleccionado(reporte) },
+                        onClick = { historialVM.setReporteSeleccionado(response) },
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor = Color.Transparent
                         )
