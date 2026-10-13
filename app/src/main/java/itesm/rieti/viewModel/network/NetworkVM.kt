@@ -15,14 +15,7 @@ import kotlinx.coroutines.flow.stateIn
  * @param context Contexto requerido para instanciar el [Monitor] de red.
  */
 class NetworkVM(context: Context) : ViewModel() {
-    /**
-     * Monitor de conectividad que evalúa cambios en el estado de red.
-     */
     val networkMonitor = Monitor(context)
-    
-    /**
-     * Estado observable que indica si existe o no una conexión a internet disponible de manera continua.
-     */
     val isNetworkAvailable: StateFlow<Boolean> = networkMonitor.isConnected
         .stateIn(
             scope = viewModelScope,

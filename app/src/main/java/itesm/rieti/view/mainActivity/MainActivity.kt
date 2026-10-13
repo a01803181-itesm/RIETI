@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -27,6 +28,7 @@ import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.history.HistorialVM
+import itesm.rieti.viewModel.network.NetworkVM
 
 /**
  * Actividad principal de la aplicación.
@@ -53,16 +55,10 @@ class MainActivity : ComponentActivity()
 
         enableEdgeToEdge()
         setContent {
-            val authState by authVM.authState.collectAsState()
             RIETITheme {
-                if (!authState.loggedIn) RegistroApp() else RIETIApp(authVM, authState, ubicacionVM, historialVM)
+                MainContent(authVM, ubicacionVM, historialVM)
             }
         }
-    }
-
-    override fun onStart()
-    {
-        super.onStart()
     }
 
     override fun onStop()
@@ -71,6 +67,23 @@ class MainActivity : ComponentActivity()
         ubicacionVM.detenerActualizaciones()
     }
 }
+
+@Composable
+fun MainContent(
+    authVM: AuthVM,
+    ubicacionVM: UbicacionVM,
+    historialVM: HistorialVM,
+    networkVM: NetworkVM = NetworkVM(LocalContext.current)
+) {
+    val authState by authVM.authState.collectAsState()
+    val networkState by networkVM.isNetworkAvailable.collectAsState()
+    if (!networkState && !authState.loggedIn) {
+        OfflineScreen()
+    } else {
+        if (!authState.loggedIn) RegistroApp() else RIETIApp(authVM, authState, ubicacionVM, historialVM)
+    }
+}
+
 /**
  * Componente principal que define la estructura básica de la app con un Scaffold,
  * navegación y barra inferior.

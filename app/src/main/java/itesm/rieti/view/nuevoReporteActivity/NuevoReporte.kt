@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -69,6 +71,7 @@ import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.network.NetworkVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
+import itesm.rieti.viewModel.nuevoReporte.SendState
 import java.time.LocalDateTime
 
 /**
@@ -170,7 +173,7 @@ fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modif
             ) {
                 BotonGuardarBorrador(nuevoReporteVM, Modifier.weight(1f))
                 if (networkConnectionState) {
-                    BotonEnviarReporte(authState, nuevoReporteVM, Modifier.weight(1f))
+                    BotonEnviarReporte(authState, nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
                 }
             }
         }
@@ -529,15 +532,55 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
 fun BotonEnviarReporte(
     authState: AuthState,
     nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
     modifier: Modifier = Modifier
 ) {
     Button(
         onClick = { nuevoReporteVM.crearReporte(authState.usuario!!) },
-        modifier = modifier
-    ) {
-        Text(
-            text = "Enviar Reporte",
+        modifier = modifier,
+        enabled = nuevoReporteState.sendState == SendState.IDLE,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = when (nuevoReporteState.sendState) {
+                    SendState.IDLE -> MaterialTheme.colorScheme.primary
+                    SendState.SENDING -> Color.DarkGray
+                    SendState.SUCCESS -> Color.Green
+                    SendState.ERROR -> MaterialTheme.colorScheme.errorContainer
+                },
+            contentColor = when (nuevoReporteState.sendState) {
+                SendState.IDLE -> MaterialTheme.colorScheme.onPrimary
+                SendState.SENDING -> Color.White
+                SendState.SUCCESS -> Color.White
+                SendState.ERROR -> MaterialTheme.colorScheme.onError
+            }
         )
+    ) {
+        when (nuevoReporteState.sendState) {
+            SendState.IDLE -> Text(text = "Enviar Reporte")
+            SendState.SENDING -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(text = "Enviando...")
+            }
+            SendState.SUCCESS -> {
+                Image(
+                    painter = painterResource(R.drawable.check),
+                    contentDescription = "Reporte enviado",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+                Text(text = "¡Reporte Enviado!")
+            }
+            SendState.ERROR -> {
+                Image(
+                    painter = painterResource(R.drawable.cross),
+                    contentDescription = "Error al enviar reporte",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+                Text(text = "Error al enviar reporte")
+            }
+        }
     }
 }
 /**

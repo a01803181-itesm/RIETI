@@ -152,6 +152,10 @@ class NuevoReporteVM : ViewModel()
         _state.value = _state.value.copy(imageUri = uri)
     }
 
+    fun setSendState(state: SendState) {
+        _state.value = _state.value.copy(sendState = state)
+    }
+
     /**
      * Analiza el objeto `Address` para asegurar que el evento se reporta dentro de México, 
      * extrayendo su municipio y la dirección literal si es válido, o registrando errores en caso opuesto.
@@ -242,6 +246,7 @@ class NuevoReporteVM : ViewModel()
      * @param usuario El [Usuario] actual que envía el reporte, usado para relacionarlo por su correo.
      */
     fun crearReporte(usuario: Usuario) {
+        setSendState(SendState.SENDING)
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
                 val folio = generadorFolios.reporte(
@@ -260,13 +265,17 @@ class NuevoReporteVM : ViewModel()
                 Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
                 if (response.isSuccessful) {
                     Log.i("Reporte", "Reporte creado exitosamente")
+                    setSendState(SendState.SUCCESS)
                     _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
                 } else {
                     val newMap = _state.value.errors.toMutableMap()
                     newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"
                     _state.value = _state.value.copy(errors = newMap)
+                    setSendState(SendState.ERROR)
                 }
             }
+        } else {
+            setSendState(SendState.ERROR)
         }
     }
 

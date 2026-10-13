@@ -100,7 +100,7 @@ fun MapScreen(
     val ubicacion by ubicacionVM.ubicacion.collectAsState()
     if (ubicacion == null) return
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(ubicacion!!.latitude, ubicacion!!.longitude), 35f)
+        position = CameraPosition.fromLatLngZoom(LatLng(ubicacion!!.latitude, ubicacion!!.longitude), 20f)
     }
     var dynamicModifier = modifier
 

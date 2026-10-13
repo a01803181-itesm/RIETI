@@ -6,6 +6,13 @@ import itesm.rieti.model.api.FormError
 import itesm.rieti.model.esquemas.Reporte
 import java.util.Date
 
+enum class SendState {
+    IDLE,
+    SENDING,
+    SUCCESS,
+    ERROR
+}
+
 /**
  * Representa el estado del formulario de creación de un nuevo reporte.
  *
@@ -22,5 +29,6 @@ data class NuevoReporteState(
     val date: Date = Date(),
     val imageUri: Uri? = null,
     val errors: Map<FormError,String> = emptyMap(),
-    val rawAddress: Address? = null
+    val rawAddress: Address? = null,
+    val sendState: SendState = SendState.IDLE
 )

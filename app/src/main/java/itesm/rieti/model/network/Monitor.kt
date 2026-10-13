@@ -16,10 +16,6 @@ import kotlinx.coroutines.flow.callbackFlow
  */
 class Monitor(context: Context) {
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    
-    /**
-     * Flujo reactivo (Flow) que emite true si el dispositivo cuenta con conexión a internet, o false en caso contrario.
-     */
     val isConnected: Flow<Boolean> = callbackFlow {
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {

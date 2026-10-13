@@ -1,19 +1,36 @@
 package itesm.rieti.view.acercaDeActivity
 
+import android.content.Context
+import android.content.Intent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import itesm.rieti.R
 import itesm.rieti.view.inicioActivity.Encabezado
+import androidx.core.net.toUri
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * Pantalla de la aplicación que muestra la información de Acerca De.
@@ -41,22 +58,121 @@ fun AcercaDeApp(modifier: Modifier = Modifier) {
  */
 @Composable
 fun CuerpoAcercaDeApp(modifier: Modifier = Modifier) {
-    Text(
-        text = "La SIPINNA es el Sistema Nacional de Protección Integral de Niñas, Niños y Adolescentes, fue mandatado por la Ley General de Derechos de Niñas, Niños y Adolescentes de 2014 a efecto de que el Estado (en sus tres órdenes de gobierno) cumpla con su responsabilidad de garantizar la protección, prevención y restitución integrales de los derechos humanos de niñas, niños y adolescentes que hayan sido vulnerados.\n" +
-                "\n" +
-                "REITI es una forma de estrategia colaborativa de  diversos municipios mexiquenses para conjuntar esfuerzos institucionales para la detección y registro de casos de trabajo infantil y proteger los derechos de la niñez.\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "Esta aplicación se hizo por alumnos del Tecnológico de Monterrey",
-        fontSize = 15.sp,
-        lineHeight = 22.sp,
-        textAlign = TextAlign.Justify,
-        fontWeight = FontWeight.Light,
+    val scrollState = rememberScrollState()
+    Column(
         modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        Text(
+            text = "La SIPINNA es el Sistema Nacional de Protección Integral de Niñas, Niños y Adolescentes, fue mandatado por la Ley General de Derechos de Niñas, Niños y Adolescentes de 2014 a efecto de que el Estado (en sus tres órdenes de gobierno) cumpla con su responsabilidad de garantizar la protección, prevención y restitución integrales de los derechos humanos de niñas, niños y adolescentes que hayan sido vulnerados.",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Justify,
+            fontWeight = FontWeight.Light,
+        )
+        Spacer(modifier = Modifier.height(50.dp))
+        Text(
+            text = "REITI es una forma de estrategia colaborativa de  diversos municipios mexiquenses para conjuntar esfuerzos institucionales para la detección y registro de casos de trabajo infantil y proteger los derechos de la niñez.",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Justify,
+            fontWeight = FontWeight.Light
+        )
+        Spacer(modifier = Modifier.height(50.dp))
+        Text(
+            text = "Glosario de Términos en la aplicación",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Left,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "NNA: Niños, Niñas y Adolescentes",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Justify,
+            fontWeight = FontWeight.Light
+        )
+        Spacer(modifier = Modifier.height(50.dp))
+        SocialMedia(modifier)
+        Spacer(modifier = Modifier.height(50.dp))
+        Image(
+            painter = painterResource(R.drawable.itesm_logo),
+            contentDescription = "Logo de ITESM",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = "Esta aplicación se hizo por alumnos del Tecnológico de Monterrey para RIETI",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Justify,
+            fontWeight = FontWeight.Light,
+        )
+    }
+}
+
+@Composable
+fun SocialMedia(modifier: Modifier = Modifier, context: Context = LocalContext.current) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        SocialMedium(
+            R.drawable.instagram,
+            "Instagram",
+            {
+                val appIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    "instagram://user?username=sipinnaatizapandezaragoza".toUri()
+                )
+                if (appIntent.resolveActivity(context.packageManager) != null) {
+                    context.startActivity(appIntent)
+                } else {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, "https://www.instagram.com/sipinnaatizapandezaragoza".toUri()))
+                }
+            }
+        )
+        Spacer(modifier = Modifier.size(16.dp))
+        SocialMedium(
+            R.drawable.facebook,
+            "Facebook",
+            {
+                val appIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    "fb://facewebmodal/f?href=https://facebook.com/SIPINNAMX".toUri()
+                )
+                if (appIntent.resolveActivity(context.packageManager) != null) {
+                    context.startActivity(appIntent)
+                } else {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, "https://www.facebook.com/SIPINNAMX".toUri()))
+                }
+            }
+        )
+        Spacer(modifier = Modifier.size(16.dp))
+        SocialMedium(R.drawable.tiktok, "TikTok", {
+            val appIntent = Intent(
+                Intent.ACTION_VIEW,
+                "https://www.tiktok.com/@sipinna_mx".toUri()
+            )
+            context.startActivity(appIntent)
+        })
+    }
+}
+
+@Composable
+fun SocialMedium(resource: Int, desc: String, onClick: () -> Unit) {
+    Image(
+        painter = painterResource(resource),
+        contentDescription = desc,
+        modifier = Modifier
+            .size(50.dp)
+            .clickable(
+            onClick = { onClick() }
+        ),
+        contentScale = ContentScale.Crop,
+        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
     )
 }
 
@@ -68,4 +184,3 @@ fun CuerpoAcercaDeApp(modifier: Modifier = Modifier) {
 fun Preview() {
     AcercaDeApp()
 }
-
