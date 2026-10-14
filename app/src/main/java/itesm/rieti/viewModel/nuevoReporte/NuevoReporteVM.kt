@@ -5,10 +5,14 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.RoomDatabase.Builder
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.api.GeneradorFolio
 import itesm.rieti.model.api.Validate
 import itesm.rieti.model.api.reportes.Manejador
+import itesm.rieti.model.drafts.Borrador
+import itesm.rieti.model.drafts.BorradorDAO
+import itesm.rieti.model.drafts.BorradorDB
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
@@ -21,22 +25,26 @@ import kotlinx.coroutines.launch
  * ViewModel encargado de la lógica y la validación del formulario de 
  * creación de un nuevo reporte de incidentes.
  */
-class NuevoReporteVM : ViewModel()
-{
+class NuevoReporteVM : ViewModel() {
     /**
      * Interfaz con el manejador de la API de reportes.
      */
-    val reporteHandler = Manejador
+    private val reporteHandler = Manejador
     
     /**
      * Utilidad para generar los folios de los reportes.
      */
-    val generadorFolios = GeneradorFolio
+    private val generadorFolios = GeneradorFolio
     
     /**
      * Utilidad de validaciones de campos del formulario.
      */
-    val validate = Validate
+    private val validate = Validate
+
+    /**
+     * Interfaz con el DAO de borradores.
+     */
+    private lateinit var borradorDAO: BorradorDAO
     
     private val _state = MutableStateFlow(NuevoReporteState())
     
@@ -283,7 +291,30 @@ class NuevoReporteVM : ViewModel()
      * Mantiene los datos capturados y los guarda localmente como un borrador 
      * para reanudar el proceso en otro momento (aún por implementar en su totalidad).
      */
-    fun guardarComoBorrador() {
-        // TODO: Guardar como borrador
+    fun guardarComoBorrador(offlineDB: Builder<BorradorDB>) {
+        viewModelScope.launch {
+            val reporteState = _state.value.reporte
+
+            val draft = Borrador(
+                rangoEdad = reporteState.rangoEdad,
+                dia = reporteState.dia,
+                tipoTrabajo = reporteState.tipoTrabajo,
+                numNinios = reporteState.numNinios,
+                direccion = reporteState.direccion,
+                municipio = reporteState.municipio,
+                latitud = reporteState.latitud,
+                longitud = reporteState.longitud,
+                nombre = reporteState.nombre,
+                apPaterno = reporteState.apPaterno,
+                apMaterno = reporteState.apMaterno,
+                detallesAdicionales = reporteState.detallesAdicionales,
+                correoU = reporteState.correoU,
+                folioE = reporteState.folioE,
+                correoAl = reporteState.correoAl,
+                evidenciaURI = null
+            )
+
+            offlineDB.build().getBorradorDAO().insertBorrador(draft)
+        }
     }
 }

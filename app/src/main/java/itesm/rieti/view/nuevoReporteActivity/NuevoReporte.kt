@@ -60,10 +60,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.RoomDatabase.Builder
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
+import itesm.rieti.model.drafts.BorradorDB
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.viewModel.auth.AuthState
@@ -84,7 +87,7 @@ import java.time.LocalDateTime
  * @param networkVM ViewModel que verifica la conexión a red.
  */
 @Composable
-fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
+fun NuevoReporte(offlineDB: Builder<BorradorDB>, authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
 {
     val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
@@ -171,7 +174,7 @@ fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modif
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                BotonGuardarBorrador(nuevoReporteVM, Modifier.weight(1f))
+                BotonGuardarBorrador(offlineDB, nuevoReporteVM, Modifier.weight(1f))
                 if (networkConnectionState) {
                     BotonEnviarReporte(authState, nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
                 }
@@ -591,11 +594,12 @@ fun BotonEnviarReporte(
  */
 @Composable
 fun BotonGuardarBorrador(
+    offlineDB: Builder<BorradorDB>,
     nuevoReporteVM: NuevoReporteVM,
     modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = { nuevoReporteVM.guardarComoBorrador() },
+        onClick = { nuevoReporteVM.guardarComoBorrador(offlineDB) },
         modifier = modifier
     ) {
         Text(
@@ -612,7 +616,10 @@ fun BotonGuardarBorrador(
  */
 @Preview(showBackground = true)
 @Composable
-fun ReportePreview(authState: AuthState = AuthState(), ubicacionVM: UbicacionVM = UbicacionVM())
-{
-    NuevoReporte(authState, ubicacionVM)
+fun ReportePreview(
+    offlineDB: Builder<BorradorDB> = Room.databaseBuilder(LocalContext.current, BorradorDB::class.java, "RIETI Offline Database"),
+    authState: AuthState = AuthState(),
+    ubicacionVM: UbicacionVM = UbicacionVM()
+) {
+    NuevoReporte(offlineDB, authState, ubicacionVM)
 }

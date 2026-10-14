@@ -10,11 +10,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BorradorDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBorrador(borrador: BorradorEntity)
+    suspend fun insertBorrador(borrador: Borrador)
 
     @Query("SELECT * FROM borradores WHERE correoU = :userEmail")
-    fun obtenerBorradoresPorUsuario(userEmail: String): Flow<List<BorradorEntity>>
+    fun obtenerBorradoresPorUsuario(userEmail: String): Flow<List<Borrador>>
 
     @Delete
-    suspend fun eliminarBorrador(borrador: BorradorEntity)
+    suspend fun eliminarBorrador(borrador: Borrador)
 }

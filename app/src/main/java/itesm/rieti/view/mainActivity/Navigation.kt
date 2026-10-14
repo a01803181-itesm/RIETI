@@ -6,6 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.room.RoomDatabase.Builder
+import itesm.rieti.model.drafts.BorradorDB
 import itesm.rieti.view.acercaDeActivity.AcercaDeApp
 import itesm.rieti.view.configActivity.ConfigApp
 import itesm.rieti.view.historialActivity.HistorialActivity
@@ -31,6 +33,7 @@ import itesm.rieti.viewModel.history.HistorialVM
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    offlineDB: Builder<BorradorDB>,
     authVM: AuthVM,
     authState: AuthState,
     ubicacionVM: UbicacionVM,
@@ -43,7 +46,7 @@ fun AppNavHost(
         startDestination = Pantalla.RUTA_INICIO,
         modifier = modifier.fillMaxSize()
     ) {
-        composable(Pantalla.RUTA_INICIO) { NuevoReporte(authState, ubicacionVM) }
+        composable(Pantalla.RUTA_INICIO) { NuevoReporte(offlineDB, authState, ubicacionVM) }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) { HistorialActivity(authState, historialVM, historialState) }
         composable(Pantalla.RUTA_CUENTA) { ConfigApp(authVM, historialVM) }

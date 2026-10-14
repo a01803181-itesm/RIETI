@@ -6,7 +6,7 @@ import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 
 @Entity(tableName = "borradores")
-data class BorradorEntity(
+data class Borrador(
     @PrimaryKey(autoGenerate = true) val idBorrador: Int = 0,
     val rangoEdad: RangoEdad? = null,
     val dia: String? = null,

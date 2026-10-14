@@ -1,9 +1,12 @@
 package itesm.rieti.viewModel.history
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.Room
 import itesm.rieti.model.api.reportes.Manejador
+import itesm.rieti.model.drafts.BorradorDB
 import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.ReporteResponse
@@ -54,6 +57,10 @@ class HistorialVM : ViewModel()
                 _state.value = _state.value.copy(errorReportes = "Error de conexión con el servidor: ${e.message}")
             }
         }
+    }
+
+    fun cargarBorradores(context: Context) {
+
     }
 
     /**
