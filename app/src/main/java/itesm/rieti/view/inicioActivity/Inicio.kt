@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -35,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Provider
+import itesm.rieti.viewModel.auth.AuthStage
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.auth.CognitoState
@@ -115,6 +118,22 @@ fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifie
                 modifier = modifier.padding(16.dp)
             )
         }
+        if (authState.stage == AuthStage.LOADING) {
+            Spacer(modifier = Modifier.height(32.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "Cargando...",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
         Espacio(24.dp)
         TextButton(
             onClick = {
@@ -141,6 +160,7 @@ fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifie
             authVM,
             onRegistro = {
                 cognitoVM.authenticate(
+                    onLoading = { authVM.setAuthStage(AuthStage.LOADING) },
                     email = authState.usuario?.correoU ?: "",
                     onSuccess = { sub ->
                         Log.i("AUTH", "Authentication successful")
@@ -148,10 +168,12 @@ fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifie
                         authVM.setSUB(sub)
                         authVM.setEmail(authState.usuario?.correoU ?: "", authState.usuario?.proveedor ?: Provider.COGNITO)
                         authVM.setPictureURL(null)
+                        authVM.setAuthStage(AuthStage.IDLE)
                     },
                     onError = {
                         Log.e("AUTH", "Authentication failed: $it")
                         authVM.setError(it)
+                        authVM.setAuthStage(AuthStage.IDLE)
                     }
                 )
             }

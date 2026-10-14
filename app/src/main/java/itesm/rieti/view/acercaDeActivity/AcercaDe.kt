@@ -82,11 +82,14 @@ fun CuerpoAcercaDeApp(modifier: Modifier = Modifier) {
             text = "Glosario de Términos en la aplicación",
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Left,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "NNA: Niños, Niñas y Adolescentes",
+            text = "NNA: Niños, Niñas y Adolescentes." +
+            "\nReportes en seguimiento: son reportes con los que RIETI ya se encuentra revisando." +
+            "\nReportes completados: son reportes con los que RIETI ya dio solución y ha marcado como cerrados." +
+            "\nReportes pendientes: son reportes con los que RIETI aún no ha revisado su contenido y tampoco ha comenzado su seguimiento (investigación)",
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Justify,
             fontWeight = FontWeight.Light

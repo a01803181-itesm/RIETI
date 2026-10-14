@@ -75,7 +75,10 @@ import itesm.rieti.viewModel.network.NetworkVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import itesm.rieti.viewModel.nuevoReporte.SendState
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import java.time.LocalDateTime
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Pantalla principal para la creación de un nuevo reporte.
@@ -572,7 +575,13 @@ fun BotonEnviarReporte(
                     modifier = Modifier.size(16.dp),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "¡Reporte Enviado!")
+                runBlocking {
+                    withTimeout(3000L.milliseconds) {
+                        nuevoReporteVM.setSendState(SendState.IDLE)
+                    }
+                }
             }
             SendState.ERROR -> {
                 Image(

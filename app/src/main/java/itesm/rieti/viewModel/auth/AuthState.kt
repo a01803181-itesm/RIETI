@@ -2,6 +2,11 @@ package itesm.rieti.viewModel.auth
 
 import itesm.rieti.model.esquemas.Usuario
 
+enum class AuthStage {
+    IDLE,
+    LOADING,
+}
+
 /**
  * Representa el estado de autenticación actual de la aplicación.
  *
@@ -16,5 +21,6 @@ data class AuthState(
     val sub: String? = null,
     val pictureURL: String? = null,
     val loggedIn: Boolean = false,
+    val stage: AuthStage = AuthStage.IDLE,
     val error: String? = null
 )

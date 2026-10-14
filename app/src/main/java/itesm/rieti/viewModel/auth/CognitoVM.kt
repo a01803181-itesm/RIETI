@@ -54,10 +54,12 @@ class CognitoVM : ViewModel() {
      * @param onError Callback ejecutado al ocurrir un error, recibe el mensaje.
      */
     fun authenticate(
+        onLoading: () -> Unit,
         email: String,
         onSuccess: (String) -> Unit,
         onError: (String?) -> Unit,
     ) {
+        onLoading()
         Log.i("AUTH", "Function called")
         viewModelScope.launch {
             try {

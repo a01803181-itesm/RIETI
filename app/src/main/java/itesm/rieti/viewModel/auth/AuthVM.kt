@@ -44,11 +44,14 @@ class AuthVM : ViewModel() {
      */
     fun setError(error: String?) { _authState.value = _authState.value.copy(error = error) }
 
+    fun setAuthStage(stage: AuthStage) { _authState.value = _authState.value.copy(stage = stage) }
+
     /**
      * Registra un nuevo usuario en la base de datos de la API utilizando FastAPI.
      * Si la creación es exitosa, se marca al usuario como conectado.
      */
     fun registerUser() {
+        _authState.value = _authState.value.copy(stage = AuthStage.LOADING)
         viewModelScope.launch {
             if (_authState.value.usuario != null) {
                 try {
@@ -57,13 +60,16 @@ class AuthVM : ViewModel() {
                     val response = userHandler.crearUsuario(_authState.value.usuario!!)
                     if (response.isSuccessful) {
                         Log.i("AUTH", "User inserted successfully")
+                        _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
                         setLoggedIn(true)
                     } else {
                         Log.e("AUTH", "FastAPI error response: ${response.message()}")
+                        _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
                         setError(response.message())
                     }
                 } catch (e: Exception) {
                     Log.e("AUTH", "FastAPI connection error: ${e.message}")
+                    _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
                     setError(e.message)
                 }
             }
@@ -97,15 +103,18 @@ class AuthVM : ViewModel() {
      * Verifica de manera asíncrona si hay una sesión almacenada en la caché local y actualiza el estado.
      */
     private fun checkAuth() {
+        _authState.value = _authState.value.copy(stage = AuthStage.LOADING)
         auth.checkCachedSession(
             { user, sub, url ->
                 setLoggedIn(true)
                 setEmail(user.correoU, user.proveedor)
                 setSUB(sub)
                 setPictureURL(url)
+                _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
             },
             {
                 setLoggedIn(false)
+                _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
                 Log.i("Auth", "Not logged in")
             }
         )
