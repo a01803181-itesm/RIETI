@@ -58,7 +58,10 @@ class MainActivity : ComponentActivity()
         enableEdgeToEdge()
         setContent {
             val configState by configVM.state.collectAsState()
-            RIETITheme(theme = configState.theme) {
+            RIETITheme(
+                theme = configState.theme,
+                fontSize = configState.fontSize
+            ) {
                 MainContent(authVM, ubicacionVM, historialVM)
             }
         }

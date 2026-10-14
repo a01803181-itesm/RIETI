@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -109,14 +110,14 @@ fun TarjetaKPI(
                 text = kpi.desc,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Light,
-                fontSize = 18.sp
+                style = MaterialTheme.typography.titleMedium
             )
             Text(
                 text = value.toString(),
                 textAlign = TextAlign.Left,
                 color = kpi.color,
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                style = MaterialTheme.typography.titleLarge
             )
         }
     }

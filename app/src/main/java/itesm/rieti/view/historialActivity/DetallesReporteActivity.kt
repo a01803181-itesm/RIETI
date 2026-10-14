@@ -69,7 +69,7 @@ fun DetallesReporteActivity(
             Text(
                 text = "Detalles Reporte",
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = modifier.weight(3f),
                 textAlign = TextAlign.Center
             )
@@ -113,7 +113,7 @@ fun DetallesReporteActivity(
             Text(
                 text = historialState.selectedReporte!!.detallesAdicionales ?: "",
                 fontWeight = FontWeight.Normal,
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(modifier.height(14.dp))
             ElementoLista("Fecha:", historialState.selectedReporte.dia.toString())
@@ -125,12 +125,12 @@ fun DetallesReporteActivity(
             Text(
                 text = "Ubicación",
                 fontWeight = FontWeight.Normal,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.titleSmall
             )
             Text(
                 text = historialState.selectedReporte.municipio ?: "",
                 fontWeight = FontWeight.Medium,
-                fontSize = 18.sp
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier.height(8.dp))
             Image(
@@ -155,7 +155,7 @@ fun DetallesExpediente(expediente: Expediente, modifier: Modifier = Modifier) {
     Text(
         text = "Detalles Expediente",
         fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp
+        style = MaterialTheme.typography.titleLarge
     )
     ElementoLista("Folio Expediente:", expediente.folioExpediente)
     ElementoLista("Alimentador:", expediente.alimentador)
@@ -180,13 +180,13 @@ fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier
         Text(
             text = etiqueta,
             fontWeight = FontWeight.Medium,
-            fontSize = 18.sp,
+            style = MaterialTheme.typography.bodyLarge,
             modifier = modifier.weight(1f)
         )
         Text(
             text = valor,
             fontWeight = FontWeight.Normal,
-            fontSize = 18.sp,
+            style = MaterialTheme.typography.bodyLarge,
             modifier = modifier.weight(2f)
         )
     }

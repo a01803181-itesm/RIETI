@@ -14,6 +14,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import itesm.rieti.viewModel.config.FontSize
 import itesm.rieti.viewModel.config.Theme
 
 private val lightScheme = lightColorScheme(
@@ -264,6 +265,7 @@ fun RIETITheme(
         Theme.DARK -> true
         Theme.SYSTEM -> isSystemInDarkTheme()
     },
+    fontSize: FontSize = FontSize.MEDIUM,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
@@ -278,9 +280,11 @@ fun RIETITheme(
         else -> lightScheme
     }
 
+    val typography = getTypography(fontSize)
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = AppTypography,
+        typography = typography,
         content = content
     )
 }

@@ -109,7 +109,7 @@ fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modif
             text = "Nuevo Reporte",
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.fillMaxWidth()
         )
         if (!networkConnectionState) {
@@ -479,7 +479,7 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
                 }
             }
         },
-        textStyle = TextStyle(fontSize = 18.sp),
+        textStyle = MaterialTheme.typography.bodyLarge,
         isError = nuevoReporteState.errors.contains(FormError.InvalidName),
         shape = RoundedCornerShape(12.dp),
         supportingText = {

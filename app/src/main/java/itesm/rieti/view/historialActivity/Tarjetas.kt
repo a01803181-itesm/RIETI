@@ -57,18 +57,18 @@ fun TarjetaReporte(
             Text(
                 text = reporte.municipio ?: "",
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Text(
                 text = reporte.folio,
                 fontWeight = FontWeight.Light,
-                fontSize = 10.sp,
+                style = MaterialTheme.typography.labelSmall,
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = reporte.detallesAdicionales ?: reporte.direccion!!,
                 fontWeight = FontWeight.Normal,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
             )
             Spacer(Modifier.height(8.dp))
             Row(
@@ -85,7 +85,7 @@ fun TarjetaReporte(
                     Text(
                         text = dateFormatted,
                         fontWeight = FontWeight.Light,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 Column(
@@ -141,7 +141,7 @@ fun TarjetaBorrador(
                         Text(
                             text = borrador.municipio ?: "",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                     }
                 },
@@ -153,7 +153,7 @@ fun TarjetaBorrador(
                         Text(
                             text = "BORRADOR",
                             fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
@@ -163,7 +163,7 @@ fun TarjetaBorrador(
                 Text(
                     text = "Descripción: ${borrador.descripcion}",
                     fontWeight = FontWeight.Normal,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -177,7 +177,7 @@ fun TarjetaBorrador(
                     Text(
                         text = borrador.fechaYHora.toString(),
                         fontWeight = FontWeight.Light,
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 Column(
