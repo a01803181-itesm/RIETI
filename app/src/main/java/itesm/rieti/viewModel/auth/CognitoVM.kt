@@ -60,34 +60,39 @@ class CognitoVM : ViewModel() {
     ) {
         Log.i("AUTH", "Function called")
         viewModelScope.launch {
-            Log.i("AUTH", "User email: $email")
-            val response = userAPIHandler.checkEmail(email)
-            if (response.isSuccessful) {
-                if (response.body()?.exists == true) {
-                    Log.i("AUTH", "Email exists in DB")
-                    cognito.signInWithEmail(
-                        email,
-                        _cognitoState.value.password,
-                        { onSuccess(it) },
-                        {
-                            val error = cognito.mapError(it)
-                            onError(error)
-                        }
-                    )
+            try {
+                Log.i("AUTH", "User email: $email")
+                val response = userAPIHandler.checkEmail(email)
+                if (response.isSuccessful) {
+                    if (response.body()?.exists == true) {
+                        Log.i("AUTH", "Email exists in DB")
+                        cognito.signInWithEmail(
+                            email,
+                            _cognitoState.value.password,
+                            { onSuccess(it) },
+                            {
+                                val error = cognito.mapError(it)
+                                onError(error)
+                            }
+                        )
+                    } else {
+                        Log.i("AUTH", "Email does not exist in DB, proceeding with registration")
+                        cognito.signUpWithEmail(
+                            email,
+                            _cognitoState.value.password,
+                            { _cognitoState.value = _cognitoState.value.copy(otpSent = true) },
+                            {
+                                val error = cognito.mapError(it)
+                                onError(error)
+                            }
+                        )
+                    }
                 } else {
-                    Log.i("AUTH", "Email does not exist in DB, proceeding with registration")
-                    cognito.signUpWithEmail(
-                        email,
-                        _cognitoState.value.password,
-                        { _cognitoState.value = _cognitoState.value.copy(otpSent = true) },
-                        {
-                            val error = cognito.mapError(it)
-                            onError(error)
-                        }
-                    )
+                    onError("Error de conexión al servidor. ${response.errorBody()}")
                 }
-            } else {
-                onError("Error de conexión al servidor. ${response.errorBody()}")
+            } catch (e: Exception) {
+                Log.e("Auth", "Network error during checkEmail", e)
+                onError("No se pudo conectar con el servidor: ${e.localizedMessage}")
             }
         }
     }

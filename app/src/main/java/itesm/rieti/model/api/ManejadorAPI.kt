@@ -3,11 +3,14 @@ package itesm.rieti.model.api
 import itesm.rieti.model.auth.Auth
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Objeto manejador de la configuración de la API y el cliente HTTP.
@@ -34,6 +37,8 @@ object ManejadorAPI {
      */
     val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
         .build()
         
     /**
@@ -52,9 +57,11 @@ object ManejadorAPI {
      *
      * @return El token de autenticación, o null si no se puede obtener.
      */
-    suspend fun getSynchronousToken(): String? = suspendCancellableCoroutine { continuation ->
-        Auth.getBearerToken { token ->
-            continuation.resume(token)
+    suspend fun getSynchronousToken(): String? = withTimeout(3000L.milliseconds) {
+        suspendCancellableCoroutine { continuation ->
+            Auth.getBearerToken { token ->
+                continuation.resume(token)
+            }
         }
     }
 }

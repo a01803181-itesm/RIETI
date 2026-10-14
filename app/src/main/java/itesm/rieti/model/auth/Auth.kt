@@ -94,6 +94,9 @@ object Auth {
                         Log.w("Auth", "Session is valid but token is missing")
                         onResult(null)
                     }
+                } else {
+                    Log.w("Auth", "No active session; proceeding without Bearer token.")
+                    onResult(null)
                 }
             },
             { error ->
