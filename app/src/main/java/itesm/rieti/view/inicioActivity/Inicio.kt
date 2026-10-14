@@ -1,5 +1,6 @@
 package itesm.rieti.view.inicioActivity
 
+import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -142,12 +143,16 @@ fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifie
                 cognitoVM.authenticate(
                     email = authState.usuario?.correoU ?: "",
                     onSuccess = { sub ->
+                        Log.i("AUTH", "Authentication successful")
                         authVM.setLoggedIn(true)
                         authVM.setSUB(sub)
                         authVM.setEmail(authState.usuario?.correoU ?: "", authState.usuario?.proveedor ?: Provider.COGNITO)
                         authVM.setPictureURL(null)
                     },
-                    onError = { authVM.setError(it) }
+                    onError = {
+                        Log.e("AUTH", "Authentication failed: $it")
+                        authVM.setError(it)
+                    }
                 )
             }
         )

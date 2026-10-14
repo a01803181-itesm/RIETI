@@ -85,13 +85,15 @@ object Auth {
     fun getBearerToken(onResult: (String?) -> Unit) {
         Amplify.Auth.fetchAuthSession(
             { session ->
-                val cognitoSession = session as? AWSCognitoAuthSession
-                val bearerToken = cognitoSession?.userPoolTokensResult?.value?.accessToken
-                if (bearerToken != null) {
-                    onResult(bearerToken)
-                } else {
-                    Log.w("Auth", "Session is valid but token is missing")
-                    onResult(null)
+                if (session.isSignedIn) {
+                    val cognitoSession = session as? AWSCognitoAuthSession
+                    val bearerToken = cognitoSession?.userPoolTokensResult?.value?.accessToken
+                    if (bearerToken != null) {
+                        onResult(bearerToken)
+                    } else {
+                        Log.w("Auth", "Session is valid but token is missing")
+                        onResult(null)
+                    }
                 }
             },
             { error ->

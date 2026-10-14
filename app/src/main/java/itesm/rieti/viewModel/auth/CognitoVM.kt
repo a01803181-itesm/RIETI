@@ -64,6 +64,7 @@ class CognitoVM : ViewModel() {
             val response = userAPIHandler.checkEmail(email)
             if (response.isSuccessful) {
                 if (response.body()?.exists == true) {
+                    Log.i("AUTH", "Email exists in DB")
                     cognito.signInWithEmail(
                         email,
                         _cognitoState.value.password,
@@ -74,6 +75,7 @@ class CognitoVM : ViewModel() {
                         }
                     )
                 } else {
+                    Log.i("AUTH", "Email does not exist in DB, proceeding with registration")
                     cognito.signUpWithEmail(
                         email,
                         _cognitoState.value.password,
