@@ -92,8 +92,8 @@ fun MuestraHistorial(
     ) {
         Text(
             text = "Historial",
+            style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
             modifier = Modifier.testTag("historyTitle")
         )
         Spacer(Modifier.height(12.dp))

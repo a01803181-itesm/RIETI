@@ -110,7 +110,7 @@ fun CuerpoApp(authVM: AuthVM, cognitoVM: CognitoVM, modifier: Modifier = Modifie
         if (authState.error != null) {
             Text(
                 text = authState.error!!,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.error,
                 modifier = modifier.padding(16.dp)
             )
@@ -251,7 +251,7 @@ fun Encabezado(modifier: Modifier = Modifier) {
         Text(
             text = "RIETI",
             fontWeight = FontWeight.Bold,
-            fontSize = 32.sp,
+            style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
         Image(
@@ -275,13 +275,13 @@ fun TitulosLogin(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "Iniciar sesión",
-            fontSize = 40.sp,
+            style = MaterialTheme.typography.displayMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = "Ingresa tus datos para continuar",
-            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
             color = Color.Gray
         )
     }
@@ -320,7 +320,7 @@ fun Correo(
         Text(
             text = "Correo electrónico",
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
@@ -352,7 +352,7 @@ fun Contrasena(
         Text(
             text = "Contraseña",
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
         OutlinedTextField(
