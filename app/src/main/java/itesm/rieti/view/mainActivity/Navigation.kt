@@ -33,7 +33,6 @@ import itesm.rieti.viewModel.history.HistorialVM
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    offlineDB: Builder<BorradorDB>,
     authVM: AuthVM,
     authState: AuthState,
     ubicacionVM: UbicacionVM,
@@ -46,7 +45,7 @@ fun AppNavHost(
         startDestination = Pantalla.RUTA_INICIO,
         modifier = modifier.fillMaxSize()
     ) {
-        composable(Pantalla.RUTA_INICIO) { NuevoReporte(offlineDB, authState, ubicacionVM) }
+        composable(Pantalla.RUTA_INICIO) { NuevoReporte(authState, ubicacionVM) }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) { HistorialActivity(authState, historialVM, historialState) }
         composable(Pantalla.RUTA_CUENTA) { ConfigApp(authVM, historialVM) }

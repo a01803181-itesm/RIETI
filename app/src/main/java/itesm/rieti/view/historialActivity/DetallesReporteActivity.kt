@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.viewModel.history.HistorialState
@@ -200,6 +201,6 @@ fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier
  */
 @Preview(showBackground = true)
 @Composable
-fun DetallesReportePreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {
+fun DetallesReportePreview(historialVM: HistorialVM = viewModel(), historialState: HistorialState = HistorialState()) {
     DetallesReporteActivity(historialVM, historialState)
 }

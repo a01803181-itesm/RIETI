@@ -1,8 +1,11 @@
 package itesm.rieti.viewModel.nuevoReporte
 
+import android.app.Application
+import android.content.Context
 import android.location.Address
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.RoomDatabase.Builder
@@ -17,9 +20,12 @@ import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.Usuario
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * ViewModel encargado de la lógica y la validación del formulario de 
@@ -44,7 +50,7 @@ class NuevoReporteVM : ViewModel() {
     /**
      * Interfaz con el DAO de borradores.
      */
-    private lateinit var borradorDAO: BorradorDAO
+    private val borradorDAO by lazy { BorradorDB.getInstance().getBorradorDAO() }
     
     private val _state = MutableStateFlow(NuevoReporteState())
     
@@ -287,13 +293,33 @@ class NuevoReporteVM : ViewModel() {
         }
     }
 
+    private fun persistDraftImage(context: Context, cachedUri: Uri): String? {
+        return try {
+            context.contentResolver.openInputStream(cachedUri)?.use { inputStream ->
+                val permanentDir = File(context.filesDir, "rieti_draft_images").apply { mkdirs() }
+                val permanentFile = File(permanentDir, "draft_${System.currentTimeMillis()}.jpg")
+                permanentFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                permanentFile.absolutePath
+            }
+        } catch (e: Exception) {
+            Log.e("Draft", "Error persisting draft image: ${e.message}")
+            null
+        }
+    }
+
     /**
      * Mantiene los datos capturados y los guarda localmente como un borrador 
      * para reanudar el proceso en otro momento (aún por implementar en su totalidad).
      */
-    fun guardarComoBorrador(offlineDB: Builder<BorradorDB>) {
+    fun guardarComoBorrador(context: Context, userEmail: String) {
         viewModelScope.launch {
             val reporteState = _state.value.reporte
+
+            val permanentImagePath = withContext(Dispatchers.IO) {
+                _state.value.imageUri?.let { persistDraftImage(context.applicationContext,it) }
+            }
 
             val draft = Borrador(
                 rangoEdad = reporteState.rangoEdad,
@@ -308,13 +334,15 @@ class NuevoReporteVM : ViewModel() {
                 apPaterno = reporteState.apPaterno,
                 apMaterno = reporteState.apMaterno,
                 detallesAdicionales = reporteState.detallesAdicionales,
-                correoU = reporteState.correoU,
+                correoU = userEmail,
                 folioE = reporteState.folioE,
                 correoAl = reporteState.correoAl,
-                evidenciaURI = null
+                evidenciaURI = permanentImagePath
             )
 
-            offlineDB.build().getBorradorDAO().insertBorrador(draft)
+            borradorDAO.insertBorrador(draft)
+
+            _state.value = NuevoReporteState()
         }
     }
 }

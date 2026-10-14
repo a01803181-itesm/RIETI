@@ -1,9 +1,37 @@
 package itesm.rieti.model.drafts
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(version = 0, entities = [Borrador::class])
+@Database(version = 1, entities = [Borrador::class], exportSchema = false)
 abstract class BorradorDB : RoomDatabase() {
+    companion object {
+        @Volatile
+        private var INSTANCE: BorradorDB? = null
+
+        fun init(context: Context){
+            if (INSTANCE == null) {
+                synchronized(this) {
+                    if (INSTANCE == null) {
+                        INSTANCE = Room.databaseBuilder(
+                            context.applicationContext,
+                            BorradorDB::class.java,
+                            "RIETI Offline DB"
+                        )
+                        .fallbackToDestructiveMigration(false)
+                        .build()
+                    }
+                }
+            }
+        }
+
+        fun getInstance(): BorradorDB {
+            return INSTANCE ?: throw IllegalStateException(
+                "BorradorDB no ha sido inicializada. Llama a BorradorDB.init(applicationContext) en MainActivity."
+            )
+        }
+    }
     abstract fun getBorradorDAO(): BorradorDAO
 }

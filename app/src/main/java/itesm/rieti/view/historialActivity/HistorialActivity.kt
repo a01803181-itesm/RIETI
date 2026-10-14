@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.history.HistorialState
@@ -189,7 +190,7 @@ fun BarraToggle(
  */
 @Preview(showBackground = true)
 @Composable
-fun HistorialPreview(historialVM: HistorialVM = HistorialVM()) {
+fun HistorialPreview(historialVM: HistorialVM = viewModel()) {
     HistorialActivity(
         authState = AuthState(),
         historialVM = historialVM,

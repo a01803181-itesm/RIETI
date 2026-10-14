@@ -22,8 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
-import itesm.rieti.model.esquemas.Borrador
+import itesm.rieti.model.drafts.Borrador
 import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
@@ -159,9 +160,9 @@ fun TarjetaBorrador(
                 }
             )
             Spacer(Modifier.height(8.dp))
-            if (borrador.descripcion != null) {
+            if (borrador.detallesAdicionales != null) {
                 Text(
-                    text = "Descripción: ${borrador.descripcion}",
+                    text = "Descripción: ${borrador.detallesAdicionales}",
                     fontWeight = FontWeight.Normal,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -175,7 +176,7 @@ fun TarjetaBorrador(
                     modifier = modifier.weight(1f)
                 ) {
                     Text(
-                        text = borrador.fechaYHora.toString(),
+                        text = borrador.dia.toString(),
                         fontWeight = FontWeight.Light,
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -227,7 +228,7 @@ fun DosColumnas(contenidoColumna1: @Composable () -> Unit, contenidoColumna2: @C
  */
 @Preview
 @Composable
-fun TarjetaReportePreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {
+fun TarjetaReportePreview(historialVM: HistorialVM = viewModel(), historialState: HistorialState = HistorialState()) {
     TarjetaReporte(historialVM, historialState.reportes[0])
 }
 
@@ -239,6 +240,6 @@ fun TarjetaReportePreview(historialVM: HistorialVM = HistorialVM(), historialSta
  */
 @Preview
 @Composable
-fun TarjetaBorradorPreview(historialVM: HistorialVM = HistorialVM(), historialState: HistorialState = HistorialState()) {
+fun TarjetaBorradorPreview(historialVM: HistorialVM = viewModel(), historialState: HistorialState = HistorialState()) {
     TarjetaBorrador(historialVM, historialState.borradores[0])
 }

@@ -1,16 +1,17 @@
 package itesm.rieti.viewModel.history
 
-import android.content.Context
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import itesm.rieti.model.api.reportes.Manejador
 import itesm.rieti.model.drafts.BorradorDB
-import itesm.rieti.model.esquemas.Borrador
+import itesm.rieti.model.drafts.Borrador
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.model.esquemas.Usuario
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,15 +20,17 @@ import kotlinx.coroutines.launch
  * ViewModel encargado de la lógica y la manipulación de datos en la sección del historial 
  * del usuario (reportes finalizados y borradores).
  */
-class HistorialVM : ViewModel()
-{
+class HistorialVM : ViewModel() {
     private val handler = Manejador
+    private val borradorDAO by lazy { BorradorDB.getInstance().getBorradorDAO() }
     private val _state = MutableStateFlow(HistorialState())
     
     /**
      * Estado observable del historial (contiene la lista de reportes, borradores y opciones seleccionadas).
      */
     val state: StateFlow<HistorialState> = _state
+
+    private var borradoresJob: Job? = null
 
     /**
      * Carga de manera asíncrona los reportes enviados por el usuario desde el servidor.
@@ -59,8 +62,27 @@ class HistorialVM : ViewModel()
         }
     }
 
-    fun cargarBorradores(context: Context) {
+    fun cargarBorradores(usuario: Usuario) {
+        borradoresJob?.cancel()
+        borradoresJob = viewModelScope.launch {
+            try {
+                borradorDAO.obtenerBorradoresPorUsuario(usuario.correoU).collect { listaBorradores ->
+                    _state.value = _state.value.copy(borradores = listaBorradores)
+                }
+            } catch (e: Exception) {
+                Log.e("Borradores", "Error al cargar los borradores: ${e.message}")
+                _state.value = _state.value.copy(errorBorradores = "Error al cargar los borradores: ${e.message}")
+            }
+        }
+    }
 
+    fun eliminarBorrador(borrador: Borrador) {
+        viewModelScope.launch {
+            borrador.evidenciaURI?.let { path ->
+                java.io.File(path).delete()
+            }
+            borradorDAO.eliminarBorrador(borrador)
+        }
     }
 
     /**

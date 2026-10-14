@@ -1,9 +1,11 @@
 package itesm.rieti.viewModel.history
 
-import itesm.rieti.model.esquemas.Borrador
 import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.ReporteResponse
+import itesm.rieti.model.drafts.Borrador
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * Enumeración que define las posibles vistas disponibles en la pantalla de historial.

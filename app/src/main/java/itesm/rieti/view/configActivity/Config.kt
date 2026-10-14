@@ -344,6 +344,6 @@ fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifi
  */
 @Preview(showBackground = true)
 @Composable
-fun ConfigPreview(authVM: AuthVM = AuthVM(), historialVM: HistorialVM = HistorialVM()) {
+fun ConfigPreview(authVM: AuthVM = AuthVM(), historialVM: HistorialVM = viewModel()) {
     ConfigApp(authVM, historialVM)
 }

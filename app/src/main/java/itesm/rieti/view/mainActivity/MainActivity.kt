@@ -12,16 +12,16 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
-import androidx.room.RoomDatabase.Builder
 import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
 import com.amplifyframework.core.Amplify
 import itesm.rieti.model.drafts.BorradorDB
@@ -49,9 +49,8 @@ class MainActivity : ComponentActivity()
     {
         super.onCreate(savedInstanceState)
 
+        BorradorDB.init(applicationContext)
         ubicacionVM.crearAdministradorUbicacion(this)
-
-        val offlineDB = Room.databaseBuilder(context = this, klass = BorradorDB::class.java, name = "RIETI Offline Database")
 
         try {
             Amplify.addPlugin(AWSCognitoAuthPlugin())
@@ -67,7 +66,7 @@ class MainActivity : ComponentActivity()
                 theme = configState.theme,
                 fontSize = configState.fontSize
             ) {
-                MainContent(offlineDB, authVM, ubicacionVM, historialVM)
+                MainContent(authVM, ubicacionVM, historialVM)
             }
         }
     }
@@ -81,7 +80,6 @@ class MainActivity : ComponentActivity()
 
 @Composable
 fun MainContent(
-    offlineDB: Builder<BorradorDB>,
     authVM: AuthVM,
     ubicacionVM: UbicacionVM,
     historialVM: HistorialVM,
@@ -92,7 +90,7 @@ fun MainContent(
     if (!networkState && !authState.loggedIn) {
         OfflineScreen()
     } else {
-        if (!authState.loggedIn) RegistroApp() else RIETIApp(offlineDB, authVM, authState, ubicacionVM, historialVM)
+        if (!authState.loggedIn) RegistroApp() else RIETIApp(authVM, authState, ubicacionVM, historialVM)
     }
 }
 
@@ -108,7 +106,6 @@ fun MainContent(
  */
 @Composable
 fun RIETIApp(
-    offlineDB: Builder<BorradorDB>,
     authVM: AuthVM,
     authState: AuthState,
     ubicacionVM: UbicacionVM,
@@ -120,11 +117,18 @@ fun RIETIApp(
     historialVM.cargarReportes(authState.usuario!!)
     val historialState by historialVM.state.collectAsState()
 
+    LaunchedEffect(authState.usuario) {
+        authState.usuario.let { usuario ->
+            ubicacionVM.iniciarActualizaciones()
+            historialVM.cargarReportes(usuario)
+            historialVM.cargarBorradores(usuario)
+        }
+    }
+
     Scaffold(
         content = { innerPadding ->
             AppNavHost(
                 navController = navController,
-                offlineDB = offlineDB,
                 authVM = authVM,
                 authState = authState,
                 historialVM = historialVM,
@@ -186,15 +190,13 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview(
-    offlineDB: Builder<BorradorDB> = Room.databaseBuilder(LocalContext.current, BorradorDB::class.java, "RIETI Offline Database"),
     authVM: AuthVM = AuthVM(),
     authState: AuthState = AuthState(),
-    historialVM: HistorialVM = HistorialVM(),
+    historialVM: HistorialVM = viewModel(),
     ubicacionVM: UbicacionVM = UbicacionVM()
 ) {
     RIETITheme {
         RIETIApp(
-            offlineDB,
             authVM,
             authState,
             ubicacionVM,
