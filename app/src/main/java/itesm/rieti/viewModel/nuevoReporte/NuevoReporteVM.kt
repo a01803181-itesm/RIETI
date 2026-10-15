@@ -315,38 +315,50 @@ class NuevoReporteVM : ViewModel() {
 
     /**
      * Mantiene los datos capturados y los guarda localmente como un borrador 
-     * para reanudar el proceso en otro momento (aún por implementar en su totalidad).
+     * para reanudar el proceso en otro momento.
      */
     fun guardarComoBorrador(context: Context, userEmail: String) {
+        setSaveState(SaveState.SENDING)
         viewModelScope.launch {
-            val reporteState = _state.value.reporte
+            try {
+                val reporteState = _state.value.reporte
 
-            val permanentImagePath = withContext(Dispatchers.IO) {
-                _state.value.imageUri?.let { persistDraftImage(context.applicationContext,it) }
+                val permanentImagePath = withContext(Dispatchers.IO) {
+                    _state.value.imageUri?.let { persistDraftImage(context.applicationContext, it) }
+                }
+
+                val draft = Borrador(
+                    rangoEdad = reporteState.rangoEdad,
+                    dia = reporteState.dia,
+                    tipoTrabajo = reporteState.tipoTrabajo,
+                    numNinios = reporteState.numNinios,
+                    direccion = reporteState.direccion,
+                    municipio = reporteState.municipio,
+                    latitud = reporteState.latitud,
+                    longitud = reporteState.longitud,
+                    nombre = reporteState.nombre,
+                    apPaterno = reporteState.apPaterno,
+                    apMaterno = reporteState.apMaterno,
+                    detallesAdicionales = reporteState.detallesAdicionales,
+                    correoU = userEmail,
+                    folioE = reporteState.folioE,
+                    correoAl = reporteState.correoAl,
+                    evidenciaURI = permanentImagePath
+                )
+
+                borradorDAO.insertBorrador(draft)
+                setSaveState(SaveState.SUCCESS)
+            } catch (e: Exception) {
+                Log.e("Draft", "Error saving draft: ${e.message}")
+                setSaveState(SaveState.ERROR)
             }
-
-            val draft = Borrador(
-                rangoEdad = reporteState.rangoEdad,
-                dia = reporteState.dia,
-                tipoTrabajo = reporteState.tipoTrabajo,
-                numNinios = reporteState.numNinios,
-                direccion = reporteState.direccion,
-                municipio = reporteState.municipio,
-                latitud = reporteState.latitud,
-                longitud = reporteState.longitud,
-                nombre = reporteState.nombre,
-                apPaterno = reporteState.apPaterno,
-                apMaterno = reporteState.apMaterno,
-                detallesAdicionales = reporteState.detallesAdicionales,
-                correoU = userEmail,
-                folioE = reporteState.folioE,
-                correoAl = reporteState.correoAl,
-                evidenciaURI = permanentImagePath
-            )
-
-            borradorDAO.insertBorrador(draft)
-
-            _state.value = NuevoReporteState()
         }
+    }
+
+    /**
+     * Resetea el formulario a su estado inicial por defecto.
+     */
+    fun resetForm() {
+        _state.value = NuevoReporteState()
     }
 }

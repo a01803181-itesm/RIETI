@@ -61,6 +61,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.findNavController
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.RangoEdad
@@ -88,8 +91,14 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param networkVM ViewModel que verifica la conexión a red.
  */
 @Composable
-fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modifier = Modifier, networkVM: NetworkVM = NetworkVM(LocalContext.current))
-{
+fun NuevoReporte(
+    authState: AuthState,
+    ubicacionVM: UbicacionVM,
+    modifier: Modifier = Modifier,
+    networkVM: NetworkVM = NetworkVM(LocalContext.current),
+    onReporteCreado: () -> Unit = {},
+    onBorradorGuardado: () -> Unit = {}
+) {
     val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
@@ -101,6 +110,24 @@ fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modif
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
             nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
+        }
+    }
+
+    LaunchedEffect(nuevoReporteState.sendState) {
+        if (nuevoReporteState.sendState == SendState.SUCCESS) {
+            delay(1000.milliseconds)
+            onReporteCreado()
+            nuevoReporteVM.setSendState(SendState.IDLE)
+            nuevoReporteVM.resetForm()
+        }
+    }
+
+    LaunchedEffect(nuevoReporteState.saveState) {
+        if (nuevoReporteState.saveState == SaveState.SUCCESS) {
+            delay(1000.milliseconds)
+            onBorradorGuardado()
+            nuevoReporteVM.setSaveState(SaveState.IDLE)
+            nuevoReporteVM.resetForm()
         }
     }
 
@@ -540,7 +567,7 @@ fun BotonEnviarReporte(
     modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = { nuevoReporteVM.crearReporte(authState.usuario!!) },
+        onClick = {nuevoReporteVM.crearReporte(authState.usuario!!)},
         enabled = nuevoReporteState.sendState == SendState.IDLE && nuevoReporteState.saveState == SaveState.IDLE,
         colors = ButtonDefaults.buttonColors(
             containerColor = when (nuevoReporteState.sendState) {
@@ -567,10 +594,6 @@ fun BotonEnviarReporte(
                 Text(text = "Enviando...")
             }
             SendState.SUCCESS -> {
-                LaunchedEffect(Unit) {
-                    delay(3000.milliseconds)
-                    nuevoReporteVM.setSendState(SendState.IDLE)
-                }
                 Image(
                     painter = painterResource(R.drawable.check),
                     contentDescription = "Reporte enviado",
@@ -636,10 +659,6 @@ fun BotonGuardarBorrador(
             }
             SaveState.IDLE -> Text(text = "Guardar borrador")
             SaveState.SUCCESS -> {
-                LaunchedEffect(Unit) {
-                    delay(3000.milliseconds)
-                    nuevoReporteVM.setSaveState(SaveState.IDLE)
-                }
                 Image(
                     painter = painterResource(R.drawable.check),
                     contentDescription = "¡Borrador guardado!",
@@ -647,20 +666,16 @@ fun BotonGuardarBorrador(
                     colorFilter = ColorFilter.tint(Color.White)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "¡Reporte Enviado!")
+                Text(text = "¡Borrador guardado!")
             }
             SaveState.ERROR -> {
-                LaunchedEffect(Unit) {
-                    delay(3000.milliseconds)
-                    nuevoReporteVM.setSaveState(SaveState.IDLE)
-                }
                 Image(
                     painter = painterResource(R.drawable.cross),
-                    contentDescription = "Error al enviar reporte",
+                    contentDescription = "Error al guardar borrador",
                     modifier = Modifier.size(16.dp),
                     colorFilter = ColorFilter.tint(Color.White)
                 )
-                Text(text = "Error al enviar reporte")
+                Text(text = "Error al guardar borrador")
             }
         }
     }
