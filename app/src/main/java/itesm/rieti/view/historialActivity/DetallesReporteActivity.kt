@@ -1,7 +1,10 @@
 package itesm.rieti.view.historialActivity
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,8 +36,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Expediente
+import itesm.rieti.view.nuevoReporteActivity.MapScreen
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 
@@ -134,8 +148,69 @@ fun DetallesReporteActivity(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier.height(8.dp))
-            // Mapa
+            MapaEstatico(
+                latitud = historialState.selectedReporte.reporte.latitud,
+                longitud = historialState.selectedReporte.reporte.longitud
+            )
         }
+    }
+}
+
+/**
+ * Componente que muestra un mapa estático centrado en las coordenadas especificadas con un pin rojo.
+ *
+ * @param latitud Coordenada de latitud.
+ * @param longitud Coordenada de longitud.
+ * @param modifier Modificador para la vista.
+ */
+@Composable
+fun MapaEstatico(
+    latitud: Float?,
+    longitud: Float?,
+    modifier: Modifier = Modifier
+) {
+    val defaultLat = 19.593161340526745
+    val defaultLng = -99.22934729362493
+
+    val lat = if (latitud != null && latitud != 0f) latitud.toDouble() else defaultLat
+    val lng = if (longitud != null && longitud != 0f) longitud.toDouble() else defaultLng
+    val location = LatLng(lat, lng)
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(location, 16f)
+    }
+
+    LaunchedEffect(lat, lng) {
+        cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 16f)
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(220.dp)
+            .clip(MaterialTheme.shapes.medium)
+    ) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false,
+                scrollGesturesEnabled = false,
+                zoomGesturesEnabled = false,
+                tiltGesturesEnabled = false,
+                rotationGesturesEnabled = false,
+                myLocationButtonEnabled = false
+            )
+        )
+        Icon(
+            imageVector = Icons.Default.LocationOn,
+            contentDescription = "Pin de ubicación",
+            tint = Color.Red,
+            modifier = Modifier
+                .padding(bottom = 32.dp)
+                .size(36.dp)
+                .align(Alignment.Center)
+        )
     }
 }
 

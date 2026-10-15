@@ -22,7 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -106,9 +109,16 @@ fun MapScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        if (ubicacion != null) {
-            onUbicacionSelected(ubicacion!!.latitude.toFloat(), ubicacion!!.longitude.toFloat())
+    var hasInitializedLocation by remember { mutableStateOf(false) }
+
+    LaunchedEffect(ubicacion) {
+        if (!hasInitializedLocation && ubicacion != null) {
+            hasInitializedLocation = true
+            val initialLat = nuevoReporteState.reporte.latitud?.toDouble() ?: ubicacion!!.latitude
+            val initialLng = nuevoReporteState.reporte.longitud?.toDouble() ?: ubicacion!!.longitude
+            val target = LatLng(initialLat, initialLng)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(target, 18f)
+            onUbicacionSelected(initialLat.toFloat(), initialLng.toFloat())
             processAddressData(context, nuevoReporteVM, cameraPositionState)
         }
     }
@@ -116,6 +126,8 @@ fun MapScreen(
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
             onCameraIdle()
+            val centroActual = cameraPositionState.position.target
+            onUbicacionSelected(centroActual.latitude.toFloat(), centroActual.longitude.toFloat())
             if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
                 processAddressData(context, nuevoReporteVM, cameraPositionState)
             }
