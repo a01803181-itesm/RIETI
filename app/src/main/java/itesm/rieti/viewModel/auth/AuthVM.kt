@@ -1,23 +1,28 @@
 package itesm.rieti.viewModel.auth
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.usuarios.Manejador
 import itesm.rieti.model.auth.Auth
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.model.esquemas.Usuario
+import itesm.rieti.model.preferences.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel encargado de manejar la autenticación principal de la aplicación,
  * incluyendo la persistencia de la sesión y la conexión con el servidor.
  */
-class AuthVM : ViewModel() {
+class AuthVM(application: Application) : AndroidViewModel(application) {
     private val auth = Auth
     private val userHandler = Manejador
+    private val preferences = UserPreferences(application)
     private val _authState = MutableStateFlow(AuthState())
     
     /**
@@ -106,6 +111,7 @@ class AuthVM : ViewModel() {
         _authState.value = _authState.value.copy(stage = AuthStage.LOADING)
         auth.checkCachedSession(
             { user, sub, url ->
+                viewModelScope.launch { preferences.saveUser(user, sub) }
                 setLoggedIn(true)
                 setEmail(user.correoU, user.proveedor)
                 setSUB(sub)
@@ -113,9 +119,21 @@ class AuthVM : ViewModel() {
                 _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
             },
             {
-                setLoggedIn(false)
-                _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
-                Log.i("Auth", "Not logged in")
+                viewModelScope.launch {
+                    val offlineEmail = preferences.offlineEmailFlow.firstOrNull()
+                    val offlineProvider = preferences.offlineProviderFlow.firstOrNull()
+                    val offlineSUB = preferences.offlineSUBFlow.firstOrNull()
+                    if (offlineEmail != null && offlineProvider != null) {
+                        Log.i("Auth", "Offline session recovered from DataStore")
+                        setEmail(offlineEmail, Provider.valueOf(offlineProvider))
+                        setSUB(offlineSUB)
+                        setLoggedIn(true)
+                    } else {
+                        Log.i("Auth", "Not logged in")
+                        setLoggedIn(false)
+                    }
+                    _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
+                }
             }
         )
     }
@@ -127,8 +145,11 @@ class AuthVM : ViewModel() {
      */
     fun signOut(onSignOut: () -> Unit) {
         auth.signOut {
-            onSignOut()
-            _authState.value = AuthState()
+            viewModelScope.launch {
+                preferences.clearOfflineUser()
+                onSignOut()
+                _authState.value = AuthState()
+            }
         }
     }
 }

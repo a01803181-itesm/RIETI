@@ -70,7 +70,9 @@ import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.network.NetworkVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
+import itesm.rieti.viewModel.nuevoReporte.SaveState
 import itesm.rieti.viewModel.nuevoReporte.SendState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.time.LocalDateTime
@@ -173,7 +175,7 @@ fun NuevoReporte(authState: AuthState, ubicacionVM: UbicacionVM, modifier: Modif
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                BotonGuardarBorrador(authState, nuevoReporteVM, Modifier.weight(1f))
+                BotonGuardarBorrador(authState, nuevoReporteState, nuevoReporteVM, Modifier.weight(1f))
                 if (networkConnectionState) {
                     BotonEnviarReporte(authState, nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
                 }
@@ -539,8 +541,7 @@ fun BotonEnviarReporte(
 ) {
     Button(
         onClick = { nuevoReporteVM.crearReporte(authState.usuario!!) },
-        modifier = modifier,
-        enabled = nuevoReporteState.sendState == SendState.IDLE,
+        enabled = nuevoReporteState.sendState == SendState.IDLE && nuevoReporteState.saveState == SaveState.IDLE,
         colors = ButtonDefaults.buttonColors(
             containerColor = when (nuevoReporteState.sendState) {
                     SendState.IDLE -> MaterialTheme.colorScheme.primary
@@ -554,7 +555,8 @@ fun BotonEnviarReporte(
                 SendState.SUCCESS -> Color.White
                 SendState.ERROR -> MaterialTheme.colorScheme.onError
             }
-        )
+        ),
+        modifier = modifier
     ) {
         when (nuevoReporteState.sendState) {
             SendState.IDLE -> Text(text = "Enviar Reporte")
@@ -565,6 +567,10 @@ fun BotonEnviarReporte(
                 Text(text = "Enviando...")
             }
             SendState.SUCCESS -> {
+                LaunchedEffect(Unit) {
+                    delay(3000.milliseconds)
+                    nuevoReporteVM.setSendState(SendState.IDLE)
+                }
                 Image(
                     painter = painterResource(R.drawable.check),
                     contentDescription = "Reporte enviado",
@@ -573,13 +579,12 @@ fun BotonEnviarReporte(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "¡Reporte Enviado!")
-                runBlocking {
-                    withTimeout(3000L.milliseconds) {
-                        nuevoReporteVM.setSendState(SendState.IDLE)
-                    }
-                }
             }
             SendState.ERROR -> {
+                LaunchedEffect(Unit) {
+                    delay(3000.milliseconds)
+                    nuevoReporteVM.setSendState(SendState.IDLE)
+                }
                 Image(
                     painter = painterResource(R.drawable.cross),
                     contentDescription = "Error al enviar reporte",
@@ -600,17 +605,64 @@ fun BotonEnviarReporte(
 @Composable
 fun BotonGuardarBorrador(
     authState: AuthState,
+    nuevoReporteState: NuevoReporteState,
     nuevoReporteVM: NuevoReporteVM,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     Button(
         onClick = { nuevoReporteVM.guardarComoBorrador(context, authState.usuario!!.correoU) },
-        modifier = modifier
-    ) {
-        Text(
-            text = "Guardar borrador"
+        modifier = modifier,
+        enabled = nuevoReporteState.saveState == SaveState.IDLE,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = when (nuevoReporteState.saveState) {
+                SaveState.IDLE -> MaterialTheme.colorScheme.primary
+                SaveState.SENDING -> Color.DarkGray
+                SaveState.SUCCESS -> Color.Green
+                SaveState.ERROR -> MaterialTheme.colorScheme.errorContainer
+            },
+            contentColor = when (nuevoReporteState.saveState) {
+                SaveState.IDLE -> MaterialTheme.colorScheme.onPrimary
+                SaveState.SENDING -> Color.White
+                SaveState.SUCCESS -> Color.White
+                SaveState.ERROR -> MaterialTheme.colorScheme.onError
+            }
         )
+    ) {
+        when (nuevoReporteState.saveState) {
+            SaveState.SENDING -> {
+                CircularProgressIndicator()
+                Text(text = "Guardando...")
+            }
+            SaveState.IDLE -> Text(text = "Guardar borrador")
+            SaveState.SUCCESS -> {
+                LaunchedEffect(Unit) {
+                    delay(3000.milliseconds)
+                    nuevoReporteVM.setSaveState(SaveState.IDLE)
+                }
+                Image(
+                    painter = painterResource(R.drawable.check),
+                    contentDescription = "¡Borrador guardado!",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "¡Reporte Enviado!")
+            }
+            SaveState.ERROR -> {
+                LaunchedEffect(Unit) {
+                    delay(3000.milliseconds)
+                    nuevoReporteVM.setSaveState(SaveState.IDLE)
+                }
+                Image(
+                    painter = painterResource(R.drawable.cross),
+                    contentDescription = "Error al enviar reporte",
+                    modifier = Modifier.size(16.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+                Text(text = "Error al enviar reporte")
+            }
+        }
     }
 }
 

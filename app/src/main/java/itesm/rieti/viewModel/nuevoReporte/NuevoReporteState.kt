@@ -13,6 +13,13 @@ enum class SendState {
     ERROR
 }
 
+enum class SaveState {
+    IDLE,
+    SENDING,
+    SUCCESS,
+    ERROR
+}
+
 /**
  * Representa el estado del formulario de creación de un nuevo reporte.
  *
@@ -30,5 +37,6 @@ data class NuevoReporteState(
     val imageUri: Uri? = null,
     val errors: Map<FormError,String> = emptyMap(),
     val rawAddress: Address? = null,
-    val sendState: SendState = SendState.IDLE
+    val sendState: SendState = SendState.IDLE,
+    val saveState: SaveState = SaveState.IDLE
 )

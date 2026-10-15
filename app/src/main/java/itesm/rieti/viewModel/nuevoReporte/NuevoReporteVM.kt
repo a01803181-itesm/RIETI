@@ -170,6 +170,10 @@ class NuevoReporteVM : ViewModel() {
         _state.value = _state.value.copy(sendState = state)
     }
 
+    fun setSaveState(state: SaveState) {
+        _state.value = _state.value.copy(saveState = state)
+    }
+
     /**
      * Analiza el objeto `Address` para asegurar que el evento se reporta dentro de México, 
      * extrayendo su municipio y la dirección literal si es válido, o registrando errores en caso opuesto.

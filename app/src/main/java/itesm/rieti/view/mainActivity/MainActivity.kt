@@ -190,7 +190,7 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview(
-    authVM: AuthVM = AuthVM(),
+    authVM: AuthVM = viewModel(),
     authState: AuthState = AuthState(),
     historialVM: HistorialVM = viewModel(),
     ubicacionVM: UbicacionVM = UbicacionVM()
