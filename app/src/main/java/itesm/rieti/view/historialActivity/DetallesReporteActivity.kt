@@ -134,12 +134,7 @@ fun DetallesReporteActivity(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier.height(8.dp))
-            Image(
-                painter = painterResource(R.drawable.map_preview),
-                contentDescription = "Static Google Maps preview",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+            // Mapa
         }
     }
 }
