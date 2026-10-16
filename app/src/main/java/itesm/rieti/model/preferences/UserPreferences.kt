@@ -1,6 +1,7 @@
 package itesm.rieti.model.preferences
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -17,6 +18,7 @@ class UserPreferences(private val context: Context) {
         val OFFLINE_EMAIL_KEY = stringPreferencesKey("offline_email")
         val OFFLINE_PROVIDER_KEY = stringPreferencesKey("offline_provider")
         val OFFLINE_SUB_KEY = stringPreferencesKey("offline_sub")
+        val AWARE_OF_ANONYMOUS_KEY = booleanPreferencesKey("aware_of_anonymous")
     }
 
     val themeFlow: Flow<String?> = context.dataStore.data.map { it[THEME_KEY] }
@@ -24,6 +26,7 @@ class UserPreferences(private val context: Context) {
     val offlineEmailFlow: Flow<String?> = context.dataStore.data.map { it[OFFLINE_EMAIL_KEY] }
     val offlineProviderFlow: Flow<String?> = context.dataStore.data.map { it[OFFLINE_PROVIDER_KEY] }
     val offlineSUBFlow: Flow<String?> = context.dataStore.data.map { it[OFFLINE_SUB_KEY] }
+    val awareOfAnonymousFlow: Flow<Boolean> = context.dataStore.data.map { it[AWARE_OF_ANONYMOUS_KEY] ?: false }
 
     suspend fun saveTheme(theme: String) { context.dataStore.edit { it[THEME_KEY] = theme } }
     suspend fun saveFontSize(fontSize: String) { context.dataStore.edit { it[FONT_SIZE_KEY] = fontSize } }
@@ -34,11 +37,13 @@ class UserPreferences(private val context: Context) {
             it[OFFLINE_SUB_KEY] = sub
         }
     }
+    suspend fun saveAwareOfAnonymous(aware: Boolean) { context.dataStore.edit { it[AWARE_OF_ANONYMOUS_KEY] = aware } }
     suspend fun clearOfflineUser() {
         context.dataStore.edit {
             it.remove(OFFLINE_EMAIL_KEY)
             it.remove(OFFLINE_PROVIDER_KEY)
             it.remove(OFFLINE_SUB_KEY)
+            it.remove(AWARE_OF_ANONYMOUS_KEY)
         }
     }
 }

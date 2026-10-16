@@ -10,6 +10,7 @@ enum class SendState {
     IDLE,
     SENDING,
     SUCCESS,
+    SUCCESS_AS_ANONYMOUS,
     ERROR
 }
 
@@ -38,5 +39,6 @@ data class NuevoReporteState(
     val errors: Map<FormError,String> = emptyMap(),
     val rawAddress: Address? = null,
     val sendState: SendState = SendState.IDLE,
-    val saveState: SaveState = SaveState.IDLE
+    val saveState: SaveState = SaveState.IDLE,
+    val displayAnonymousDialog: Boolean = false,
 )

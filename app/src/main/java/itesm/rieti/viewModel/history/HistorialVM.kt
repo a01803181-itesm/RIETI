@@ -1,8 +1,6 @@
 package itesm.rieti.viewModel.history
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import itesm.rieti.model.api.reportes.Manejador
@@ -32,12 +30,17 @@ class HistorialVM : ViewModel() {
 
     private var borradoresJob: Job? = null
 
+    fun setLoadingState(state: HistorialStage) {
+        _state.value = _state.value.copy(stage = state)
+    }
+
     /**
      * Carga de manera asíncrona los reportes enviados por el usuario desde el servidor.
      *
      * @param usuario El [Usuario] activo, necesario para obtener sus reportes asociados.
      */
     fun cargarReportes(usuario: Usuario) {
+        setLoadingState(HistorialStage.LOADING_REPORTS)
         viewModelScope.launch {
             try {
                 Log.i("Reportes", "Cargando reportes")
@@ -47,13 +50,16 @@ class HistorialVM : ViewModel() {
                     if (response.body() != null && response.body()!!.isNotEmpty()) {
                         Log.i("Reportes", "Reportes cargados: ${response.body()}")
                         _state.value = _state.value.copy(reportes = response.body()!!)
+                        setLoadingState(HistorialStage.NON_EMPTY_REPORTS)
                     } else {
                         Log.i("Reportes", "No hay reportes")
                         _state.value = _state.value.copy(reportes = emptyList())
+                        setLoadingState(HistorialStage.EMPTY_REPORTS)
                     }
                 } else {
                     Log.e("Reportes", "Error en la consulta al cargar los reportes: ${response.code()}. ${response.message()}")
                     _state.value = _state.value.copy(errorReportes = "Error en la consulta al cargar los reportes: ${response.code()}. ${response.message()}")
+                    setLoadingState(HistorialStage.ERROR_IN_REPORTS)
                 }
             } catch (e: Exception) {
                 Log.e("Reportes", "Error de conexión con el servidor: ${e.message}")

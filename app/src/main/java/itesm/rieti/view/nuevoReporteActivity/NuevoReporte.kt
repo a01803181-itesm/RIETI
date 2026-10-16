@@ -1,5 +1,7 @@
 package itesm.rieti.view.nuevoReporteActivity
 
+import android.graphics.Color.rgb
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -44,6 +47,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -68,6 +73,7 @@ import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
+import itesm.rieti.model.preferences.UserPreferences
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.network.NetworkVM
@@ -76,6 +82,8 @@ import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import itesm.rieti.viewModel.nuevoReporte.SaveState
 import itesm.rieti.viewModel.nuevoReporte.SendState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import java.time.LocalDateTime
@@ -104,6 +112,7 @@ fun NuevoReporte(
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
 
     val context = LocalContext.current
+    val preferences = UserPreferences(context)
 
     var enableScroll by remember { mutableStateOf(true) }
 
@@ -154,10 +163,15 @@ fun NuevoReporte(
                 .verticalScroll(rememberScrollState(), enabled = enableScroll),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            if (nuevoReporteState.displayAnonymousDialog) {
+                AnonymousDialog(preferences, authState, nuevoReporteVM)
+            }
             NombreCompleto(nuevoReporteVM, nuevoReporteState)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = modifier.fillMaxWidth().wrapContentHeight(),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CantidadNNA(nuevoReporteVM, nuevoReporteState, modifier.weight(4f))
@@ -198,13 +212,26 @@ fun NuevoReporte(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+            if (nuevoReporteState.sendState == SendState.SUCCESS_AS_ANONYMOUS) {
+                LaunchedEffect(Unit) {
+                    delay(3000.milliseconds)
+                    nuevoReporteVM.setSendState(SendState.IDLE)
+                }
+                Text(
+                    text = "Reporte enviado como anónimo",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Green,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 BotonGuardarBorrador(authState, nuevoReporteState, nuevoReporteVM, Modifier.weight(1f))
                 if (networkConnectionState) {
-                    BotonEnviarReporte(authState, nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
+                    BotonEnviarReporte(preferences, authState, nuevoReporteVM, nuevoReporteState, Modifier.weight(1f))
                 }
             }
         }
@@ -522,7 +549,9 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        modifier = modifier.fillMaxWidth().padding(top = 4.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp)
     )
     if (showHelpDialog) {
         AlertDialog(
@@ -534,6 +563,7 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
                     text = "Nombre Completo (o Anónimo)",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.fillMaxWidth()
                 )
             },
@@ -552,6 +582,86 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
     }
 }
 
+@Composable
+fun AnonymousDialog(
+    preferences: UserPreferences,
+    authState: AuthState,
+    nuevoReporteVM: NuevoReporteVM
+) {
+    val rememberCoroutineScope = rememberCoroutineScope()
+    AlertDialog(
+        modifier = Modifier
+            .padding(16.dp)
+            .wrapContentSize(),
+        onDismissRequest = { nuevoReporteVM.setDisplayAnonymousDialog(false) },
+        confirmButton = {
+            Button(
+                onClick = {
+                    nuevoReporteVM.setDisplayAnonymousDialog(false)
+                    rememberCoroutineScope.launch { preferences.saveAwareOfAnonymous(true) }
+                    nuevoReporteVM.crearReporte(authState.usuario!!)
+                }
+            ) {
+                Text(
+                    text = "Aceptar",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    nuevoReporteVM.setDisplayAnonymousDialog(false)
+                }
+            ) {
+                Text(
+                    text = "Cancelar",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        },
+        text = {
+            Text(
+                text = "El reporte será enviado como anónimo.\n" +
+                       "Considera que si envias el reporte como anónimo " +
+                       "no podrás verlo reflejado en tu historial como usuario.",
+                textAlign = TextAlign.Justify
+            )
+        },
+        title = {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.warning),
+                        contentDescription = "Advertencia",
+                        tint = Color(rgb(255, 192, 72)),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = "Advertencia",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(start = 8.dp),
+                        color = Color(rgb(255, 192, 72))
+                    )
+                }
+                Text(
+                    text = "Reporte Anónimo",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    )
+}
+
 /**
  * Botón para enviar un reporte a los servidores.
  *
@@ -561,25 +671,37 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
  */
 @Composable
 fun BotonEnviarReporte(
+    preferences: UserPreferences,
     authState: AuthState,
     nuevoReporteVM: NuevoReporteVM,
     nuevoReporteState: NuevoReporteState,
     modifier: Modifier = Modifier
 ) {
+    val awareOfAnonymous by preferences.awareOfAnonymousFlow.collectAsStateWithLifecycle(initialValue = false)
     Button(
-        onClick = {nuevoReporteVM.crearReporte(authState.usuario!!)},
+        onClick = {
+            if (
+                !awareOfAnonymous &&
+                nuevoReporteState.rawName == ""
+                && nuevoReporteVM.assertFieldsCompletion()
+            ) {
+                nuevoReporteVM.setDisplayAnonymousDialog(true)
+            } else {
+                nuevoReporteVM.crearReporte(usuario = authState.usuario!!)
+            }
+        },
         enabled = nuevoReporteState.sendState == SendState.IDLE && nuevoReporteState.saveState == SaveState.IDLE,
         colors = ButtonDefaults.buttonColors(
             containerColor = when (nuevoReporteState.sendState) {
                     SendState.IDLE -> MaterialTheme.colorScheme.primary
                     SendState.SENDING -> Color.DarkGray
-                    SendState.SUCCESS -> Color.Green
+                    SendState.SUCCESS, SendState.SUCCESS_AS_ANONYMOUS -> Color.Green
                     SendState.ERROR -> MaterialTheme.colorScheme.errorContainer
                 },
             contentColor = when (nuevoReporteState.sendState) {
                 SendState.IDLE -> MaterialTheme.colorScheme.onPrimary
                 SendState.SENDING -> Color.White
-                SendState.SUCCESS -> Color.White
+                SendState.SUCCESS, SendState.SUCCESS_AS_ANONYMOUS -> Color.White
                 SendState.ERROR -> MaterialTheme.colorScheme.onError
             }
         ),
@@ -593,7 +715,7 @@ fun BotonEnviarReporte(
                 )
                 Text(text = "Enviando...")
             }
-            SendState.SUCCESS -> {
+            SendState.SUCCESS, SendState.SUCCESS_AS_ANONYMOUS -> {
                 Image(
                     painter = painterResource(R.drawable.check),
                     contentDescription = "Reporte enviado",

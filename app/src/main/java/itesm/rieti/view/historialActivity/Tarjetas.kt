@@ -175,8 +175,12 @@ fun TarjetaBorrador(
                 Column(
                     modifier = modifier.weight(1f)
                 ) {
+                    val dateFormatted = try {
+                        val parsed = LocalDateTime.parse(borrador.dia)
+                        parsed.format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
+                    } catch (_: Exception) { borrador.dia }
                     Text(
-                        text = borrador.dia.toString(),
+                        text = dateFormatted.toString(),
                         fontWeight = FontWeight.Light,
                         style = MaterialTheme.typography.bodyMedium
                     )

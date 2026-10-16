@@ -20,9 +20,11 @@ import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.Usuario
+import itesm.rieti.model.preferences.UserPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -58,6 +60,10 @@ class NuevoReporteVM : ViewModel() {
      * Estado observable del formulario del nuevo reporte.
      */
     val state: StateFlow<NuevoReporteState> = _state
+
+    fun setDisplayAnonymousDialog(value: Boolean) {
+        _state.value = _state.value.copy(displayAnonymousDialog = value)
+    }
 
     /**
      * Actualiza el nombre capturado de forma cruda y limpia posibles errores previos de nombre.
@@ -253,7 +259,7 @@ class NuevoReporteVM : ViewModel() {
         }
         validateAddress()
         _state.value = _state.value.copy(errors = newMap)
-        Log.e("Form", "Errors: ${_state.value.errors}")
+        Log.e("Reporte", "Errors from VM: ${_state.value.errors}")
         return newMap.isEmpty()
     }
 
@@ -273,17 +279,17 @@ class NuevoReporteVM : ViewModel() {
                 )
                 _state.value = _state.value.copy(
                     reporte = _state.value.reporte.copy(
-                        folio = folio
+                        folio = folio,
                     )
                 )
-                _state.value = _state.value.copy(reporte = _state.value.reporte.copy(correoU = usuario.correoU))
+                _state.value = _state.value.copy(reporte = _state.value.reporte.copy(correoU = if (_state.value.rawName != "") usuario.correoU else "anonymous@nowhere.com"))
                 val response = reporteHandler.crearReporte(_state.value.reporte)
                 Log.i("Reporte", "REPORTE: ${_state.value.reporte}")
                 Log.i("Reporte", "HTTP CODE: ${response.code()}")
                 Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
                 if (response.isSuccessful) {
                     Log.i("Reporte", "Reporte creado exitosamente")
-                    setSendState(SendState.SUCCESS)
+                    setSendState(if (_state.value.rawName == "") SendState.SUCCESS_AS_ANONYMOUS else SendState.SUCCESS)
                     _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
                 } else {
                     val newMap = _state.value.errors.toMutableMap()

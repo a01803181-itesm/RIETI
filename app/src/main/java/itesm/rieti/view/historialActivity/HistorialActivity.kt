@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -18,9 +20,12 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
@@ -28,13 +33,15 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import itesm.rieti.R
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.history.HistoryView
+import itesm.rieti.viewModel.history.HistorialStage
+import itesm.rieti.viewModel.network.NetworkVM
+import java.time.LocalDateTime
 
 /**
  * Actividad principal del historial que determina si mostrar la lista de reportes
@@ -50,8 +57,11 @@ fun HistorialActivity(
     authState: AuthState,
     historialVM: HistorialVM,
     historialState: HistorialState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    networkVM: NetworkVM = NetworkVM(LocalContext.current)
 ) {
+    val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
+
     LaunchedEffect(historialState.reportes) {
         if (historialState.reportes.isEmpty()) {
             historialVM.cargarReportes(authState.usuario!!)
@@ -60,6 +70,7 @@ fun HistorialActivity(
 
     if (historialState.selectedReporte == null) {
         MuestraHistorial(
+            networkConnection = networkConnectionState,
             historialVM = historialVM,
             historialState = historialState,
             modifier = modifier
@@ -79,6 +90,7 @@ fun HistorialActivity(
  */
 @Composable
 fun MuestraHistorial(
+    networkConnection: Boolean,
     historialVM: HistorialVM,
     historialState: HistorialState,
     modifier: Modifier = Modifier
@@ -104,29 +116,23 @@ fun MuestraHistorial(
         Spacer(Modifier.height(6.dp))
         when (historialState.selectedView) {
             HistoryView.REPORTES -> {
-                if (historialState.reportes.isEmpty()) {
-                    EmptyLayout("No hay reportes")
+                if (!networkConnection) {
+                    historialVM.setLoadingState(HistorialStage.OFFLINE)
+                } else if (historialState.reportes.isEmpty() && historialState.stage != HistorialStage.ERROR_IN_REPORTS) {
+                    historialVM.setLoadingState(HistorialStage.EMPTY_REPORTS)
                 } else {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(historialState.reportes) { reporte ->
-                            Log.i("Reporte", "Reporte data: $reporte")
-                            TarjetaReporte(historialVM, reporte)
-                        }
-                    }
+                    historialVM.setLoadingState(HistorialStage.NON_EMPTY_REPORTS)
                 }
             }
             HistoryView.BORRADORES -> {
                 if (historialState.borradores.isEmpty()) {
-                    EmptyLayout("No hay borradores")
+                    historialVM.setLoadingState(HistorialStage.EMPTY_DRAFTS)
                 } else {
-                    LazyColumn {
-                        items(historialState.borradores) { borrador ->
-                            TarjetaBorrador(historialVM, borrador)
-                        }
-                    }
+                    historialVM.setLoadingState(HistorialStage.NON_EMPTY_DRAFTS)
                 }
             }
         }
+        ReportesContent(historialVM, historialState)
     }
 }
 /**
@@ -136,24 +142,106 @@ fun MuestraHistorial(
  * @param modifier Modificador para la vista.
  */
 @Composable
-fun EmptyLayout(desc: String, modifier: Modifier = Modifier) {
+fun ReportesContent(historialVM: HistorialVM, historialState: HistorialState, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(R.drawable.no_records),
-            contentDescription = desc,
-            modifier = Modifier.height(200.dp).offset(x = 20.dp),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = desc,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.SemiBold
-        )
+        when (historialState.stage) {
+            HistorialStage.LOADING_REPORTS -> {
+                Log.i("ReporteStage", "Loading")
+                CircularProgressIndicator(modifier = modifier.size(200.dp))
+                Text(
+                    text = "Cargando datos...",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            HistorialStage.ERROR_IN_REPORTS -> {
+                Log.i("ReporteStage", "Error")
+                Image(
+                    painter = painterResource(R.drawable.server_error),
+                    contentDescription = "Error de conexión",
+                    modifier = Modifier.size(200.dp),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                )
+                Text(
+                    text = "Error de conexión",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            HistorialStage.EMPTY_REPORTS -> {
+                Log.i("ReporteStage", "Empty")
+                Image(
+                    painter = painterResource(R.drawable.no_records),
+                    contentDescription = "Sin datos",
+                    modifier = Modifier.height(200.dp).offset(x = 20.dp),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Aún sin reportes",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            HistorialStage.OFFLINE -> {
+                if (historialState.reportes.isEmpty()) {
+                    Log.i("ReporteStage", "Offline")
+                    Image(
+                        painter = painterResource(R.drawable.offline),
+                        contentDescription = "Sin conexión",
+                        modifier = Modifier.size(200.dp),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
+                    Text(
+                        text = "Sin conexión",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(historialState.reportes.sortedBy{ LocalDateTime.parse(it.reporte.dia) }.asReversed()) { reporte ->
+                            Log.i("ReporteStage", "Reporte data: $reporte")
+                            TarjetaReporte(historialVM, reporte)
+                        }
+                    }
+                }
+            }
+            HistorialStage.NON_EMPTY_REPORTS -> {
+                Log.i("ReporteStage", "Reporte data: ${historialState.reportes}")
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(historialState.reportes.sortedBy{ LocalDateTime.parse(it.reporte.dia) }.asReversed()) { reporte ->
+                        Log.i("ReporteStage", "Reporte data: $reporte")
+                        TarjetaReporte(historialVM, reporte)
+                    }
+                }
+            }
+            HistorialStage.NON_EMPTY_DRAFTS -> {
+                Log.i("ReporteStage", "Borrador data: ${historialState.borradores}")
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(historialState.borradores.sortedBy{ LocalDateTime.parse(it.dia) }.asReversed()) { borrador ->
+                        TarjetaBorrador(historialVM, borrador)
+                    }
+                }
+            }
+            HistorialStage.EMPTY_DRAFTS -> {
+                Image(
+                    painter = painterResource(R.drawable.no_records),
+                    contentDescription = "Sin datos",
+                    modifier = Modifier.height(200.dp).offset(x = 20.dp),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Aún sin borradores",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
     }
 }
 
@@ -203,6 +291,6 @@ fun HistorialPreview(historialVM: HistorialVM = viewModel()) {
  */
 @Preview(showBackground = true)
 @Composable
-fun EmptyHeaderPreview() {
-    EmptyLayout("No hay reportes")
+fun PlaceholderHeaderPreview(historialVM: HistorialVM = viewModel(), historialState: HistorialState = HistorialState()) {
+    ReportesContent(historialVM, historialState)
 }

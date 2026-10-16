@@ -1,11 +1,8 @@
 package itesm.rieti.viewModel.history
 
-import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.model.drafts.Borrador
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * Enumeración que define las posibles vistas disponibles en la pantalla de historial.
@@ -18,6 +15,16 @@ enum class HistoryView(val desc: String) {
     
     /** Vista de borradores guardados localmente. */
     BORRADORES("Borradores")
+}
+
+enum class HistorialStage {
+    LOADING_REPORTS,
+    NON_EMPTY_REPORTS,
+    NON_EMPTY_DRAFTS,
+    EMPTY_REPORTS,
+    EMPTY_DRAFTS,
+    ERROR_IN_REPORTS,
+    OFFLINE,
 }
 
 /**
@@ -38,5 +45,6 @@ data class HistorialState(
     val borradores: List<Borrador> = emptyList(),
     val selectedBorrador: Borrador? = null,
     val selectedView: HistoryView = HistoryView.REPORTES,
-    val errorBorradores: String? = null
+    val errorBorradores: String? = null,
+    val stage: HistorialStage = HistorialStage.NON_EMPTY_REPORTS
 )
