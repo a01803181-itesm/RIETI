@@ -34,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -67,11 +66,6 @@ fun HistorialActivity(
     networkVM: NetworkVM = NetworkVM(LocalContext.current)
 ) {
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
-
-    BackHandler(enabled = historialState.selectedReporte != null)
-    {
-        historialVM.setReporteSeleccionado(null)
-    }
 
     LaunchedEffect(historialState.reportes) {
         if (historialState.reportes.isEmpty()) {
