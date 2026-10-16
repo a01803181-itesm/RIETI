@@ -123,11 +123,16 @@ fun NuevoReporte(
     }
 
     LaunchedEffect(nuevoReporteState.sendState) {
-        if (nuevoReporteState.sendState == SendState.SUCCESS) {
+        if (nuevoReporteState.sendState == SendState.SUCCESS || nuevoReporteState.sendState == SendState.SUCCESS_AS_ANONYMOUS) {
             delay(1000.milliseconds)
             onReporteCreado()
             nuevoReporteVM.setSendState(SendState.IDLE)
             nuevoReporteVM.resetForm()
+
+            val currentLoc = ubicacionVM.ubicacion.value
+            if (currentLoc != null) {
+                nuevoReporteVM.setCoords(currentLoc.latitude.toFloat(), currentLoc.longitude.toFloat())
+            }
         }
     }
 
@@ -205,7 +210,7 @@ fun NuevoReporte(
             if (nuevoReporteState.errors.isNotEmpty()) {
                 HorizontalDivider()
                 Text(
-                    text = if (nuevoReporteState.errors.contains(FormError.ServerError)) nuevoReporteState.errors[FormError.ServerError]!! else "Hay campos con errores",
+                    text = if (nuevoReporteState.errors.contains(FormError.ServerError)) nuevoReporteState.errors[FormError.ServerError] ?: "Error en servidor" else "Hay campos con errores",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error,
@@ -214,7 +219,6 @@ fun NuevoReporte(
             }
             if (nuevoReporteState.sendState == SendState.SUCCESS_AS_ANONYMOUS) {
                 LaunchedEffect(Unit) {
-                    delay(3000.milliseconds)
                     nuevoReporteVM.setSendState(SendState.IDLE)
                 }
                 Text(
@@ -332,7 +336,7 @@ fun CantidadNNA(
         supportingText = {
             if (nuevoReporteState.errors.contains(FormError.NNAMissing)) {
                 Text(
-                    text = nuevoReporteState.errors[FormError.NNAMissing]!!,
+                    text = nuevoReporteState.errors[FormError.NNAMissing] ?: "",
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -385,7 +389,7 @@ fun Edad(
             supportingText = {
                 if (nuevoReporteState.errors.contains(FormError.AgeRangeMissing)) {
                     Text(
-                        text = nuevoReporteState.errors[FormError.AgeRangeMissing]!!,
+                        text = nuevoReporteState.errors[FormError.AgeRangeMissing] ?: "",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -452,7 +456,7 @@ fun TipoTrabajoDropdown(
             supportingText = {
                 if (nuevoReporteState.errors.contains(FormError.WorkTypeMissing)) {
                     Text(
-                        text = nuevoReporteState.errors[FormError.WorkTypeMissing]!!,
+                        text = nuevoReporteState.errors[FormError.WorkTypeMissing] ?: "",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -543,7 +547,7 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
         supportingText = {
             if (nuevoReporteState.errors.contains(FormError.InvalidName)) {
                 Text(
-                    text = nuevoReporteState.errors[FormError.InvalidName]!!,
+                    text = nuevoReporteState.errors[FormError.InvalidName] ?: "",
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -599,7 +603,7 @@ fun AnonymousDialog(
                 onClick = {
                     nuevoReporteVM.setDisplayAnonymousDialog(false)
                     rememberCoroutineScope.launch { preferences.saveAwareOfAnonymous(true) }
-                    nuevoReporteVM.crearReporte(authState.usuario!!)
+                    nuevoReporteVM.crearReporte(authState.usuario)
                 }
             ) {
                 Text(
@@ -687,7 +691,7 @@ fun BotonEnviarReporte(
             ) {
                 nuevoReporteVM.setDisplayAnonymousDialog(true)
             } else {
-                nuevoReporteVM.crearReporte(usuario = authState.usuario!!)
+                nuevoReporteVM.crearReporte(usuario = authState.usuario)
             }
         },
         enabled = nuevoReporteState.sendState == SendState.IDLE && nuevoReporteState.saveState == SaveState.IDLE,
@@ -756,7 +760,7 @@ fun BotonGuardarBorrador(
 ) {
     val context = LocalContext.current
     Button(
-        onClick = { nuevoReporteVM.guardarComoBorrador(context, authState.usuario!!.correoU) },
+        onClick = { nuevoReporteVM.guardarComoBorrador(context, authState.usuario?.correoU ?: "anonymous@nowhere.com") },
         modifier = modifier,
         enabled = nuevoReporteState.saveState == SaveState.IDLE,
         colors = ButtonDefaults.buttonColors(

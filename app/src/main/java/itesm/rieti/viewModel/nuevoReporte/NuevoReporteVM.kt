@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.time.LocalDateTime
 
 /**
  * ViewModel encargado de la lógica y la validación del formulario de 
@@ -186,31 +187,33 @@ class NuevoReporteVM : ViewModel() {
      */
     fun validateAddress() {
         val newErrors = _state.value.errors.toMutableMap()
-        if (_state.value.rawAddress != null) {
-            if (_state.value.rawAddress!!.countryName != "Mexico") {
+        val rawAddress = _state.value.rawAddress
+        if (rawAddress != null) {
+            if (rawAddress.countryName != "Mexico") {
                 newErrors[FormError.InvalidLocation] = "La dirección debe ser dentro de México"
                 Log.e("Address", "Address is not in Mexico")
             } else {
-                Log.i("Address", "Address is not null, it is: ${_state.value.rawAddress}")
-                Log.i("Address", "Country: ${_state.value.rawAddress!!.countryName}")
-                if (_state.value.rawAddress!!.subAdminArea != null) {
-                    Log.i("Address", "Address includes a subAdminArea: ${_state.value.rawAddress!!.subAdminArea}")
-                    setMunicipio(_state.value.rawAddress!!.subAdminArea)
+                Log.i("Address", "Country: ${rawAddress.countryName}")
+                if (rawAddress.subAdminArea != null) {
+                    setMunicipio(rawAddress.subAdminArea)
                     newErrors.remove(FormError.InvalidLocation)
                 } else {
                     Log.w("Address", "Address does not include a subAdminArea, relying on Locality")
-                    if (_state.value.rawAddress!!.locality != null) {
-                        Log.i("Address", "Locality is not null, it is: ${_state.value.rawAddress!!.locality}")
-                        setMunicipio(_state.value.rawAddress!!.locality)
+                    if (rawAddress.locality != null) {
+                        setMunicipio(rawAddress.locality)
                         newErrors.remove(FormError.InvalidLocation)
                     } else {
                         newErrors[FormError.InvalidLocation] = "La dirección no tiene un municipio asignado"
                     }
                 }
-                setLocation(_state.value.rawAddress!!.getAddressLine(0))
+                rawAddress.getAddressLine(0)?.let { setLocation(it) }
             }
         } else {
-            newErrors[FormError.InvalidLocation] = "La dirección es nula"
+            if (_state.value.reporte.municipio.isNullOrBlank()) {
+                newErrors[FormError.InvalidLocation] = "Municipio no especificado"
+            } else {
+                newErrors.remove(FormError.InvalidLocation)
+            }
         }
         _state.value = _state.value.copy(errors = newErrors)
     }
@@ -233,7 +236,7 @@ class NuevoReporteVM : ViewModel() {
      * @return `true` si el reporte no contiene errores, `false` en caso contrario.
      */
     fun assertFieldsCompletion(): Boolean {
-        val newMap = mutableMapOf<FormError,String>()
+        val newMap = mutableMapOf<FormError, String>()
         if (_state.value.rawName != "") {
             validate.fullName(
                 _state.value.rawName,
@@ -254,10 +257,17 @@ class NuevoReporteVM : ViewModel() {
         if (_state.value.reporte.rangoEdad == null) {
             newMap[FormError.AgeRangeMissing] = "Rango de edad no especificado"
         }
-        if (_state.value.reporte.municipio == null) {
+        if (_state.value.reporte.dia.isNullOrBlank()) {
+            val nowStr = LocalDateTime.now().toString()
+            _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = nowStr))
+        }
+        if (_state.value.reporte.municipio.isNullOrBlank()) {
             newMap[FormError.InvalidLocation] = "Municipio no especificado"
         }
         validateAddress()
+        _state.value.errors[FormError.InvalidLocation]?.let { locationError ->
+            newMap[FormError.InvalidLocation] = locationError
+        }
         _state.value = _state.value.copy(errors = newMap)
         Log.e("Reporte", "Errors from VM: ${_state.value.errors}")
         return newMap.isEmpty()
@@ -269,20 +279,26 @@ class NuevoReporteVM : ViewModel() {
      *
      * @param usuario El [Usuario] actual que envía el reporte, usado para relacionarlo por su correo.
      */
-    fun crearReporte(usuario: Usuario) {
+    fun crearReporte(usuario: Usuario? = null) {
         setSendState(SendState.SENDING)
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
-                val folio = generadorFolios.reporte(
-                    _state.value.reporte.municipio!!,
-                    _state.value.reporte.dia!!
-                )
+                val municipio = _state.value.reporte.municipio ?: "Desconocido"
+                val dia = _state.value.reporte.dia ?: LocalDateTime.now().toString()
+                val folio = generadorFolios.reporte(municipio, dia)
+                val correoU = if (_state.value.rawName != "" && usuario != null) {
+                    usuario.correoU
+                } else {
+                    "anonymous@nowhere.com"
+                }
                 _state.value = _state.value.copy(
                     reporte = _state.value.reporte.copy(
                         folio = folio,
+                        dia = dia,
+                        municipio = municipio,
+                        correoU = correoU
                     )
                 )
-                _state.value = _state.value.copy(reporte = _state.value.reporte.copy(correoU = if (_state.value.rawName != "") usuario.correoU else "anonymous@nowhere.com"))
                 val response = reporteHandler.crearReporte(_state.value.reporte)
                 Log.i("Reporte", "REPORTE: ${_state.value.reporte}")
                 Log.i("Reporte", "HTTP CODE: ${response.code()}")
