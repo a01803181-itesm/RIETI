@@ -1,5 +1,8 @@
 package itesm.rieti.view.mainActivity
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,6 +47,10 @@ fun AppNavHost(
     NavHost(
         navController = navController,
         startDestination = Pantalla.RUTA_INICIO,
+        enterTransition = { fadeIn(animationSpec = tween(300)) },
+        exitTransition = { fadeOut(animationSpec = tween(300)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+        popExitTransition = { fadeOut(animationSpec = tween(300)) },
         modifier = modifier.fillMaxSize()
     ) {
         composable(Pantalla.RUTA_INICIO) {

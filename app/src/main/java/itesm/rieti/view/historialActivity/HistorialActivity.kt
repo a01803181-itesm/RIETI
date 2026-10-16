@@ -34,6 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import itesm.rieti.R
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.history.HistorialState
@@ -62,21 +68,34 @@ fun HistorialActivity(
 ) {
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
 
+    BackHandler(enabled = historialState.selectedReporte != null)
+    {
+        historialVM.setReporteSeleccionado(null)
+    }
+
     LaunchedEffect(historialState.reportes) {
         if (historialState.reportes.isEmpty()) {
             historialVM.cargarReportes(authState.usuario!!)
         }
     }
 
-    if (historialState.selectedReporte == null) {
-        MuestraHistorial(
-            networkConnection = networkConnectionState,
-            historialVM = historialVM,
-            historialState = historialState,
-            modifier = modifier
-        )
-    } else {
-        DetallesReporteActivity(historialVM, historialState)
+    AnimatedContent(
+        targetState = historialState.selectedReporte,
+        transitionSpec = {
+            fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+        },
+        label = "HistorialDetallesTransition"
+    ) { selectedReporte ->
+        if (selectedReporte == null) {
+            MuestraHistorial(
+                networkConnection = networkConnectionState,
+                historialVM = historialVM,
+                historialState = historialState,
+                modifier = modifier
+            )
+        } else {
+            DetallesReporteActivity(historialVM, historialState)
+        }
     }
 }
 
