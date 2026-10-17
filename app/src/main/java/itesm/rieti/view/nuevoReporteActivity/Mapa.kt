@@ -101,9 +101,19 @@ fun MapScreen(
     onUbicacionSelected: (Float, Float) -> Unit
 ) {
     val ubicacion by ubicacionVM.ubicacion.collectAsState()
-    if (ubicacion == null) return
+
+    val draft = nuevoReporteState.selectedBorrador
+    val initialLat = draft?.latitud?.toDouble()
+        ?: nuevoReporteState.reporte.latitud?.toDouble()
+        ?: ubicacion?.latitude
+    val initialLng = draft?.longitud?.toDouble()
+        ?: nuevoReporteState.reporte.longitud?.toDouble()
+        ?: ubicacion?.longitude
+
+    if (initialLat == null || initialLng == null) return
+
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(ubicacion!!.latitude, ubicacion!!.longitude), 20f)
+        position = CameraPosition.fromLatLngZoom(LatLng(initialLat, initialLng), 18f)
     }
     var dynamicModifier = modifier
 
@@ -111,14 +121,26 @@ fun MapScreen(
 
     var hasInitializedLocation by remember { mutableStateOf(false) }
 
-    LaunchedEffect(ubicacion) {
-        if (!hasInitializedLocation && ubicacion != null) {
-            hasInitializedLocation = true
-            val initialLat = nuevoReporteState.reporte.latitud?.toDouble() ?: ubicacion!!.latitude
-            val initialLng = nuevoReporteState.reporte.longitud?.toDouble() ?: ubicacion!!.longitude
-            val target = LatLng(initialLat, initialLng)
+    LaunchedEffect(nuevoReporteState.selectedBorrador) {
+        val selDraft = nuevoReporteState.selectedBorrador
+        if (selDraft != null && selDraft.latitud != null && selDraft.longitud != null) {
+            val target = LatLng(selDraft.latitud.toDouble(), selDraft.longitud.toDouble())
             cameraPositionState.position = CameraPosition.fromLatLngZoom(target, 18f)
-            onUbicacionSelected(initialLat.toFloat(), initialLng.toFloat())
+            onUbicacionSelected(selDraft.latitud, selDraft.longitud)
+            if (selDraft.rawAddress != null) {
+                nuevoReporteVM.setAddress(selDraft.rawAddress)
+            } else {
+                processAddressData(context, nuevoReporteVM, cameraPositionState)
+            }
+        }
+    }
+
+    LaunchedEffect(ubicacion) {
+        if (!hasInitializedLocation && ubicacion != null && nuevoReporteState.selectedBorrador == null) {
+            hasInitializedLocation = true
+            val target = LatLng(ubicacion!!.latitude, ubicacion!!.longitude)
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(target, 18f)
+            onUbicacionSelected(ubicacion!!.latitude.toFloat(), ubicacion!!.longitude.toFloat())
             processAddressData(context, nuevoReporteVM, cameraPositionState)
         }
     }

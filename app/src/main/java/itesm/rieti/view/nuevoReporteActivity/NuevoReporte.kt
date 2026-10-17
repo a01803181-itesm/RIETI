@@ -3,6 +3,7 @@ package itesm.rieti.view.nuevoReporteActivity
 import android.graphics.Color.rgb
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Remove
@@ -58,6 +60,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -100,21 +103,35 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 @Composable
 fun NuevoReporte(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
     authState: AuthState,
     ubicacionVM: UbicacionVM,
     modifier: Modifier = Modifier,
     networkVM: NetworkVM = NetworkVM(LocalContext.current),
     onReporteCreado: () -> Unit = {},
-    onBorradorGuardado: () -> Unit = {}
+    onBorradorGuardado: () -> Unit = {},
+    onBackFromBorrador: () -> Unit = {}
 ) {
-    val nuevoReporteVM: NuevoReporteVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
-    val nuevoReporteState by nuevoReporteVM.state.collectAsState()
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
 
     val context = LocalContext.current
     val preferences = UserPreferences(context)
 
     var enableScroll by remember { mutableStateOf(true) }
+
+    BackHandler(enabled = nuevoReporteState.selectedBorrador != null) {
+        nuevoReporteVM.setSelectedBorrador(null)
+        nuevoReporteVM.resetForm()
+        onBackFromBorrador()
+    }
+
+    LaunchedEffect(nuevoReporteState.selectedBorrador) {
+        val draft = nuevoReporteState.selectedBorrador
+        if (draft != null) {
+            nuevoReporteVM.fillFieldsWithBorrador(draft)
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (nuevoReporteState.reporte.dia == null) {
@@ -150,13 +167,50 @@ fun NuevoReporte(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Nuevo Reporte",
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (nuevoReporteState.selectedBorrador != null) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(
+                    onClick = {
+                        nuevoReporteVM.setSelectedBorrador(null)
+                        nuevoReporteVM.resetForm()
+                        onBackFromBorrador()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Volver al historial"
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "Nuevo Reporte",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = "(Restaurado desde borrador)",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        } else {
+            Text(
+                text = "Nuevo Reporte",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         if (!networkConnectionState) {
             Spacer(modifier = Modifier.height(8.dp))
             OfflineHeader()
@@ -760,7 +814,9 @@ fun BotonGuardarBorrador(
 ) {
     val context = LocalContext.current
     Button(
-        onClick = { nuevoReporteVM.guardarComoBorrador(context, authState.usuario?.correoU ?: "anonymous@nowhere.com") },
+        onClick = {
+            nuevoReporteVM.guardarComoBorrador(context, authState.usuario?.correoU ?: "anonymous@nowhere.com")
+        },
         modifier = modifier,
         enabled = nuevoReporteState.saveState == SaveState.IDLE,
         colors = ButtonDefaults.buttonColors(
@@ -817,7 +873,14 @@ fun BotonGuardarBorrador(
 @Composable
 fun ReportePreview(
     authState: AuthState = AuthState(),
-    ubicacionVM: UbicacionVM = UbicacionVM()
+    ubicacionVM: UbicacionVM = UbicacionVM(),
+    nuevoReporteVM: NuevoReporteVM = NuevoReporteVM(),
+    nuevoReporteState: NuevoReporteState = NuevoReporteState()
 ) {
-    NuevoReporte(authState, ubicacionVM)
+    NuevoReporte(
+        nuevoReporteVM,
+        nuevoReporteState,
+        authState,
+        ubicacionVM,
+    )
 }

@@ -1,11 +1,13 @@
 package itesm.rieti.view.historialActivity
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -21,13 +23,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import itesm.rieti.R
 import itesm.rieti.model.drafts.Borrador
 import itesm.rieti.model.esquemas.ReporteResponse
+import itesm.rieti.view.mainActivity.Pantalla
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -67,7 +72,7 @@ fun TarjetaReporte(
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = response.reporte.detallesAdicionales ?: response.reporte.direccion!!,
+                text = response.reporte.detallesAdicionales ?: response.reporte.direccion ?: "",
                 fontWeight = FontWeight.Normal,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -80,9 +85,10 @@ fun TarjetaReporte(
                     modifier = modifier.weight(1f)
                 ) {
                     val dateFormatted = try {
-                        val parsed = LocalDateTime.parse(response.reporte.dia!!)
-                        parsed.format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
-                    } catch (_: Exception) { response.reporte.dia!! }
+                        response.reporte.dia?.let {
+                            LocalDateTime.parse(it).format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
+                        } ?: ""
+                    } catch (_: Exception) { response.reporte.dia ?: "" }
                     Text(
                         text = dateFormatted,
                         fontWeight = FontWeight.Light,
@@ -120,14 +126,22 @@ fun TarjetaReporte(
  */
 @Composable
 fun TarjetaBorrador(
+    navController: NavHostController,
+    nuevoReporteVM: NuevoReporteVM,
     historialVM: HistorialVM,
     borrador: Borrador,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable(
+                onClick = {
+                    navController.navigate(Pantalla.RUTA_INICIO)
+                    nuevoReporteVM.setSelectedBorrador(borrador)
+                }
+            )
     ) {
         Column(
             modifier = modifier
@@ -176,9 +190,9 @@ fun TarjetaBorrador(
                     modifier = modifier.weight(1f)
                 ) {
                     val dateFormatted = try {
-                        val parsed = LocalDateTime.parse(borrador.dia)
+                        val parsed = LocalDateTime.parse(borrador.date.toString())
                         parsed.format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
-                    } catch (_: Exception) { borrador.dia }
+                    } catch (_: Exception) { borrador.date.toString() }
                     Text(
                         text = dateFormatted.toString(),
                         fontWeight = FontWeight.Light,
@@ -189,18 +203,12 @@ fun TarjetaBorrador(
                     modifier = modifier.weight(1f),
                     horizontalAlignment = Alignment.End
                 ) {
-                    IconButton(
-                        onClick = { historialVM.setBorradorSeleccionado(borrador) },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color.Transparent
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.long_arrow),
-                            contentDescription = "Further info",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(id = R.drawable.long_arrow),
+                        contentDescription = "Further info",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(50.dp)
+                    )
                 }
             }
         }
@@ -244,6 +252,16 @@ fun TarjetaReportePreview(historialVM: HistorialVM = viewModel(), historialState
  */
 @Preview
 @Composable
-fun TarjetaBorradorPreview(historialVM: HistorialVM = viewModel(), historialState: HistorialState = HistorialState()) {
-    TarjetaBorrador(historialVM, historialState.borradores[0])
+fun TarjetaBorradorPreview(
+    navController: NavHostController = rememberNavController(),
+    historialVM: HistorialVM = viewModel(),
+    historialState: HistorialState = HistorialState(),
+    nuevoReporteVM: NuevoReporteVM = NuevoReporteVM()
+) {
+    TarjetaBorrador(
+        navController,
+        nuevoReporteVM,
+        historialVM,
+        historialState.borradores[0]
+    )
 }

@@ -21,6 +21,8 @@ import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.history.HistoryView
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 
 /**
  * Define el grafo de navegación principal de la aplicación, asociando rutas con sus
@@ -42,6 +44,8 @@ fun AppNavHost(
     ubicacionVM: UbicacionVM,
     historialVM: HistorialVM,
     historialState: HistorialState,
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -55,6 +59,8 @@ fun AppNavHost(
     ) {
         composable(Pantalla.RUTA_INICIO) {
             NuevoReporte(
+                nuevoReporteVM,
+                nuevoReporteState,
                 authState = authState,
                 ubicacionVM = ubicacionVM,
                 onReporteCreado = {
@@ -80,11 +86,14 @@ fun AppNavHost(
                         launchSingleTop = true
                         restoreState = true
                     }
+                },
+                onBackFromBorrador = {
+                    navController.popBackStack()
                 }
             )
         }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
-        composable(Pantalla.RUTA_HISTORIAL_REPORTES) { HistorialActivity(authState, historialVM, historialState) }
+        composable(Pantalla.RUTA_HISTORIAL_REPORTES) { HistorialActivity(navController, nuevoReporteVM, authState, historialVM, historialState) }
         composable(Pantalla.RUTA_CUENTA) { ConfigApp(authVM, historialVM) }
     }
 }

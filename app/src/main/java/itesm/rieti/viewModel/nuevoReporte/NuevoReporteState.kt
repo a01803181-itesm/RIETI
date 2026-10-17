@@ -3,6 +3,7 @@ package itesm.rieti.viewModel.nuevoReporte
 import android.location.Address
 import android.net.Uri
 import itesm.rieti.model.api.FormError
+import itesm.rieti.model.drafts.Borrador
 import itesm.rieti.model.esquemas.Reporte
 import java.util.Date
 
@@ -41,4 +42,5 @@ data class NuevoReporteState(
     val sendState: SendState = SendState.IDLE,
     val saveState: SaveState = SaveState.IDLE,
     val displayAnonymousDialog: Boolean = false,
+    val selectedBorrador: Borrador? = null
 )

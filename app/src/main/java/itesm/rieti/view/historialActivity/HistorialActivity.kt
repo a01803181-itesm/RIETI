@@ -34,11 +34,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import itesm.rieti.R
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.history.HistorialState
@@ -46,6 +49,7 @@ import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.history.HistoryView
 import itesm.rieti.viewModel.history.HistorialStage
 import itesm.rieti.viewModel.network.NetworkVM
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import java.time.LocalDateTime
 
 /**
@@ -59,6 +63,8 @@ import java.time.LocalDateTime
  */
 @Composable
 fun HistorialActivity(
+    navController: NavHostController,
+    nuevoReporteVM: NuevoReporteVM,
     authState: AuthState,
     historialVM: HistorialVM,
     historialState: HistorialState,
@@ -67,9 +73,13 @@ fun HistorialActivity(
 ) {
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
 
-    LaunchedEffect(historialState.reportes) {
-        if (historialState.reportes.isEmpty()) {
-            historialVM.cargarReportes(authState.usuario!!)
+    BackHandler(enabled = historialState.selectedReporte != null) {
+        historialVM.setReporteSeleccionado(null)
+    }
+
+    LaunchedEffect(historialState.reportes, authState.usuario) {
+        if (historialState.reportes.isEmpty() && authState.usuario != null) {
+            historialVM.cargarReportes(authState.usuario)
         }
     }
 
@@ -82,13 +92,20 @@ fun HistorialActivity(
     ) { selectedReporte ->
         if (selectedReporte == null) {
             MuestraHistorial(
+                navController = navController,
+                nuevoReporteVM = nuevoReporteVM,
                 networkConnection = networkConnectionState,
                 historialVM = historialVM,
                 historialState = historialState,
                 modifier = modifier
             )
         } else {
-            DetallesReporteActivity(historialVM, historialState)
+            DetallesReporteActivity(
+                historialVM = historialVM,
+                historialState = historialState,
+                reporteResponse = selectedReporte,
+                modifier = modifier
+            )
         }
     }
 }
@@ -103,6 +120,8 @@ fun HistorialActivity(
  */
 @Composable
 fun MuestraHistorial(
+    navController: NavHostController,
+    nuevoReporteVM: NuevoReporteVM,
     networkConnection: Boolean,
     historialVM: HistorialVM,
     historialState: HistorialState,
@@ -145,7 +164,12 @@ fun MuestraHistorial(
                 }
             }
         }
-        ReportesContent(historialVM, historialState)
+        ReportesContent(
+            nuevoReporteVM,
+            navController,
+            historialVM,
+            historialState
+        )
     }
 }
 /**
@@ -155,7 +179,13 @@ fun MuestraHistorial(
  * @param modifier Modificador para la vista.
  */
 @Composable
-fun ReportesContent(historialVM: HistorialVM, historialState: HistorialState, modifier: Modifier = Modifier) {
+fun ReportesContent(
+    nuevoReporteVM: NuevoReporteVM,
+    navController: NavHostController,
+    historialVM: HistorialVM,
+    historialState: HistorialState,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -235,8 +265,14 @@ fun ReportesContent(historialVM: HistorialVM, historialState: HistorialState, mo
             HistorialStage.NON_EMPTY_DRAFTS -> {
                 Log.i("ReporteStage", "Borrador data: ${historialState.borradores}")
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(historialState.borradores.sortedBy{ LocalDateTime.parse(it.dia) }.asReversed()) { borrador ->
-                        TarjetaBorrador(historialVM, borrador)
+                    items(historialState.borradores.sortedBy{ it.date }.asReversed()) { borrador ->
+                        TarjetaBorrador(
+                            navController,
+                            nuevoReporteVM,
+                            historialVM,
+                            borrador,
+                            modifier,
+                        )
                     }
                 }
             }
@@ -291,8 +327,14 @@ fun BarraToggle(
  */
 @Preview(showBackground = true)
 @Composable
-fun HistorialPreview(historialVM: HistorialVM = viewModel()) {
+fun HistorialPreview(
+    navController: NavHostController = rememberNavController(),
+    historialVM: HistorialVM = viewModel(),
+    nuevoReporteVM: NuevoReporteVM = NuevoReporteVM()
+) {
     HistorialActivity(
+        navController = navController,
+        nuevoReporteVM = nuevoReporteVM,
         authState = AuthState(),
         historialVM = historialVM,
         historialState = HistorialState()
@@ -304,6 +346,16 @@ fun HistorialPreview(historialVM: HistorialVM = viewModel()) {
  */
 @Preview(showBackground = true)
 @Composable
-fun PlaceholderHeaderPreview(historialVM: HistorialVM = viewModel(), historialState: HistorialState = HistorialState()) {
-    ReportesContent(historialVM, historialState)
+fun PlaceholderHeaderPreview(
+    navController: NavHostController = rememberNavController(),
+    historialVM: HistorialVM = viewModel(),
+    historialState: HistorialState = HistorialState(),
+    nuevoReporteVM: NuevoReporteVM = NuevoReporteVM()
+) {
+    ReportesContent(
+        nuevoReporteVM,
+        navController,
+        historialVM,
+        historialState
+    )
 }

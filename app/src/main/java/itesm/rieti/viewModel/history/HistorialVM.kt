@@ -84,7 +84,7 @@ class HistorialVM : ViewModel() {
 
     fun eliminarBorrador(borrador: Borrador) {
         viewModelScope.launch {
-            borrador.evidenciaURI?.let { path ->
+            borrador.persistentImagePath?.let { path ->
                 java.io.File(path).delete()
             }
             borradorDAO.eliminarBorrador(borrador)
