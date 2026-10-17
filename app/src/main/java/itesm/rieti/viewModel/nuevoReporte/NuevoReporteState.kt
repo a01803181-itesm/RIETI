@@ -7,6 +7,12 @@ import itesm.rieti.model.drafts.Borrador
 import itesm.rieti.model.esquemas.Reporte
 import java.util.Date
 
+enum class DraftDeletionStage {
+    IDLE,
+    LOADING,
+    SUCCESS
+}
+
 enum class SendState {
     IDLE,
     SENDING,
@@ -42,5 +48,7 @@ data class NuevoReporteState(
     val sendState: SendState = SendState.IDLE,
     val saveState: SaveState = SaveState.IDLE,
     val displayAnonymousDialog: Boolean = false,
-    val selectedBorrador: Borrador? = null
+    val selectedBorrador: Borrador? = null,
+    val displayConfirmDraftDeletion: Boolean = false,
+    val draftDeletionStage: DraftDeletionStage = DraftDeletionStage.IDLE
 )

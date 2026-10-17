@@ -80,15 +80,13 @@ import itesm.rieti.model.preferences.UserPreferences
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.network.NetworkVM
+import itesm.rieti.viewModel.nuevoReporte.DraftDeletionStage
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import itesm.rieti.viewModel.nuevoReporte.SaveState
 import itesm.rieti.viewModel.nuevoReporte.SendState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -134,7 +132,7 @@ fun NuevoReporte(
     }
 
     LaunchedEffect(Unit) {
-        if (nuevoReporteState.reporte.dia == null) {
+        if (nuevoReporteState.selectedBorrador == null && nuevoReporteState.reporte.dia == null) {
             nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
         }
     }
@@ -201,6 +199,15 @@ fun NuevoReporte(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
+                IconButton(
+                    onClick = { nuevoReporteVM.setDisplayConfirmDraftDeletion(true) }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.trash),
+                        contentDescription = "Eliminar borrador",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         } else {
             Text(
@@ -224,6 +231,8 @@ fun NuevoReporte(
         ) {
             if (nuevoReporteState.displayAnonymousDialog) {
                 AnonymousDialog(preferences, authState, nuevoReporteVM)
+            } else if (nuevoReporteState.displayConfirmDraftDeletion) {
+                DeleteDraftDialog(nuevoReporteVM, nuevoReporteState, onBackFromBorrador)
             }
             NombreCompleto(nuevoReporteVM, nuevoReporteState)
             Row(
@@ -691,24 +700,7 @@ fun AnonymousDialog(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.warning),
-                        contentDescription = "Advertencia",
-                        tint = Color(rgb(255, 192, 72)),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = "Advertencia",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(start = 8.dp),
-                        color = Color(rgb(255, 192, 72))
-                    )
-                }
+                WarningLabel()
                 Text(
                     text = "Reporte Anónimo",
                     style = MaterialTheme.typography.titleMedium,
@@ -718,6 +710,152 @@ fun AnonymousDialog(
             }
         }
     )
+}
+
+@Composable
+fun DeleteDraftDialog(
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
+    onBackFromBorrador: () -> Unit
+) {
+    LaunchedEffect(nuevoReporteState.draftDeletionStage) {
+        if (nuevoReporteState.draftDeletionStage == DraftDeletionStage.SUCCESS) {
+            delay(750.milliseconds)
+            nuevoReporteVM.setDisplayConfirmDraftDeletion(false)
+            nuevoReporteVM.resetForm()
+            nuevoReporteVM.setSelectedBorrador(null)
+            nuevoReporteVM.setDraftDeletionStage(DraftDeletionStage.IDLE)
+            onBackFromBorrador()
+        }
+    }
+    AlertDialog(
+        onDismissRequest = { nuevoReporteVM.setDisplayConfirmDraftDeletion(false) },
+        confirmButton = {
+            if (nuevoReporteState.draftDeletionStage != DraftDeletionStage.SUCCESS) {
+                Button(
+                    onClick = { nuevoReporteVM.borrarBorrador() },
+                    enabled = nuevoReporteState.draftDeletionStage == DraftDeletionStage.IDLE
+                ) {
+                    if (nuevoReporteState.draftDeletionStage == DraftDeletionStage.LOADING) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                    }
+                    Text(
+                        text = when (nuevoReporteState.draftDeletionStage) {
+                            DraftDeletionStage.IDLE -> "Confirmar"
+                            DraftDeletionStage.LOADING -> "Eliminando..."
+                            DraftDeletionStage.SUCCESS -> "Eliminado!"
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        },
+        title = {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                var description: String
+                when (nuevoReporteState.draftDeletionStage) {
+                    DraftDeletionStage.IDLE -> {
+                        WarningLabel()
+                        description = "Eliminar Borrador"
+                    }
+                    DraftDeletionStage.LOADING -> {
+                        LoadingLabel()
+                        description = "Eliminar Borrador"
+                    }
+                    DraftDeletionStage.SUCCESS -> {
+                        SuccessLabel()
+                        description = "Borrador eliminado"
+                    }
+                }
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
+        text = {
+            Text(
+                text = when (nuevoReporteState.draftDeletionStage) {
+                    DraftDeletionStage.IDLE -> "¿Estás seguro de que quieres eliminar este borrador?"
+                    DraftDeletionStage.LOADING -> "Eliminando borrador..."
+                    DraftDeletionStage.SUCCESS -> "¡El borrador ha sido eliminado!"
+                },
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    )
+}
+
+@Composable
+fun WarningLabel() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.warning),
+            contentDescription = "Advertencia",
+            tint = Color(rgb(255, 192, 72)),
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = "Advertencia",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 8.dp),
+            color = Color(rgb(255, 192, 72))
+        )
+    }
+}
+
+@Composable
+fun LoadingLabel() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.elipsis),
+            contentDescription = "Cargando",
+            tint = Color(rgb(30, 121, 164)),
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = "Cargando",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 8.dp),
+            color = Color(rgb(30, 121, 164))
+        )
+    }
+}
+
+@Composable
+fun SuccessLabel() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.check),
+            contentDescription = "Operación exitosa",
+            tint = Color(rgb(84, 143, 88)),
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = "Operación exitosa",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 8.dp),
+            color = Color(rgb(84, 143, 88))
+        )
+    }
 }
 
 /**

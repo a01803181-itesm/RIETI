@@ -1,34 +1,29 @@
 package itesm.rieti.viewModel.nuevoReporte
 
-import android.app.Application
 import android.content.Context
 import android.location.Address
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.RoomDatabase.Builder
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.api.GeneradorFolio
 import itesm.rieti.model.api.Validate
 import itesm.rieti.model.api.reportes.Manejador
 import itesm.rieti.model.drafts.Borrador
-import itesm.rieti.model.drafts.BorradorDAO
 import itesm.rieti.model.drafts.BorradorDB
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
-import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.Usuario
-import itesm.rieti.model.preferences.UserPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Date
 
 /**
  * ViewModel encargado de la lógica y la validación del formulario de 
@@ -110,8 +105,17 @@ class NuevoReporteVM : ViewModel() {
      * @param datetime Cadena con formato de fecha y hora.
      */
     fun setHoraYFecha(datetime: String) {
-        _state.value = _state.value.copy(reporte = _state.value.reporte.copy(dia = datetime))
-        _state.value = _state.value.copy(errors = _state.value.errors - FormError.DateTimeMissing)
+        val dateObj = try {
+            val ldt = LocalDateTime.parse(datetime)
+            Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant())
+        } catch (_: Exception) {
+            Date()
+        }
+        _state.value = _state.value.copy(
+            reporte = _state.value.reporte.copy(dia = datetime),
+            date = dateObj,
+            errors = _state.value.errors - FormError.DateTimeMissing
+        )
     }
 
     /**
@@ -185,12 +189,22 @@ class NuevoReporteVM : ViewModel() {
         _state.value = _state.value.copy(selectedBorrador = borrador)
     }
 
+    fun setDisplayConfirmDraftDeletion(value: Boolean) {
+        _state.value = _state.value.copy(displayConfirmDraftDeletion = value)
+    }
+
     fun fillFieldsWithBorrador(borrador: Borrador) {
         val parsedRangoEdad = borrador.rangoEdad?.let { str ->
             RangoEdad.entries.firstOrNull { it.name.equals(str, ignoreCase = true) || it.desc.equals(str, ignoreCase = true) }
         }
         val parsedTipoTrabajo = borrador.tipoTrabajo?.let { str ->
             TipoTrabajo.entries.firstOrNull { it.name.equals(str, ignoreCase = true) || it.desc.equals(str, ignoreCase = true) }
+        }
+
+        val isoDia = try {
+            borrador.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toString()
+        } catch (_: Exception) {
+            LocalDateTime.now().toString()
         }
 
         _state.value = _state.value.copy(
@@ -203,7 +217,7 @@ class NuevoReporteVM : ViewModel() {
                 municipio = borrador.municipio,
                 latitud = borrador.latitud,
                 longitud = borrador.longitud,
-                dia = borrador.date.toString()
+                dia = isoDia
             ),
             rawName = borrador.rawName,
             date = borrador.date,
@@ -388,6 +402,13 @@ class NuevoReporteVM : ViewModel() {
                 }
 
                 val currentSelectedBorrador = _state.value.selectedBorrador
+                val draftDate = _state.value.reporte.dia?.let { diaStr ->
+                    try {
+                        val ldt = LocalDateTime.parse(diaStr)
+                        Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant())
+                    } catch (_: Exception) { null }
+                } ?: _state.value.date
+
                 val draft = Borrador(
                     idBorrador = currentSelectedBorrador?.idBorrador ?: 0,
                     correoU = userEmail,
@@ -400,7 +421,7 @@ class NuevoReporteVM : ViewModel() {
                     latitud = _state.value.reporte.latitud,
                     longitud = _state.value.reporte.longitud,
                     rawName = _state.value.rawName,
-                    date = _state.value.date,
+                    date = draftDate,
                     imageUri = _state.value.imageUri,
                     rawAddress = _state.value.rawAddress,
                     persistentImagePath = permanentImagePath ?: currentSelectedBorrador?.persistentImagePath
@@ -417,6 +438,18 @@ class NuevoReporteVM : ViewModel() {
                 setSaveState(SaveState.ERROR)
             }
         }
+    }
+
+    fun borrarBorrador() {
+        _state.value = _state.value.copy(draftDeletionStage = DraftDeletionStage.LOADING)
+        viewModelScope.launch {
+            borradorDAO.eliminarBorrador(_state.value.selectedBorrador!!)
+            _state.value = _state.value.copy(draftDeletionStage = DraftDeletionStage.SUCCESS)
+        }
+    }
+
+    fun setDraftDeletionStage(stage: DraftDeletionStage) {
+        _state.value = _state.value.copy(draftDeletionStage = stage)
     }
 
     /**

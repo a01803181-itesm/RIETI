@@ -62,7 +62,7 @@ private data class AddressDto(
 class Converters {
     @TypeConverter fun fromDate(date: Date?): Long? = date?.time
     @TypeConverter
-    fun toDate(millis: Long?): Date? = millis?.let { Date(it) }
+    fun toDate(millis: Long?): Date = millis?.let { Date(it) } ?: Date()
 
     @TypeConverter fun fromUri(uri: Uri?): String? = uri?.toString()
     @TypeConverter fun toUri(uriString: String?): Uri? = uriString?.let { Uri.parse(it) }

@@ -34,6 +34,7 @@ import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
@@ -190,11 +191,11 @@ fun TarjetaBorrador(
                     modifier = modifier.weight(1f)
                 ) {
                     val dateFormatted = try {
-                        val parsed = LocalDateTime.parse(borrador.date.toString())
-                        parsed.format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
+                        val ldt = borrador.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                        ldt.format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
                     } catch (_: Exception) { borrador.date.toString() }
                     Text(
-                        text = dateFormatted.toString(),
+                        text = dateFormatted,
                         fontWeight = FontWeight.Light,
                         style = MaterialTheme.typography.bodyMedium
                     )
