@@ -52,7 +52,7 @@ fun OfflineScreen(modifier: Modifier = Modifier) {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "No hay conexión a internet. Establece conexión a la red de nuevo para continuar",
+                        text = "No hay conexión a internet y no has iniciado sesión. Establece conexión a la red de nuevo para continuar",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium
                     )

@@ -194,6 +194,8 @@ class NuevoReporteVM : ViewModel() {
     }
 
     fun fillFieldsWithBorrador(borrador: Borrador) {
+        _state.value = _state.value.copy(errors = emptyMap())
+
         val parsedRangoEdad = borrador.rangoEdad?.let { str ->
             RangoEdad.entries.firstOrNull { it.name.equals(str, ignoreCase = true) || it.desc.equals(str, ignoreCase = true) }
         }

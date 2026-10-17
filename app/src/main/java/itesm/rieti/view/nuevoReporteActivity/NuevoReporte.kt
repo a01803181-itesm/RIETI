@@ -1,10 +1,6 @@
 package itesm.rieti.view.nuevoReporteActivity
 
-import android.graphics.Color.rgb
-import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,30 +14,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,44 +33,33 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.findNavController
 import itesm.rieti.R
 import itesm.rieti.model.api.FormError
-import itesm.rieti.model.enums.RangoEdad
-import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.preferences.UserPreferences
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.network.NetworkVM
-import itesm.rieti.viewModel.nuevoReporte.DraftDeletionStage
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 import itesm.rieti.viewModel.nuevoReporte.SaveState
 import itesm.rieti.viewModel.nuevoReporte.SendState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -107,9 +80,9 @@ fun NuevoReporte(
     ubicacionVM: UbicacionVM,
     modifier: Modifier = Modifier,
     networkVM: NetworkVM = NetworkVM(LocalContext.current),
-    onReporteCreado: () -> Unit = {},
-    onBorradorGuardado: () -> Unit = {},
-    onBackFromBorrador: () -> Unit = {}
+    onReporteCreado: () -> Unit,
+    onBorradorGuardado: () -> Unit,
+    onBackFromBorrador: () -> Unit
 ) {
     val networkConnectionState by networkVM.isNetworkAvailable.collectAsState()
 
@@ -160,55 +133,20 @@ fun NuevoReporte(
         }
     }
 
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            }
             .padding(16.dp)
     ) {
         if (nuevoReporteState.selectedBorrador != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButton(
-                    onClick = {
-                        nuevoReporteVM.setSelectedBorrador(null)
-                        nuevoReporteVM.resetForm()
-                        onBackFromBorrador()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver al historial"
-                    )
-                }
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Nuevo Reporte",
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = "(Restaurado desde borrador)",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                IconButton(
-                    onClick = { nuevoReporteVM.setDisplayConfirmDraftDeletion(true) }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.trash),
-                        contentDescription = "Eliminar borrador",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            DraftLabel(nuevoReporteVM, onBackFromBorrador)
         } else {
             Text(
                 text = "Nuevo Reporte",
@@ -220,7 +158,7 @@ fun NuevoReporte(
         }
         if (!networkConnectionState) {
             Spacer(modifier = Modifier.height(8.dp))
-            OfflineHeader()
+            OfflineLabel()
         }
         Spacer(modifier = Modifier.height(16.dp))
         Column(
@@ -302,559 +240,6 @@ fun NuevoReporte(
                 }
             }
         }
-    }
-}
-/**
- * Componente que muestra una alerta indicando que el dispositivo está sin conexión (modo offline).
- */
-@Composable
-fun OfflineHeader() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Estás en modo offline",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = "Solo puedes guardar reportes como borradores",
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Image(
-            painter = painterResource(R.drawable.offline),
-            contentDescription = "Modo Offline",
-            modifier = Modifier.size(25.dp),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
-        )
-    }
-}
-/**
- * Campo para ingresar o ajustar la cantidad de Niños, Niñas o Adolescentes (NNA).
- *
- * @param nuevoReporteVM ViewModel del nuevo reporte.
- * @param nuevoReporteState Estado del nuevo reporte.
- * @param modifier Modificador para la vista.
- */
-@Composable
-fun CantidadNNA(
-    nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = nuevoReporteState.reporte.numNinios.toString(),
-        textStyle = TextStyle(textAlign = TextAlign.Center),
-        onValueChange = { nuevoReporteVM.setNNAs(it) },
-        label = {
-            Text(
-                text = buildAnnotatedString {
-                    append("No. de NNAs")
-                    withStyle(SpanStyle(color = Color.Red)) {
-                        append(" *")
-                    }
-                },
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Left,
-            )
-        },
-        leadingIcon = {
-            IconButton(
-                onClick = { if (nuevoReporteState.reporte.numNinios > 1) nuevoReporteVM.setNNAs((nuevoReporteState.reporte.numNinios - 1).toString()) },
-                enabled = nuevoReporteState.reporte.numNinios > 1,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Remove,
-                    contentDescription = "Restar",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        trailingIcon = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = modifier.padding(4.dp)
-            ) {
-                IconButton(
-                    onClick = { nuevoReporteVM.setNNAs((nuevoReporteState.reporte.numNinios + 1).toString()) },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Sumar",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        },
-        shape = RoundedCornerShape(12.dp),
-        isError = nuevoReporteState.errors.contains(FormError.NNAMissing),
-        supportingText = {
-            if (nuevoReporteState.errors.contains(FormError.NNAMissing)) {
-                Text(
-                    text = nuevoReporteState.errors[FormError.NNAMissing] ?: "",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = modifier
-    )
-}
-
-/**
- * Menú desplegable para seleccionar el rango de edad.
- *
- * @param nuevoReporteVM ViewModel del nuevo reporte.
- * @param nuevoReporteState Estado del nuevo reporte.
- * @param modifier Modificador para la vista.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun Edad(
-    nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
-    modifier: Modifier = Modifier
-) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
-        modifier = modifier,
-    ) {
-        OutlinedTextField(
-            modifier = Modifier
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth(),
-            readOnly = true,
-            value = nuevoReporteVM.state.value.reporte.rangoEdad?.desc ?: "",
-            label = {
-                Text(
-                    text = buildAnnotatedString {
-                        append("Rango edad")
-                        withStyle(SpanStyle(color = Color.Red)) {
-                            append(" *")
-                        }
-                    },
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-            onValueChange = { },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            isError = nuevoReporteState.errors.contains(FormError.AgeRangeMissing),
-            supportingText = {
-                if (nuevoReporteState.errors.contains(FormError.AgeRangeMissing)) {
-                    Text(
-                        text = nuevoReporteState.errors[FormError.AgeRangeMissing] ?: "",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-            shape = RoundedCornerShape(12.dp)
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            RangoEdad.entries.forEach {
-                DropdownMenuItem(
-                    text = { Text(text = it.desc) },
-                    onClick = {
-                        nuevoReporteVM.setRangoEdad(it)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-/**
- * Menú desplegable para seleccionar el tipo de trabajo reportado.
- *
- * @param nuevoReporteVM ViewModel del nuevo reporte.
- * @param nuevoReporteState Estado del nuevo reporte.
- * @param modifier Modificador para la vista.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TipoTrabajoDropdown(
-    nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
-    modifier: Modifier = Modifier
-) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
-        modifier = modifier,
-    ) {
-        OutlinedTextField(
-            modifier = Modifier
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth(),
-            readOnly = true,
-            value = nuevoReporteVM.state.value.reporte.tipoTrabajo?.desc ?: "",
-            label = {
-                Text(
-                    text = buildAnnotatedString {
-                        append("Tipo de trabajo")
-                        withStyle(SpanStyle(color = Color.Red)) {
-                            append(" *")
-                        }
-                    },
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-            onValueChange = { },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            isError = nuevoReporteState.errors.contains(FormError.WorkTypeMissing),
-            supportingText = {
-                if (nuevoReporteState.errors.contains(FormError.WorkTypeMissing)) {
-                    Text(
-                        text = nuevoReporteState.errors[FormError.WorkTypeMissing] ?: "",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            },
-            shape = RoundedCornerShape(12.dp)
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            TipoTrabajo.entries.forEach {
-                DropdownMenuItem(
-                    text = { Text(text = it.desc) },
-                    onClick = {
-                        nuevoReporteVM.setWorkType(it)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
-/**
- * Campo de texto para ingresar detalles adicionales sobre el reporte.
- *
- * @param nuevoReporteVM ViewModel del nuevo reporte.
- * @param nuevoReporteState Estado del nuevo reporte.
- * @param modifier Modificador para la vista.
- */
-@Composable
-fun Detalles(
-    nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = nuevoReporteState.reporte.detallesAdicionales ?: "",
-        onValueChange = { nuevoReporteVM.setDetails(it) },
-        label = {
-            Text(
-                text = "Detalles",
-                style = MaterialTheme.typography.titleMedium
-            )
-        },
-        shape = RoundedCornerShape(12.dp),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        modifier = modifier
-            .fillMaxWidth()
-            .height(180.dp)
-    )
-}
-/**
- * Campo de texto para ingresar el nombre completo del reportante o dejarlo en blanco (Anónimo).
- *
- * @param nuevoReporteVM ViewModel del nuevo reporte.
- * @param nuevoReporteState Estado del nuevo reporte.
- * @param modifier Modificador para la vista.
- */
-@Composable
-fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoReporteState, modifier: Modifier = Modifier)
-{
-    var showHelpDialog by remember { mutableStateOf(false) }
-    OutlinedTextField(
-        value = nuevoReporteState.rawName,
-        onValueChange = { nuevoReporteVM.setRawName(it) },
-        label = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Nombre Completo (o Anónimo)",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                IconButton(
-                    onClick = { showHelpDialog = true }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Ayuda",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        },
-        textStyle = MaterialTheme.typography.bodyLarge,
-        isError = nuevoReporteState.errors.contains(FormError.InvalidName),
-        shape = RoundedCornerShape(12.dp),
-        supportingText = {
-            if (nuevoReporteState.errors.contains(FormError.InvalidName)) {
-                Text(
-                    text = nuevoReporteState.errors[FormError.InvalidName] ?: "",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp)
-    )
-    if (showHelpDialog) {
-        AlertDialog(
-            onDismissRequest = { showHelpDialog = false },
-            confirmButton = {},
-            dismissButton = {},
-            title = {
-                Text(
-                    text = "Nombre Completo (o Anónimo)",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            text = {
-                Text(
-                    text = "En RIETI, nos preocupamos por la privacidad de los datos de nuestros usuarios;" +
-                            " por ello, nuestra aplicación solo guarda su correo electrónico." +
-                            "\nTiene la libertad de decisión de mandar el reporte de manera anónima" +
-                            " (dejar este campo vacío) o, en su caso, enviarlo con su nombre completo.",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        )
-    }
-}
-
-@Composable
-fun AnonymousDialog(
-    preferences: UserPreferences,
-    authState: AuthState,
-    nuevoReporteVM: NuevoReporteVM
-) {
-    val rememberCoroutineScope = rememberCoroutineScope()
-    AlertDialog(
-        modifier = Modifier
-            .padding(16.dp)
-            .wrapContentSize(),
-        onDismissRequest = { nuevoReporteVM.setDisplayAnonymousDialog(false) },
-        confirmButton = {
-            Button(
-                onClick = {
-                    nuevoReporteVM.setDisplayAnonymousDialog(false)
-                    rememberCoroutineScope.launch { preferences.saveAwareOfAnonymous(true) }
-                    nuevoReporteVM.crearReporte(authState.usuario)
-                }
-            ) {
-                Text(
-                    text = "Aceptar",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = {
-                    nuevoReporteVM.setDisplayAnonymousDialog(false)
-                }
-            ) {
-                Text(
-                    text = "Cancelar",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        },
-        text = {
-            Text(
-                text = "El reporte será enviado como anónimo.\n" +
-                       "Considera que si envias el reporte como anónimo " +
-                       "no podrás verlo reflejado en tu historial como usuario.",
-                textAlign = TextAlign.Justify
-            )
-        },
-        title = {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                WarningLabel()
-                Text(
-                    text = "Reporte Anónimo",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 8.dp),
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
-    )
-}
-
-@Composable
-fun DeleteDraftDialog(
-    nuevoReporteVM: NuevoReporteVM,
-    nuevoReporteState: NuevoReporteState,
-    onBackFromBorrador: () -> Unit
-) {
-    LaunchedEffect(nuevoReporteState.draftDeletionStage) {
-        if (nuevoReporteState.draftDeletionStage == DraftDeletionStage.SUCCESS) {
-            delay(750.milliseconds)
-            nuevoReporteVM.setDisplayConfirmDraftDeletion(false)
-            nuevoReporteVM.resetForm()
-            nuevoReporteVM.setSelectedBorrador(null)
-            nuevoReporteVM.setDraftDeletionStage(DraftDeletionStage.IDLE)
-            onBackFromBorrador()
-        }
-    }
-    AlertDialog(
-        onDismissRequest = { nuevoReporteVM.setDisplayConfirmDraftDeletion(false) },
-        confirmButton = {
-            if (nuevoReporteState.draftDeletionStage != DraftDeletionStage.SUCCESS) {
-                Button(
-                    onClick = { nuevoReporteVM.borrarBorrador() },
-                    enabled = nuevoReporteState.draftDeletionStage == DraftDeletionStage.IDLE
-                ) {
-                    if (nuevoReporteState.draftDeletionStage == DraftDeletionStage.LOADING) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                    }
-                    Text(
-                        text = when (nuevoReporteState.draftDeletionStage) {
-                            DraftDeletionStage.IDLE -> "Confirmar"
-                            DraftDeletionStage.LOADING -> "Eliminando..."
-                            DraftDeletionStage.SUCCESS -> "Eliminado!"
-                        },
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        },
-        title = {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                var description: String
-                when (nuevoReporteState.draftDeletionStage) {
-                    DraftDeletionStage.IDLE -> {
-                        WarningLabel()
-                        description = "Eliminar Borrador"
-                    }
-                    DraftDeletionStage.LOADING -> {
-                        LoadingLabel()
-                        description = "Eliminar Borrador"
-                    }
-                    DraftDeletionStage.SUCCESS -> {
-                        SuccessLabel()
-                        description = "Borrador eliminado"
-                    }
-                }
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 8.dp),
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        },
-        text = {
-            Text(
-                text = when (nuevoReporteState.draftDeletionStage) {
-                    DraftDeletionStage.IDLE -> "¿Estás seguro de que quieres eliminar este borrador?"
-                    DraftDeletionStage.LOADING -> "Eliminando borrador..."
-                    DraftDeletionStage.SUCCESS -> "¡El borrador ha sido eliminado!"
-                },
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-    )
-}
-
-@Composable
-fun WarningLabel() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.warning),
-            contentDescription = "Advertencia",
-            tint = Color(rgb(255, 192, 72)),
-            modifier = Modifier.size(16.dp)
-        )
-        Text(
-            text = "Advertencia",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 8.dp),
-            color = Color(rgb(255, 192, 72))
-        )
-    }
-}
-
-@Composable
-fun LoadingLabel() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.elipsis),
-            contentDescription = "Cargando",
-            tint = Color(rgb(30, 121, 164)),
-            modifier = Modifier.size(16.dp)
-        )
-        Text(
-            text = "Cargando",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 8.dp),
-            color = Color(rgb(30, 121, 164))
-        )
-    }
-}
-
-@Composable
-fun SuccessLabel() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.check),
-            contentDescription = "Operación exitosa",
-            tint = Color(rgb(84, 143, 88)),
-            modifier = Modifier.size(16.dp)
-        )
-        Text(
-            text = "Operación exitosa",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(start = 8.dp),
-            color = Color(rgb(84, 143, 88))
-        )
     }
 }
 
@@ -1013,12 +398,18 @@ fun ReportePreview(
     authState: AuthState = AuthState(),
     ubicacionVM: UbicacionVM = UbicacionVM(),
     nuevoReporteVM: NuevoReporteVM = NuevoReporteVM(),
-    nuevoReporteState: NuevoReporteState = NuevoReporteState()
+    nuevoReporteState: NuevoReporteState = NuevoReporteState(),
+    networkVM: NetworkVM = NetworkVM(LocalContext.current)
 ) {
     NuevoReporte(
         nuevoReporteVM,
         nuevoReporteState,
         authState,
         ubicacionVM,
+        Modifier,
+        networkVM,
+        {},
+        {},
+        {}
     )
 }

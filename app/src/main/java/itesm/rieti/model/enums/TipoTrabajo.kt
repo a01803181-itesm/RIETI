@@ -13,7 +13,7 @@ enum class TipoTrabajo(val desc: String) {
     VENTA_AMBULANTE("Venta ambulante"),
     /** Limpieza de parabrisas en cruceros o semáforos. */
     @SerializedName("LIMPIEZA_DE_PARABRISAS")
-    LIMPIEZA_DE_PARABRISAS("Limpieza de Parabrisas"),
+    LIMPIEZA_DE_PARABRISAS("Limpieza de parabrisas"),
     /** Situación de mendicidad (pedir dinero). */
     @SerializedName("MENDICIDAD")
     MENDICIDAD("Mendicidad"),
@@ -28,14 +28,14 @@ enum class TipoTrabajo(val desc: String) {
     CAMPO("Campo"),
     /** Trabajo en obras de construcción. */
     @SerializedName("CONSTRUCCION")
-    CONSTRUCCION("construcción"),
+    CONSTRUCCION("Construcción"),
     /** Labores de trabajo doméstico. */
     @SerializedName("TRABAJO_DOMESTICO")
-    TRABAJO_DOMESTICO("trabajo doméstico"),
+    TRABAJO_DOMESTICO("Trabajo doméstico"),
     /** Labores de recolección de residuos o reciclaje. */
     @SerializedName("RECOLECCION_DE_RESIDUOS")
-    RECOLECCION_DE_RESIDUOS("recolección de residuos"),
+    RECOLECCION_DE_RESIDUOS("Recolección de residuos"),
     /** Cualquier otra actividad no descrita anteriormente. */
     @SerializedName("OTRA_ACTIVIDAD")
-    OTRA_ACTIVIDAD("otra actividad"),
+    OTRA_ACTIVIDAD("Otra actividad"),
 }

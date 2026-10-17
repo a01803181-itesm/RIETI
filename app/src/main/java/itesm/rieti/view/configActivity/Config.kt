@@ -20,8 +20,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
@@ -31,11 +34,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,6 +59,7 @@ import itesm.rieti.viewModel.config.Theme
 import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.history.HistorialVM
+import itesm.rieti.viewModel.network.NetworkVM
 
 /**
  * Pantalla de configuración principal de la aplicación.
@@ -262,7 +270,11 @@ fun TamanioLetra(
  * @param modifier Modificador para la vista.
  */
 @Composable
-fun Cuenta(historialVM: HistorialVM, authVM: AuthVM, modifier: Modifier = Modifier) {
+fun Cuenta(
+    historialVM: HistorialVM,
+    authVM: AuthVM,
+    modifier: Modifier = Modifier
+) {
     val authState by authVM.authState.collectAsState()
     val scrollState = rememberScrollState()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

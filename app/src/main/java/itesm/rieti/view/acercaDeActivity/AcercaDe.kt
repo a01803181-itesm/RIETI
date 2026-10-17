@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -116,15 +117,24 @@ fun CuerpoAcercaDeApp(modifier: Modifier = Modifier) {
 
 @Composable
 fun SocialMedia(modifier: Modifier = Modifier, context: Context = LocalContext.current) {
+    Text(
+        text = "¡Conoce a RIETI y SIPINNA en Redes Sociales!",
+        style = MaterialTheme.typography.titleMedium,
+        textAlign = TextAlign.Center,
+        fontWeight = FontWeight.Bold,
+        modifier = modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(30.dp))
     Row(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.SpaceAround
     ) {
         SocialMedium(
             R.drawable.instagram,
             "Instagram",
+            "sipinnaatizapan\ndezaragoza",
             {
                 val appIntent = Intent(
                     Intent.ACTION_VIEW,
@@ -137,10 +147,10 @@ fun SocialMedia(modifier: Modifier = Modifier, context: Context = LocalContext.c
                 }
             }
         )
-        Spacer(modifier = Modifier.size(16.dp))
         SocialMedium(
             R.drawable.facebook,
             "Facebook",
+            "SIPINNAMX",
             {
                 val appIntent = Intent(
                     Intent.ACTION_VIEW,
@@ -153,8 +163,11 @@ fun SocialMedia(modifier: Modifier = Modifier, context: Context = LocalContext.c
                 }
             }
         )
-        Spacer(modifier = Modifier.size(16.dp))
-        SocialMedium(R.drawable.tiktok, "TikTok", {
+        SocialMedium(
+            R.drawable.tiktok,
+            "TikTok",
+            "@sipinna_mx",
+            {
             val appIntent = Intent(
                 Intent.ACTION_VIEW,
                 "https://www.tiktok.com/@sipinna_mx".toUri()
@@ -165,18 +178,37 @@ fun SocialMedia(modifier: Modifier = Modifier, context: Context = LocalContext.c
 }
 
 @Composable
-fun SocialMedium(resource: Int, desc: String, onClick: () -> Unit) {
-    Image(
-        painter = painterResource(resource),
-        contentDescription = desc,
-        modifier = Modifier
-            .size(50.dp)
-            .clickable(
-            onClick = { onClick() }
-        ),
-        contentScale = ContentScale.Crop,
-        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
-    )
+fun SocialMedium(
+    resource: Int,
+    desc: String,
+    account: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(resource),
+            contentDescription = desc,
+            modifier = Modifier
+                .size(50.dp)
+                .clickable(
+                onClick = { onClick() }
+            ),
+            contentScale = ContentScale.Crop,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = account,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 /**
