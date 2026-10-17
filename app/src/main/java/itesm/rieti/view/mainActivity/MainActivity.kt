@@ -33,6 +33,8 @@ import itesm.rieti.viewModel.auth.AuthVM
 import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.network.NetworkVM
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
+import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 
 /**
  * Actividad principal de la aplicación.
@@ -44,6 +46,8 @@ class MainActivity : ComponentActivity()
     private val authVM: AuthVM by viewModels()
     private val historialVM: HistorialVM by viewModels()
     private val configVM: ConfigVM by viewModels()
+
+    private val nuevoReporteVM: NuevoReporteVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -66,7 +70,7 @@ class MainActivity : ComponentActivity()
                 theme = configState.theme,
                 fontSize = configState.fontSize
             ) {
-                MainContent(authVM, ubicacionVM, historialVM)
+                MainContent(authVM, ubicacionVM, historialVM, nuevoReporteVM = nuevoReporteVM)
             }
         }
     }
@@ -83,14 +87,16 @@ fun MainContent(
     authVM: AuthVM,
     ubicacionVM: UbicacionVM,
     historialVM: HistorialVM,
-    networkVM: NetworkVM = NetworkVM(LocalContext.current)
+    networkVM: NetworkVM = NetworkVM(LocalContext.current),
+    nuevoReporteVM: NuevoReporteVM
 ) {
     val authState by authVM.authState.collectAsState()
     val networkState by networkVM.isNetworkAvailable.collectAsState()
+    val nuevoReporteState by nuevoReporteVM.state.collectAsState()
     if (!networkState && !authState.loggedIn) {
         OfflineScreen()
     } else {
-        if (!authState.loggedIn) RegistroApp() else RIETIApp(authVM, authState, ubicacionVM, historialVM)
+        if (!authState.loggedIn) RegistroApp() else RIETIApp(authVM, authState, nuevoReporteVM, nuevoReporteState, ubicacionVM, historialVM)
     }
 }
 
@@ -108,6 +114,8 @@ fun MainContent(
 fun RIETIApp(
     authVM: AuthVM,
     authState: AuthState,
+    nuevoReporteVM: NuevoReporteVM,
+    nuevoReporteState: NuevoReporteState,
     ubicacionVM: UbicacionVM,
     historialVM: HistorialVM,
     modifier: Modifier = Modifier
@@ -133,6 +141,8 @@ fun RIETIApp(
                 authState = authState,
                 historialVM = historialVM,
                 historialState = historialState,
+                nuevoReporteVM = nuevoReporteVM,
+                nuevoReporteState = nuevoReporteState,
                 ubicacionVM = ubicacionVM,
                 modifier = modifier.padding(innerPadding)
             )
@@ -193,14 +203,18 @@ fun GreetingPreview(
     authVM: AuthVM = viewModel(),
     authState: AuthState = AuthState(),
     historialVM: HistorialVM = viewModel(),
-    ubicacionVM: UbicacionVM = UbicacionVM()
+    ubicacionVM: UbicacionVM = UbicacionVM(),
+    nuevoReporteVM: NuevoReporteVM = NuevoReporteVM(),
+    nuevoReporteState: NuevoReporteState = NuevoReporteState()
 ) {
     RIETITheme {
         RIETIApp(
             authVM,
             authState,
+            nuevoReporteVM,
+            nuevoReporteState,
             ubicacionVM,
-            historialVM,
+            historialVM
         )
     }
 }

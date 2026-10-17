@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,6 +15,9 @@ interface BorradorDAO {
 
     @Query("SELECT * FROM borradores WHERE correoU = :userEmail")
     fun obtenerBorradoresPorUsuario(userEmail: String): Flow<List<Borrador>>
+
+    @Update
+    suspend fun actualizarBorrador(borrador: Borrador)
 
     @Delete
     suspend fun eliminarBorrador(borrador: Borrador)

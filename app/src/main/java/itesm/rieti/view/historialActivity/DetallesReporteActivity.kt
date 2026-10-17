@@ -42,7 +42,11 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.R
+import itesm.rieti.model.enums.RangoEdad
+import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Expediente
+import itesm.rieti.model.esquemas.Reporte
+import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.view.nuevoReporteActivity.MapScreen
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
@@ -53,13 +57,18 @@ import itesm.rieti.viewModel.history.HistorialVM
  * @param historialVM ViewModel del historial.
  * @param historialState Estado del historial actual.
  * @param modifier Modificador para la vista.
+ * @param reporteResponse Objeto [ReporteResponse] con los detalles a mostrar.
  */
 @Composable
 fun DetallesReporteActivity(
     historialVM: HistorialVM,
     historialState: HistorialState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    reporteResponse: ReporteResponse? = historialState.selectedReporte
 ) {
+    val selectedReporte = reporteResponse ?: historialState.selectedReporte ?: return
+    val reporte = selectedReporte.reporte
+
     val estadoScroll = rememberScrollState()
     Column(
         modifier = modifier
@@ -91,12 +100,12 @@ fun DetallesReporteActivity(
             IconButton(
                 onClick = { },
                 modifier = modifier.weight(1f).size(25.dp),
-                enabled = historialState.selectedReporte!!.reporte.folioE != null // TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.reporte.expediente.status == Status.REGISTRADO
+                enabled = reporte.folioE != null // TODO: Adapt legacy logic to new DB structure: && selectedReporte.expediente?.status == Status.REGISTRADO
             ) {
                 Icon(
                     painter = painterResource(R.drawable.pencil),
                     contentDescription = "Edit Report Details",
-                    tint = if (historialState.selectedReporte.reporte.folioE != null /* TODO: Adapt legacy logic to new DB structure: && historialState.selectedReporte.reporte.expediente.status == Status.REGISTRADO*/) MaterialTheme.colorScheme.onSurface else Color.Transparent
+                    tint = if (reporte.folioE != null /* TODO: Adapt legacy logic to new DB structure: && selectedReporte.expediente?.status == Status.REGISTRADO*/) MaterialTheme.colorScheme.onSurface else Color.Transparent
                 )
             }
         }
@@ -105,7 +114,7 @@ fun DetallesReporteActivity(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Folio: ${historialState.selectedReporte!!.reporte.folio}",
+                text = "Folio: ${reporte.folio}",
                 fontWeight = FontWeight.Light,
                 modifier = modifier.padding(end = 8.dp),
                 textAlign = TextAlign.Center
@@ -126,16 +135,16 @@ fun DetallesReporteActivity(
         ) {
             Spacer(modifier.height(14.dp))
             Text(
-                text = historialState.selectedReporte!!.reporte.detallesAdicionales ?: "",
+                text = reporte.detallesAdicionales ?: "",
                 fontWeight = FontWeight.Normal,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(modifier.height(14.dp))
-            ElementoLista("Fecha:", historialState.selectedReporte.reporte.dia.toString())
-            ElementoLista("Número de NNA:", historialState.selectedReporte.reporte.numNinios.toString())
-            ElementoLista("Rango de edad:", historialState.selectedReporte.reporte.rangoEdad.toString())
-            ElementoLista("Tipo de trabajo:", historialState.selectedReporte.reporte.tipoTrabajo?.name ?: "")
-            // TODO: Adapt legacy logic to new DB structure: if (historialState.selectedReporte.reporte.reporte != null) DetallesExpediente(historialState.selectedReporte.reporte.reporte)
+            ElementoLista("Fecha:", reporte.dia ?: "")
+            ElementoLista("Número de NNA:", reporte.numNinios.toString())
+            ElementoLista("Rango de edad:", reporte.rangoEdad?.toString() ?: "")
+            ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo?.name ?: "")
+            // TODO: Adapt legacy logic to new DB structure: if (selectedReporte.expediente != null) DetallesExpediente(selectedReporte.expediente)
             Spacer(modifier.height(14.dp))
             Text(
                 text = "Ubicación",
@@ -143,14 +152,14 @@ fun DetallesReporteActivity(
                 style = MaterialTheme.typography.titleSmall
             )
             Text(
-                text = historialState.selectedReporte.reporte.municipio ?: "",
+                text = reporte.municipio ?: "",
                 fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier.height(8.dp))
             MapaEstatico(
-                latitud = historialState.selectedReporte.reporte.latitud,
-                longitud = historialState.selectedReporte.reporte.longitud
+                latitud = reporte.latitud,
+                longitud = reporte.longitud
             )
         }
     }
@@ -272,5 +281,16 @@ fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier
 @Preview(showBackground = true)
 @Composable
 fun DetallesReportePreview(historialVM: HistorialVM = viewModel(), historialState: HistorialState = HistorialState()) {
-    DetallesReporteActivity(historialVM, historialState)
+    val sampleReporte = ReporteResponse(
+        reporte = Reporte(
+            folio = "REP-12345",
+            dia = "2023-10-25",
+            numNinios = 2,
+            rangoEdad = RangoEdad.INFANTES,
+            tipoTrabajo = TipoTrabajo.VENTA_AMBULANTE,
+            detallesAdicionales = "Detalles de prueba para el reporte.",
+            municipio = "Atizapán de Zaragoza"
+        )
+    )
+    DetallesReporteActivity(historialVM, historialState, reporteResponse = sampleReporte)
 }

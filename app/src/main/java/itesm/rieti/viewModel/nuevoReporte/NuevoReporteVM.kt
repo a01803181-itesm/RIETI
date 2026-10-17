@@ -181,6 +181,38 @@ class NuevoReporteVM : ViewModel() {
         _state.value = _state.value.copy(saveState = state)
     }
 
+    fun setSelectedBorrador(borrador: Borrador?) {
+        _state.value = _state.value.copy(selectedBorrador = borrador)
+    }
+
+    fun fillFieldsWithBorrador(borrador: Borrador) {
+        val parsedRangoEdad = borrador.rangoEdad?.let { str ->
+            RangoEdad.entries.firstOrNull { it.name.equals(str, ignoreCase = true) || it.desc.equals(str, ignoreCase = true) }
+        }
+        val parsedTipoTrabajo = borrador.tipoTrabajo?.let { str ->
+            TipoTrabajo.entries.firstOrNull { it.name.equals(str, ignoreCase = true) || it.desc.equals(str, ignoreCase = true) }
+        }
+
+        _state.value = _state.value.copy(
+            reporte = _state.value.reporte.copy(
+                rangoEdad = parsedRangoEdad,
+                tipoTrabajo = parsedTipoTrabajo,
+                detallesAdicionales = borrador.detallesAdicionales,
+                numNinios = borrador.numNinios,
+                direccion = borrador.direccion,
+                municipio = borrador.municipio,
+                latitud = borrador.latitud,
+                longitud = borrador.longitud,
+                dia = borrador.date.toString()
+            ),
+            rawName = borrador.rawName,
+            date = borrador.date,
+            imageUri = borrador.imageUri,
+            rawAddress = borrador.rawAddress,
+            selectedBorrador = borrador
+        )
+    }
+
     /**
      * Analiza el objeto `Address` para asegurar que el evento se reporta dentro de México, 
      * extrayendo su municipio y la dirección literal si es válido, o registrando errores en caso opuesto.
@@ -305,8 +337,16 @@ class NuevoReporteVM : ViewModel() {
                 Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
                 if (response.isSuccessful) {
                     Log.i("Reporte", "Reporte creado exitosamente")
+                    val currentSelectedBorrador = _state.value.selectedBorrador
+                    if (currentSelectedBorrador != null) {
+                        try {
+                            borradorDAO.eliminarBorrador(currentSelectedBorrador)
+                        } catch (e: Exception) {
+                            Log.e("Draft", "Error deleting draft after creating report: ${e.message}")
+                        }
+                    }
                     setSendState(if (_state.value.rawName == "") SendState.SUCCESS_AS_ANONYMOUS else SendState.SUCCESS)
-                    _state.value = _state.value.copy(reporte = Reporte(), rawName = "")
+                    resetForm()
                 } else {
                     val newMap = _state.value.errors.toMutableMap()
                     newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"
@@ -343,32 +383,34 @@ class NuevoReporteVM : ViewModel() {
         setSaveState(SaveState.SENDING)
         viewModelScope.launch {
             try {
-                val reporteState = _state.value.reporte
-
                 val permanentImagePath = withContext(Dispatchers.IO) {
                     _state.value.imageUri?.let { persistDraftImage(context.applicationContext, it) }
                 }
 
+                val currentSelectedBorrador = _state.value.selectedBorrador
                 val draft = Borrador(
-                    rangoEdad = reporteState.rangoEdad,
-                    dia = reporteState.dia,
-                    tipoTrabajo = reporteState.tipoTrabajo,
-                    numNinios = reporteState.numNinios,
-                    direccion = reporteState.direccion,
-                    municipio = reporteState.municipio,
-                    latitud = reporteState.latitud,
-                    longitud = reporteState.longitud,
-                    nombre = reporteState.nombre,
-                    apPaterno = reporteState.apPaterno,
-                    apMaterno = reporteState.apMaterno,
-                    detallesAdicionales = reporteState.detallesAdicionales,
+                    idBorrador = currentSelectedBorrador?.idBorrador ?: 0,
                     correoU = userEmail,
-                    folioE = reporteState.folioE,
-                    correoAl = reporteState.correoAl,
-                    evidenciaURI = permanentImagePath
+                    rangoEdad = _state.value.reporte.rangoEdad?.name,
+                    detallesAdicionales = _state.value.reporte.detallesAdicionales,
+                    tipoTrabajo = _state.value.reporte.tipoTrabajo?.name,
+                    numNinios = _state.value.reporte.numNinios,
+                    direccion = _state.value.reporte.direccion,
+                    municipio = _state.value.reporte.municipio,
+                    latitud = _state.value.reporte.latitud,
+                    longitud = _state.value.reporte.longitud,
+                    rawName = _state.value.rawName,
+                    date = _state.value.date,
+                    imageUri = _state.value.imageUri,
+                    rawAddress = _state.value.rawAddress,
+                    persistentImagePath = permanentImagePath ?: currentSelectedBorrador?.persistentImagePath
                 )
 
-                borradorDAO.insertBorrador(draft)
+                if (currentSelectedBorrador != null) {
+                    borradorDAO.actualizarBorrador(draft)
+                } else {
+                    borradorDAO.insertBorrador(draft)
+                }
                 setSaveState(SaveState.SUCCESS)
             } catch (e: Exception) {
                 Log.e("Draft", "Error saving draft: ${e.message}")
