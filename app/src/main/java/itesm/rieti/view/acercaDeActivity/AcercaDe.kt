@@ -1,5 +1,6 @@
 package itesm.rieti.view.acercaDeActivity
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.Image
@@ -8,21 +9,31 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +43,13 @@ import itesm.rieti.R
 import itesm.rieti.view.inicioActivity.Encabezado
 import androidx.core.net.toUri
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import kotlinx.coroutines.launch
 
 /**
  * Pantalla de la aplicación que muestra la información de Acerca De.
@@ -98,28 +116,15 @@ fun CuerpoAcercaDeApp(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(50.dp))
         SocialMedia(modifier)
         Spacer(modifier = Modifier.height(50.dp))
-        Image(
-            painter = painterResource(R.drawable.itesm_logo),
-            contentDescription = "Logo de ITESM",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp),
-            contentScale = ContentScale.Crop
-        )
-        Text(
-            text = "Esta aplicación se hizo por alumnos del Tecnológico de Monterrey para RIETI",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Justify,
-            fontWeight = FontWeight.Light,
-        )
+        AboutDevTeam()
     }
 }
 
 @Composable
 fun SocialMedia(modifier: Modifier = Modifier, context: Context = LocalContext.current) {
     Text(
-        text = "¡Conoce a RIETI y SIPINNA en Redes Sociales!",
-        style = MaterialTheme.typography.titleMedium,
+        text = "¡Sigue a RIETI y SIPINNA en sus Redes Sociales!",
+        style = MaterialTheme.typography.titleLarge,
         textAlign = TextAlign.Center,
         fontWeight = FontWeight.Bold,
         modifier = modifier.fillMaxWidth()
@@ -207,6 +212,141 @@ fun SocialMedium(
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun AboutDevTeam() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "¡Conoce al equipo de desarrolladores!",
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            TeamMember(
+                R.drawable.dev_cesar,
+                "César Ariel Rodríguez Sandoval",
+                "Mobile App developer, UI/UX designer, backend developer",
+                "A01802924@tec.mx",
+                Modifier.weight(1f)
+            )
+            TeamMember(
+                R.drawable.dev_cass,
+                "Cassandra Vanessa Padilla Barovier",
+                "Backend developer, cloud infrastructure engineer, DB architect",
+                "A01753547@tec.mx",
+                Modifier.weight(1f)
+            )
+            TeamMember(
+                R.drawable.dev_alex,
+                "Alexander Mejia Tovar",
+                "Mobile App developer, UI/UX designer, cybersecurity engineer",
+                "A01803181@tec.mx",
+                Modifier.weight(1f)
+            )
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            TeamMember(
+                R.drawable.dev_santi,
+                "Santiago Abraham Ríos Palacios",
+                "Web developer, backend developer, DB architect",
+                "A01802727@tec.mx",
+                Modifier.weight(1f)
+            )
+            TeamMember(
+                R.drawable.dev_gian,
+                "Giancarlo Moreno Vázquez",
+                "Web developer, backend developer, UI/UX designer",
+                "A01803172@tec.mx",
+                Modifier.weight(1f)
+            )
+        }
+        Image(
+            painter = painterResource(R.drawable.itesm_logo),
+            contentDescription = "Logo de ITESM",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = "Esta aplicación se hizo por alumnos del Tecnológico de Monterrey para RIETI",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Justify,
+            fontWeight = FontWeight.Light,
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@Composable
+fun TeamMember(
+    photoID: Int,
+    fullName: String,
+    role: String,
+    email: String,
+    modifier: Modifier = Modifier
+) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(photoID),
+            contentDescription = "Foto de $fullName",
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+        Text(
+            text = fullName,
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = buildAnnotatedString {
+                withStyle(
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append(email)
+                }
+            },
+            style = MaterialTheme.typography.labelSmall.copy(fontStyle = FontStyle.Italic),
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Light,
+            modifier = Modifier
+                .clickable(
+                    onClick = {
+                        scope.launch {
+                            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Correo de $fullName copiado ($email)", email)))
+                        }
+                    }
+                )
         )
     }
 }
