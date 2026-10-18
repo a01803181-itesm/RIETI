@@ -1,6 +1,7 @@
 package itesm.rieti.view.historialActivity
 
 import android.graphics.Color.rgb
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,17 +9,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import itesm.rieti.model.enums.Status
+import itesm.rieti.view.nuevoReporteActivity.InfoLabel
 import itesm.rieti.viewModel.history.HistorialState
 
 /**
@@ -57,19 +63,19 @@ fun GrillaKPIs(
             )
             TarjetaKPI(
                 kpi = KPI.EN_SEGUIMIENTO,
-                value = historialState.reportes.filter { it.expediente?.status == Status.EN_SEGUIMIENTO }.size, // TODO: Review
+                value = historialState.reportes.filter { it.expediente?.status == Status.EN_SEGUIMIENTO }.size,
                 modifier = Modifier.weight(1f)
             )
         }
         FilaKPIs(modifier = modifier.weight(1f)) {
             TarjetaKPI(
                 kpi = KPI.COMPLETADOS,
-                value = historialState.reportes.filter { it.expediente?.status == Status.CONCLUIDO }.size, // TODO: Review
+                value = historialState.reportes.filter { it.expediente?.status == Status.CONCLUIDO }.size,
                 modifier = Modifier.weight(1f)
             )
             TarjetaKPI(
                 kpi = KPI.PENDIENTES,
-                value = historialState.reportes.filter { it.expediente?.status == Status.EN_REVISION }.size, // TODO: Obtener el número de reportes pendientes
+                value = historialState.reportes.filter { it.expediente?.status == Status.EN_REVISION || it.reporte.folioE == null }.size,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -103,7 +109,15 @@ fun TarjetaKPI(
     value: Int,
     modifier: Modifier = Modifier
 ) {
-    Card(modifier = modifier) {
+    var displayKPIDescriptionDialog by remember { mutableStateOf(false) }
+
+    if (displayKPIDescriptionDialog) {
+        KPIDescriptionDialog(kpi) { displayKPIDescriptionDialog = false }
+    }
+
+    Card(
+        modifier = modifier.clickable { displayKPIDescriptionDialog = true }
+    ) {
         Column(
             modifier = modifier.wrapContentHeight().padding(all = 12.dp)
         ) {
@@ -122,4 +136,38 @@ fun TarjetaKPI(
             )
         }
     }
+}
+
+@Composable
+fun KPIDescriptionDialog(kpi: KPI, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = { },
+        title = {
+            Column(
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                InfoLabel()
+                Text(
+                    text = kpi.desc,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
+        text = {
+            Text(
+                text = when (kpi) {
+                    KPI.REPORTES_TOTALES -> "Son el total de reportes que has registrado con RIETI.\n¡Muchas gracias por tu colaboracion!"
+                    KPI.PENDIENTES -> "Son los reportes que aún no han sido revisados por RIETI."
+                    KPI.EN_SEGUIMIENTO -> "Son los reportes con los que RIETI aún no ha revisado su contenido y tampoco ha comenzado su seguimiento (investigación)"
+                    KPI.COMPLETADOS -> "Son los reportes con los que RIETI ya dio solución y ha marcado como cerrados."
+                },
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    )
 }

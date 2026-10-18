@@ -158,6 +158,28 @@ fun WarningLabel() {
 }
 
 @Composable
+fun ErrorLabel() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.cross),
+            contentDescription = "Error",
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = "Error",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 8.dp),
+            color = MaterialTheme.colorScheme.error
+        )
+    }
+}
+
+@Composable
 fun LoadingLabel() {
     Row(
         verticalAlignment = Alignment.CenterVertically,

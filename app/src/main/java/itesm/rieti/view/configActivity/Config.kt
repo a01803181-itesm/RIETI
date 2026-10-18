@@ -21,21 +21,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -50,26 +43,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Provider
 import itesm.rieti.view.inicioActivity.OTPRecoverPasswordScreen
-import itesm.rieti.view.nuevoReporteActivity.SuccessLabel
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.config.ConfigState
 import itesm.rieti.viewModel.config.FontSize
@@ -97,12 +83,15 @@ fun ConfigApp(
     authVM: AuthVM,
     authState: AuthState,
     historialVM: HistorialVM,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    networkVM: NetworkVM = NetworkVM(LocalContext.current)
 ) {
     val scrollState = rememberScrollState()
     val configVM: ConfigVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val configState by configVM.state.collectAsState()
     val cognitoState by cognitoVM.cognitoState.collectAsState()
+
+    val networkConnection by networkVM.isNetworkAvailable.collectAsState()
 
     var displayPasswordChangedDialog by remember { mutableStateOf(false) }
     var displayConfirmSignOutDialog by remember { mutableStateOf(false) }
@@ -134,6 +123,7 @@ fun ConfigApp(
     } else {
         ConfigContent(
             scrollState,
+            networkConnection,
             configVM,
             configState,
             cognitoVM,
@@ -192,6 +182,7 @@ fun ChangePassword(
 @Composable
 fun ConfigContent(
     scrollState: ScrollState,
+    networkConnection: Boolean,
     configVM: ConfigVM,
     configState: ConfigState,
     cognitoVM: CognitoVM,
@@ -215,7 +206,7 @@ fun ConfigContent(
         Spacer(modifier = Modifier.height(12.dp))
         TamanioLetra(configVM, configState)
         Spacer(modifier = Modifier.height(16.dp))
-        Cuenta(cognitoVM, historialVM, authVM, authState) { onAttemptSignOut() }
+        Cuenta(networkConnection, cognitoVM, historialVM, authVM, authState) { onAttemptSignOut() }
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
@@ -395,6 +386,7 @@ fun TamanioLetra(
  */
 @Composable
 fun Cuenta(
+    networkConnection: Boolean,
     cognitoVM: CognitoVM,
     historialVM: HistorialVM,
     authVM: AuthVM,
@@ -402,6 +394,12 @@ fun Cuenta(
     modifier: Modifier = Modifier,
     onAttemptSignOut: () -> Unit
 ) {
+    var displayChangePasswordUnavailableDialog by remember { mutableStateOf(false) }
+
+    if (displayChangePasswordUnavailableDialog) {
+        ChangePasswordUnavailableDialog { displayChangePasswordUnavailableDialog = false }
+    }
+
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -440,14 +438,19 @@ fun Cuenta(
                         modifier = Modifier
                             .size(50.dp)
                             .clickable {
-                                cognitoVM.resetPassword(
-                                    email = authState.usuario.correoU,
-                                    onSuccess = {
-                                        cognitoVM.setRecoveringPassword(true)
-                                        authVM.setError(null)
-                                    },
-                                    onError = { authVM.setError(it) }
-                                )
+                                if (!networkConnection) {
+                                    displayChangePasswordUnavailableDialog = true
+                                } else {
+                                    displayChangePasswordUnavailableDialog = false
+                                    cognitoVM.resetPassword(
+                                        email = authState.usuario.correoU,
+                                        onSuccess = {
+                                            cognitoVM.setRecoveringPassword(true)
+                                            authVM.setError(null)
+                                        },
+                                        onError = { authVM.setError(it) }
+                                    )
+                                }
                             },
                         contentScale = ContentScale.Crop,
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)

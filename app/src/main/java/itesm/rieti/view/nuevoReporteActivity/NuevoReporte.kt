@@ -215,6 +215,7 @@ fun NuevoReporte(
             ) {
                 MapScreen(
                     context = context,
+                    networkConnectionState,
                     nuevoReporteVM = nuevoReporteVM,
                     nuevoReporteState = nuevoReporteState,
                     ubicacionVM = ubicacionVM,

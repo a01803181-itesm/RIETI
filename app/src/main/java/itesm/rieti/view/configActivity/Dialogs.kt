@@ -19,10 +19,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import itesm.rieti.view.nuevoReporteActivity.ErrorLabel
 import itesm.rieti.view.nuevoReporteActivity.SuccessLabel
 import itesm.rieti.view.nuevoReporteActivity.WarningLabel
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
+
+@Composable
+fun ChangePasswordUnavailableDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = { },
+        title = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                ErrorLabel()
+                Text(
+                    text = "Cambiar Contraseña",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 8.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        },
+        text = {
+            Text(
+                text = "Actualmente estás en modo offline, por lo que no es posible cambiar tu contraseña.\nConéctese a internet para continuar.",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+    )
+}
 
 @Composable
 fun PasswordChangedDialog() {

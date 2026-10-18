@@ -22,10 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +39,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import itesm.rieti.model.api.FormError
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteState
@@ -91,6 +89,7 @@ suspend fun processAddressData(
 @Composable
 fun MapScreen(
     context: Context,
+    networkConnectionState: Boolean,
     ubicacionVM: UbicacionVM,
     nuevoReporteVM: NuevoReporteVM,
     nuevoReporteState: NuevoReporteState,
@@ -170,7 +169,7 @@ fun MapScreen(
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = nuevoReporteState.reporte.direccion ?: "",
+            text = if (networkConnectionState) nuevoReporteState.reporte.direccion ?: "" else "En modo offline, no es posible obtener detalles de su dirección y tampoco interactuar con el mapa, sin embargo, sí es posible guardar las coordenadas de su ubicación actual.",
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -194,20 +193,29 @@ fun MapScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .pointerInteropFilter { event ->
-                        if (event.action == MotionEvent.ACTION_DOWN) {
+                        if (networkConnectionState && event.action == MotionEvent.ACTION_DOWN) {
                             onCameraMoved()
                         }
                         false
                     },
                 cameraPositionState = cameraPositionState,
-                properties = MapProperties(isMyLocationEnabled = true),
+                uiSettings = MapUiSettings(
+                    scrollGesturesEnabled = networkConnectionState,
+                    zoomGesturesEnabled = networkConnectionState,
+                    tiltGesturesEnabled = networkConnectionState,
+                    rotationGesturesEnabled = networkConnectionState,
+                    myLocationButtonEnabled = networkConnectionState
+                ),
+                properties = MapProperties(isMyLocationEnabled = networkConnectionState),
                 onMapClick = { latLng ->
-                    onUbicacionSelected(latLng.latitude.toFloat(), latLng.longitude.toFloat())
-                    coroutineScope.launch {
-                        cameraPositionState.animate(
-                            update = CameraUpdateFactory.newLatLng(latLng),
-                            durationMs = 1000
-                        )
+                    if (networkConnectionState) {
+                        onUbicacionSelected(latLng.latitude.toFloat(), latLng.longitude.toFloat())
+                        coroutineScope.launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newLatLng(latLng),
+                                durationMs = 1000
+                            )
+                        }
                     }
                 }
             )

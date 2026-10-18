@@ -1,5 +1,6 @@
 package itesm.rieti.view.historialActivity
 
+import android.location.Geocoder
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,9 +17,15 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,14 +35,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import itesm.rieti.R
 import itesm.rieti.model.drafts.Borrador
+import itesm.rieti.model.drafts.BorradorDB
 import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.view.mainActivity.Pantalla
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /**
  * Componente de tarjeta para mostrar información resumida de un reporte.
@@ -133,6 +144,28 @@ fun TarjetaBorrador(
     borrador: Borrador,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    var displayMunicipio by remember(borrador.idBorrador, borrador.municipio) {
+        mutableStateOf(if (borrador.municipio.isNullOrBlank()) "Indefinido" else borrador.municipio)
+    }
+
+    LaunchedEffect(borrador.idBorrador, borrador.municipio) {
+        if (borrador.municipio.isNullOrBlank() && borrador.latitud != null && borrador.longitud != null) {
+            withContext(Dispatchers.IO) {
+                try {
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    val address = geocoder.getFromLocation(borrador.latitud.toDouble(), borrador.longitud.toDouble(), 1)?.firstOrNull()
+                    val municipioResuelto = address?.subAdminArea ?: address?.locality
+                    if (!municipioResuelto.isNullOrBlank()) {
+                        displayMunicipio = municipioResuelto
+                        val updatedBorrador = borrador.copy(municipio = municipioResuelto)
+                        BorradorDB.getInstance().getBorradorDAO().actualizarBorrador(updatedBorrador)
+                    }
+                } catch (_: Exception) {}
+            }
+        }
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -155,7 +188,7 @@ fun TarjetaBorrador(
                         modifier = modifier.weight(1f)
                     ) {
                         Text(
-                            text = borrador.municipio ?: "",
+                            text = displayMunicipio,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.bodyLarge,
                         )

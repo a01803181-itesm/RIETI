@@ -88,6 +88,13 @@ class AuthVM(application: Application) : AndroidViewModel(application) {
      */
     fun setLoggedIn(loggedIn: Boolean) {
         _authState.value = _authState.value.copy(loggedIn = loggedIn)
+        if (loggedIn) {
+            val user = _authState.value.usuario
+            val sub = _authState.value.sub ?: ""
+            if (user != null && user.correoU.isNotEmpty()) {
+                viewModelScope.launch { preferences.saveUser(user, sub) }
+            }
+        }
     }
 
     /**
@@ -109,33 +116,33 @@ class AuthVM(application: Application) : AndroidViewModel(application) {
      */
     private fun checkAuth() {
         _authState.value = _authState.value.copy(stage = AuthStage.LOADING)
-        auth.checkCachedSession(
-            { user, sub, url ->
-                viewModelScope.launch { preferences.saveUser(user, sub) }
-                setLoggedIn(true)
-                setEmail(user.correoU, user.proveedor)
-                setSUB(sub)
-                setPictureURL(url)
-                _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
-            },
-            {
-                viewModelScope.launch {
-                    val offlineEmail = preferences.offlineEmailFlow.firstOrNull()
-                    val offlineProvider = preferences.offlineProviderFlow.firstOrNull()
-                    val offlineSUB = preferences.offlineSUBFlow.firstOrNull()
-                    if (offlineEmail != null && offlineProvider != null) {
-                        Log.i("Auth", "Offline session recovered from DataStore")
-                        setEmail(offlineEmail, Provider.valueOf(offlineProvider))
-                        setSUB(offlineSUB)
-                        setLoggedIn(true)
-                    } else {
+        viewModelScope.launch {
+            val offlineEmail = preferences.offlineEmailFlow.firstOrNull()
+            val offlineProvider = preferences.offlineProviderFlow.firstOrNull()
+            val offlineSUB = preferences.offlineSUBFlow.firstOrNull()
+            if (!offlineEmail.isNullOrEmpty() && !offlineProvider.isNullOrEmpty()) {
+                Log.i("Auth", "Session recovered from UserPreferences: $offlineEmail ($offlineProvider)")
+                val provider = try { Provider.valueOf(offlineProvider) } catch (_: Exception) { Provider.COGNITO }
+                setEmail(offlineEmail, provider)
+                setSUB(offlineSUB)
+                _authState.value = _authState.value.copy(loggedIn = true, stage = AuthStage.IDLE)
+            } else {
+                Log.i("Auth", "No user in UserPreferences, checking Amplify cached session")
+                auth.checkCachedSession(
+                    { user, sub, url ->
+                        viewModelScope.launch { preferences.saveUser(user, sub) }
+                        setEmail(user.correoU, user.proveedor)
+                        setSUB(sub)
+                        setPictureURL(url)
+                        _authState.value = _authState.value.copy(loggedIn = true, stage = AuthStage.IDLE)
+                    },
+                    {
                         Log.i("Auth", "Not logged in")
-                        setLoggedIn(false)
+                        _authState.value = _authState.value.copy(loggedIn = false, stage = AuthStage.IDLE)
                     }
-                    _authState.value = _authState.value.copy(stage = AuthStage.IDLE)
-                }
+                )
             }
-        )
+        }
     }
 
     /**
