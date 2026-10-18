@@ -30,6 +30,7 @@ import itesm.rieti.view.inicioActivity.RegistroApp
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.auth.CognitoVM
 import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.network.NetworkVM
@@ -46,7 +47,6 @@ class MainActivity : ComponentActivity()
     private val authVM: AuthVM by viewModels()
     private val historialVM: HistorialVM by viewModels()
     private val configVM: ConfigVM by viewModels()
-
     private val nuevoReporteVM: NuevoReporteVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?)
@@ -90,13 +90,14 @@ fun MainContent(
     networkVM: NetworkVM = NetworkVM(LocalContext.current),
     nuevoReporteVM: NuevoReporteVM
 ) {
+    val cognitoVM: CognitoVM = viewModel()
     val authState by authVM.authState.collectAsState()
     val networkState by networkVM.isNetworkAvailable.collectAsState()
     val nuevoReporteState by nuevoReporteVM.state.collectAsState()
     if (!networkState && !authState.loggedIn) {
         OfflineScreen()
     } else {
-        if (!authState.loggedIn) RegistroApp() else RIETIApp(authVM, authState, nuevoReporteVM, nuevoReporteState, ubicacionVM, historialVM)
+        if (!authState.loggedIn) RegistroApp(cognitoVM) else RIETIApp(cognitoVM, authVM, authState, nuevoReporteVM, nuevoReporteState, ubicacionVM, historialVM)
     }
 }
 
@@ -112,6 +113,7 @@ fun MainContent(
  */
 @Composable
 fun RIETIApp(
+    cognitoVM: CognitoVM,
     authVM: AuthVM,
     authState: AuthState,
     nuevoReporteVM: NuevoReporteVM,
@@ -137,6 +139,7 @@ fun RIETIApp(
         content = { innerPadding ->
             AppNavHost(
                 navController = navController,
+                cognitoVM = cognitoVM,
                 authVM = authVM,
                 authState = authState,
                 historialVM = historialVM,
@@ -200,6 +203,7 @@ fun RIETIBottomBar(navController: NavController, modifier: Modifier = Modifier) 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview(
+    cognitoVM: CognitoVM = viewModel(),
     authVM: AuthVM = viewModel(),
     authState: AuthState = AuthState(),
     historialVM: HistorialVM = viewModel(),
@@ -209,6 +213,7 @@ fun GreetingPreview(
 ) {
     RIETITheme {
         RIETIApp(
+            cognitoVM,
             authVM,
             authState,
             nuevoReporteVM,

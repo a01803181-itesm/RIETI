@@ -95,7 +95,9 @@ fun OTPSignUpScreen(
 fun OTPRecoverPasswordScreen(
     authVM: AuthVM,
     cognitoVM: CognitoVM,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSuccess: () -> Unit = {},
+    header: @Composable () -> Unit = {}
 ) {
     val authState by authVM.authState.collectAsState()
     val cognitoState by cognitoVM.cognitoState.collectAsState()
@@ -104,6 +106,7 @@ fun OTPRecoverPasswordScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(24.dp)
     ) {
+        header()
         TitulosLogin()
         Spacer(modifier = Modifier.height(16.dp))
         Text(
@@ -148,6 +151,7 @@ fun OTPRecoverPasswordScreen(
                         cognitoVM.setRecoveringPassword(false)
                         cognitoVM.resetState()
                         authVM.setError(null)
+                        onSuccess()
                     },
                     onError = { authVM.setError(it) }
                 )

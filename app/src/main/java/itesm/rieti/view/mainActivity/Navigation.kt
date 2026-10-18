@@ -18,6 +18,7 @@ import itesm.rieti.view.nuevoReporteActivity.NuevoReporte
 import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.nuevoReporte.UbicacionVM
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.auth.CognitoVM
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.history.HistoryView
@@ -39,6 +40,7 @@ import itesm.rieti.viewModel.nuevoReporte.NuevoReporteVM
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    cognitoVM: CognitoVM,
     authVM: AuthVM,
     authState: AuthState,
     ubicacionVM: UbicacionVM,
@@ -94,6 +96,6 @@ fun AppNavHost(
         }
         composable(Pantalla.RUTA_SIPINNA) { AcercaDeApp() }
         composable(Pantalla.RUTA_HISTORIAL_REPORTES) { HistorialActivity(navController, nuevoReporteVM, authState, historialVM, historialState) }
-        composable(Pantalla.RUTA_CUENTA) { ConfigApp(authVM, historialVM) }
+        composable(Pantalla.RUTA_CUENTA) { ConfigApp(cognitoVM, authVM, authState, historialVM) }
     }
 }

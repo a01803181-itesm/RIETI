@@ -61,8 +61,7 @@ import itesm.rieti.viewModel.auth.GoogleVM
  * @param modifier Modificador para la vista.
  */
 @Composable
-fun RegistroApp(modifier: Modifier = Modifier) {
-    val cognitoVM: CognitoVM = viewModel()
+fun RegistroApp(cognitoVM: CognitoVM, modifier: Modifier = Modifier) {
     val authVM: AuthVM = viewModel()
     val cognitoState by cognitoVM.cognitoState.collectAsState()
     val authState by authVM.authState.collectAsState()
@@ -413,6 +412,6 @@ fun Contrasena(
  */
 @Preview(showBackground = true)
 @Composable
-fun MainAppPreview() {
-    RegistroApp()
+fun MainAppPreview(cognitoVM: CognitoVM = viewModel()) {
+    RegistroApp(cognitoVM)
 }

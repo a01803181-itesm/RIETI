@@ -1,8 +1,10 @@
 package itesm.rieti.view.configActivity
 
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,22 +18,30 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,26 +50,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import itesm.rieti.R
 import itesm.rieti.model.esquemas.Provider
+import itesm.rieti.view.inicioActivity.OTPRecoverPasswordScreen
+import itesm.rieti.view.nuevoReporteActivity.SuccessLabel
+import itesm.rieti.viewModel.auth.AuthState
 import itesm.rieti.viewModel.config.ConfigState
 import itesm.rieti.viewModel.config.FontSize
 import itesm.rieti.viewModel.config.Theme
 import itesm.rieti.viewModel.auth.AuthVM
+import itesm.rieti.viewModel.auth.CognitoVM
 import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.history.HistorialVM
 import itesm.rieti.viewModel.network.NetworkVM
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Pantalla de configuración principal de la aplicación.
@@ -72,13 +93,115 @@ import itesm.rieti.viewModel.network.NetworkVM
  */
 @Composable
 fun ConfigApp(
+    cognitoVM: CognitoVM,
     authVM: AuthVM,
+    authState: AuthState,
     historialVM: HistorialVM,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
     val configVM: ConfigVM = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
     val configState by configVM.state.collectAsState()
+    val cognitoState by cognitoVM.cognitoState.collectAsState()
+
+    var displayPasswordChangedDialog by remember { mutableStateOf(false) }
+    var displayConfirmSignOutDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(displayPasswordChangedDialog) {
+        if (displayPasswordChangedDialog) {
+            delay(3000.milliseconds)
+            displayPasswordChangedDialog = false
+        }
+    }
+
+    if (displayPasswordChangedDialog) PasswordChangedDialog()
+
+    if (displayConfirmSignOutDialog) {
+        ConfirmSignOutDialog(
+            onDismiss = { displayConfirmSignOutDialog = false },
+            onConfirm = { authVM.signOut { historialVM.flush() } }
+        )
+    }
+
+    if (cognitoState.isRecoveringPassword) {
+        ChangePassword(
+            authVM,
+            cognitoVM,
+            historialVM,
+        ) {
+            displayPasswordChangedDialog = true
+        }
+    } else {
+        ConfigContent(
+            scrollState,
+            configVM,
+            configState,
+            cognitoVM,
+            authVM,
+            authState,
+            historialVM
+        ) {
+            displayConfirmSignOutDialog = true
+        }
+    }
+}
+
+@Composable
+fun ChangePassword(
+    authVM: AuthVM,
+    cognitoVM: CognitoVM,
+    historialVM: HistorialVM,
+    onSuccess: () -> Unit
+)
+{
+    OTPRecoverPasswordScreen(
+        authVM,
+        cognitoVM,
+        onSuccess = {
+            onSuccess()
+            authVM.signOut { historialVM.flush() }
+        }
+    ) {
+        BackHandler {
+            cognitoVM.setRecoveringPassword(false)
+            authVM.setError(null)
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = { cognitoVM.setRecoveringPassword(false) }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Volver a configuración de cuenta"
+                )
+            }
+            Text(
+                text = "Volver a configuración de cuenta",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Spacer(modifier = Modifier.height(64.dp))
+    }
+}
+
+@Composable
+fun ConfigContent(
+    scrollState: ScrollState,
+    configVM: ConfigVM,
+    configState: ConfigState,
+    cognitoVM: CognitoVM,
+    authVM: AuthVM,
+    authState: AuthState,
+    historialVM: HistorialVM,
+    modifier: Modifier = Modifier,
+    onAttemptSignOut: () -> Unit
+) {
+
     Column (modifier = modifier
         .fillMaxSize()
         .padding((18.dp))
@@ -92,10 +215,11 @@ fun ConfigApp(
         Spacer(modifier = Modifier.height(12.dp))
         TamanioLetra(configVM, configState)
         Spacer(modifier = Modifier.height(16.dp))
-        Cuenta(historialVM, authVM)
+        Cuenta(cognitoVM, historialVM, authVM, authState) { onAttemptSignOut() }
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
 /**
  * Componente que muestra la imagen de perfil y el correo del usuario actual.
  *
@@ -271,13 +395,18 @@ fun TamanioLetra(
  */
 @Composable
 fun Cuenta(
+    cognitoVM: CognitoVM,
     historialVM: HistorialVM,
     authVM: AuthVM,
-    modifier: Modifier = Modifier
+    authState: AuthState,
+    modifier: Modifier = Modifier,
+    onAttemptSignOut: () -> Unit
 ) {
-    val authState by authVM.authState.collectAsState()
-    val scrollState = rememberScrollState()
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+    ) {
         Text(
             text = "Cuenta",
             style = MaterialTheme.typography.titleMedium,
@@ -289,62 +418,92 @@ fun Cuenta(
         Card(
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding()
                 .fillMaxWidth()
-                .height(162.dp)
                 .border(
                     1.dp,
                     MaterialTheme.colorScheme.outline,
                     shape = MaterialTheme.shapes.medium
                 )
-                .verticalScroll(scrollState)
         ) {
-            Column(
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
+                    .wrapContentHeight()
             ) {
-                OutlinedTextField(
-                    value = authState.usuario?.correoU ?: "",
-                    onValueChange = { },
-                    label = { Text("Correo Electronico", style = MaterialTheme.typography.titleMedium) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = { },
-                    label = { Text("Contraseña", style = MaterialTheme.typography.titleMedium) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = authState.sub ?: "anonymous",
-                    onValueChange = { },
-                    label = { Text("SUB", style = MaterialTheme.typography.titleMedium) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.fillMaxWidth()
+                if (authState.usuario!!.proveedor == Provider.COGNITO) {
+                    Image(
+                        painter = painterResource(R.drawable.padlock),
+                        contentDescription = "Cambiar Contraseña",
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clickable {
+                                cognitoVM.resetPassword(
+                                    email = authState.usuario.correoU,
+                                    onSuccess = {
+                                        cognitoVM.setRecoveringPassword(true)
+                                        authVM.setError(null)
+                                    },
+                                    onError = { authVM.setError(it) }
+                                )
+                            },
+                        contentScale = ContentScale.Crop,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
+                }
+                Image(
+                    painter = painterResource(R.drawable.out),
+                    contentDescription = "Cerrar Sesión",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clickable { onAttemptSignOut() },
+                    contentScale = ContentScale.Crop,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
                 )
             }
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                if (authState.usuario!!.proveedor == Provider.COGNITO) {
+                    Text(
+                        text = "Cambiar\nContraseña",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = modifier
+                            .weight(1f)
+                            .clickable {
+                                cognitoVM.resetPassword(
+                                    email = authState.usuario.correoU,
+                                    onSuccess = {
+                                        cognitoVM.setRecoveringPassword(true)
+                                        authVM.setError(null)
+                                    },
+                                    onError = { authVM.setError(it) }
+                                )
+                            }
+                    )
+                }
+                Text(
+                    text = "Cerrar Sesión",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    modifier = modifier
+                        .weight(1f)
+                        .clickable { onAttemptSignOut() }
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
         }
-        Spacer(modifier = Modifier.height(32.dp))
-        Image(
-            painter = painterResource(R.drawable.out),
-            contentDescription = "Cerrar Sesión",
-            modifier = Modifier
-                .size(50.dp)
-                .clickable { authVM.signOut { historialVM.flush() } },
-            contentScale = ContentScale.Crop,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
-        )
-        Text(
-            text = "Cerrar Sesión",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-        )
     }
 }
 
@@ -356,6 +515,16 @@ fun Cuenta(
  */
 @Preview(showBackground = true)
 @Composable
-fun ConfigPreview(authVM: AuthVM = viewModel(), historialVM: HistorialVM = viewModel()) {
-    ConfigApp(authVM, historialVM)
+fun ConfigPreview(
+    cognitoVM: CognitoVM = viewModel(),
+    authVM: AuthVM = viewModel(),
+    authState: AuthState = AuthState(),
+    historialVM: HistorialVM = viewModel()
+) {
+    ConfigApp(
+        cognitoVM,
+        authVM,
+        authState,
+        historialVM
+    )
 }
