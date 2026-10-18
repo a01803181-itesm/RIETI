@@ -50,6 +50,14 @@ import itesm.rieti.model.esquemas.ReporteResponse
 import itesm.rieti.view.nuevoReporteActivity.MapScreen
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
+import coil3.compose.AsyncImage
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import itesm.rieti.model.api.evidencias.ManejadorEvidencia
+import itesm.rieti.model.esquemas.Evidencia
 
 /**
  * Pantalla que muestra los detalles completos de un reporte seleccionado.
@@ -83,7 +91,9 @@ fun DetallesReporteActivity(
         ) {
             IconButton(
                 onClick = { historialVM.setReporteSeleccionado(null) },
-                modifier = modifier.weight(1f).size(25.dp)
+                modifier = modifier
+                    .weight(1f)
+                    .size(25.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.cross),
@@ -99,7 +109,9 @@ fun DetallesReporteActivity(
             )
             IconButton(
                 onClick = { },
-                modifier = modifier.weight(1f).size(25.dp),
+                modifier = modifier
+                    .weight(1f)
+                    .size(25.dp),
                 enabled = reporte.folioE != null // TODO: Adapt legacy logic to new DB structure: && selectedReporte.expediente?.status == Status.REGISTRADO
             ) {
                 Icon(
@@ -140,6 +152,7 @@ fun DetallesReporteActivity(
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(modifier.height(14.dp))
+            reporte.folio?.let {folio -> EvidenciasReporte(folio = folio)}
             ElementoLista("Fecha:", reporte.dia ?: "")
             ElementoLista("Número de NNA:", reporte.numNinios.toString())
             ElementoLista("Rango de edad:", reporte.rangoEdad?.toString() ?: "")
@@ -161,6 +174,69 @@ fun DetallesReporteActivity(
                 latitud = reporte.latitud,
                 longitud = reporte.longitud
             )
+        }
+    }
+}
+
+@Composable
+fun EvidenciasReporte(folio: String, modifier: Modifier = Modifier) {
+    var evidencias by remember(folio) { mutableStateOf<List<Evidencia>>(emptyList()) }
+    var cargando by remember(folio) {
+        mutableStateOf(true)
+    }
+    var error by remember(folio) { mutableStateOf(false) }
+
+    LaunchedEffect(folio) {
+        cargando = true
+        error = false
+        evidencias = emptyList()
+
+        try {
+            val response = ManejadorEvidencia.ObtenerEvidencia(folio)
+
+            if (response.isSuccessful) {
+                evidencias = response.body() ?: emptyList()
+            } else {
+                error = true
+            }
+        } catch (e: Exception) {
+            error = true
+        } finally {
+            cargando = false
+        }
+    }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Fotografías",
+            style = MaterialTheme.typography.titleMedium
+        )
+        when {
+            cargando -> {
+                CircularProgressIndicator()
+            }
+
+            error -> {
+                Text(text = "Error al cargar evidencias")
+            }
+
+            evidencias.isEmpty() -> {
+                Text(text = "Este reporte no tiene evidencias")
+            }
+
+            else -> {
+                evidencias.forEach { evidencia ->
+                    AsyncImage(
+                        model = evidencia.url,
+                        contentDescription = "Fotografía del reporte",
+                        modifier = Modifier.fillMaxWidth()
+                            .height(200.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
         }
     }
 }

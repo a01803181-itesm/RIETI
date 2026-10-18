@@ -10,5 +10,11 @@ object ManejadorEvidencia {
         ManejadorAPI.retrofit.create(Peticiones::class.java)
     }
 
-    suspend fun subirEvidencia(folio: String, foto: MultipartBody.Part): Response<Evidencia> {return servicio.subirEvidencia(folio, foto)}
+    suspend fun subirEvidencia(folio: String, foto: MultipartBody.Part): Response<Evidencia> {
+        return servicio.subirEvidencia(folio, foto)
+    }
+
+    suspend fun ObtenerEvidencia(folio: String): Response<List<Evidencia>> {
+        return servicio.ObtenerEvidencia(folio)
+    }
 }
