@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -119,8 +118,6 @@ fun MapScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    var hasInitializedLocation by remember { mutableStateOf(false) }
-
     LaunchedEffect(nuevoReporteState.selectedBorrador) {
         val selDraft = nuevoReporteState.selectedBorrador
         if (selDraft != null && selDraft.latitud != null && selDraft.longitud != null) {
@@ -135,9 +132,8 @@ fun MapScreen(
         }
     }
 
-    LaunchedEffect(ubicacion) {
-        if (!hasInitializedLocation && ubicacion != null && nuevoReporteState.selectedBorrador == null) {
-            hasInitializedLocation = true
+    LaunchedEffect(ubicacion, nuevoReporteState.reporte.direccion) {
+        if (nuevoReporteState.reporte.direccion == null && ubicacion != null && nuevoReporteState.selectedBorrador == null) {
             val target = LatLng(ubicacion!!.latitude, ubicacion!!.longitude)
             cameraPositionState.position = CameraPosition.fromLatLngZoom(target, 18f)
             onUbicacionSelected(ubicacion!!.latitude.toFloat(), ubicacion!!.longitude.toFloat())
@@ -150,9 +146,7 @@ fun MapScreen(
             onCameraIdle()
             val centroActual = cameraPositionState.position.target
             onUbicacionSelected(centroActual.latitude.toFloat(), centroActual.longitude.toFloat())
-            if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
-                processAddressData(context, nuevoReporteVM, cameraPositionState)
-            }
+            processAddressData(context, nuevoReporteVM, cameraPositionState)
         }
     }
 

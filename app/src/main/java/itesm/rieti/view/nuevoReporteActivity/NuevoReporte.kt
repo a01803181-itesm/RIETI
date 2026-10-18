@@ -111,16 +111,29 @@ fun NuevoReporte(
     }
 
     LaunchedEffect(nuevoReporteState.sendState) {
-        if (nuevoReporteState.sendState == SendState.SUCCESS || nuevoReporteState.sendState == SendState.SUCCESS_AS_ANONYMOUS) {
-            delay(1000.milliseconds)
-            onReporteCreado()
-            nuevoReporteVM.setSendState(SendState.IDLE)
-            nuevoReporteVM.resetForm()
-
-            val currentLoc = ubicacionVM.ubicacion.value
-            if (currentLoc != null) {
-                nuevoReporteVM.setCoords(currentLoc.latitude.toFloat(), currentLoc.longitude.toFloat())
+        when (nuevoReporteState.sendState) {
+            SendState.SUCCESS -> {
+                delay(1000.milliseconds)
+                onReporteCreado()
+                nuevoReporteVM.setSendState(SendState.IDLE)
+                nuevoReporteVM.resetForm()
+                nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
+                val currentLoc = ubicacionVM.ubicacion.value
+                if (currentLoc != null) {
+                    nuevoReporteVM.setCoords(currentLoc.latitude.toFloat(), currentLoc.longitude.toFloat())
+                }
             }
+            SendState.SUCCESS_AS_ANONYMOUS -> {
+                delay(2000.milliseconds)
+                nuevoReporteVM.setSendState(SendState.IDLE)
+                nuevoReporteVM.resetForm()
+                nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
+                val currentLoc = ubicacionVM.ubicacion.value
+                if (currentLoc != null) {
+                    nuevoReporteVM.setCoords(currentLoc.latitude.toFloat(), currentLoc.longitude.toFloat())
+                }
+            }
+            else -> {}
         }
     }
 
@@ -130,6 +143,11 @@ fun NuevoReporte(
             onBorradorGuardado()
             nuevoReporteVM.setSaveState(SaveState.IDLE)
             nuevoReporteVM.resetForm()
+            nuevoReporteVM.setHoraYFecha(LocalDateTime.now().toString())
+            val currentLoc = ubicacionVM.ubicacion.value
+            if (currentLoc != null) {
+                nuevoReporteVM.setCoords(currentLoc.latitude.toFloat(), currentLoc.longitude.toFloat())
+            }
         }
     }
 
@@ -208,27 +226,25 @@ fun NuevoReporte(
                 )
             }
 
-            if (nuevoReporteState.errors.isNotEmpty()) {
+            if (nuevoReporteState.errors.isNotEmpty() || nuevoReporteState.sendState == SendState.SUCCESS_AS_ANONYMOUS) {
                 HorizontalDivider()
-                Text(
-                    text = if (nuevoReporteState.errors.contains(FormError.ServerError)) nuevoReporteState.errors[FormError.ServerError] ?: "Error en servidor" else "Hay campos con errores",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            if (nuevoReporteState.sendState == SendState.SUCCESS_AS_ANONYMOUS) {
-                LaunchedEffect(Unit) {
-                    nuevoReporteVM.setSendState(SendState.IDLE)
+                if (nuevoReporteState.errors.isNotEmpty()) {
+                    Text(
+                        text = if (nuevoReporteState.errors.contains(FormError.ServerError)) nuevoReporteState.errors[FormError.ServerError] ?: "Error en servidor" else "Hay campos con errores",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else if (nuevoReporteState.sendState == SendState.SUCCESS_AS_ANONYMOUS) {
+                    Text(
+                        text = "¡Reporte enviado exitosamente como anónimo!",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color(0xFF2E7D32),
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
-                Text(
-                    text = "Reporte enviado como anónimo",
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Green,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -18,14 +18,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +51,7 @@ import androidx.core.net.toUri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -237,21 +244,21 @@ fun AboutDevTeam() {
             TeamMember(
                 R.drawable.dev_cesar,
                 "César Ariel Rodríguez Sandoval",
-                "Mobile App developer, UI/UX designer, backend developer",
+                "Mobile App developer\nUI/UX designer\nBackend developer",
                 "A01802924@tec.mx",
                 Modifier.weight(1f)
             )
             TeamMember(
                 R.drawable.dev_cass,
                 "Cassandra Vanessa Padilla Barovier",
-                "Backend developer, cloud infrastructure engineer, DB architect",
+                "Backend developer\nCloud deployment engineer\nDB architect",
                 "A01753547@tec.mx",
                 Modifier.weight(1f)
             )
             TeamMember(
                 R.drawable.dev_alex,
                 "Alexander Mejia Tovar",
-                "Mobile App developer, UI/UX designer, cybersecurity engineer",
+                "Mobile App developer\nUI/UX designer\nCybersecurity engineer",
                 "A01803181@tec.mx",
                 Modifier.weight(1f)
             )
@@ -265,14 +272,14 @@ fun AboutDevTeam() {
             TeamMember(
                 R.drawable.dev_santi,
                 "Santiago Abraham Ríos Palacios",
-                "Web developer, backend developer, DB architect",
+                "Web developer\nBackend developer\nDB architect",
                 "A01802727@tec.mx",
                 Modifier.weight(1f)
             )
             TeamMember(
                 R.drawable.dev_gian,
                 "Giancarlo Moreno Vázquez",
-                "Web developer, backend developer, UI/UX designer",
+                "Web developer\nBackend developer\nUI/UX designer",
                 "A01803172@tec.mx",
                 Modifier.weight(1f)
             )
@@ -303,8 +310,19 @@ fun TeamMember(
     email: String,
     modifier: Modifier = Modifier
 ) {
-    val clipboard = LocalClipboard.current
-    val scope = rememberCoroutineScope()
+    var showFurtherInfoDialog by remember { mutableStateOf(false) }
+
+    if (showFurtherInfoDialog) {
+        TeamMemberFurtherInfoDialog(
+            photoID,
+            fullName,
+            role,
+            email,
+            { showFurtherInfoDialog = false },
+            modifier
+        )
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -315,7 +333,10 @@ fun TeamMember(
             contentDescription = "Foto de $fullName",
             modifier = Modifier
                 .size(100.dp)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .clickable(
+                    onClick = { showFurtherInfoDialog = true }
+                ),
             contentScale = ContentScale.Crop
         )
         Text(
@@ -325,30 +346,88 @@ fun TeamMember(
             fontWeight = FontWeight.SemiBold,
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = buildAnnotatedString {
-                withStyle(
-                    SpanStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                ) {
-                    append(email)
-                }
-            },
-            style = MaterialTheme.typography.labelSmall.copy(fontStyle = FontStyle.Italic),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Light,
-            modifier = Modifier
-                .clickable(
-                    onClick = {
-                        scope.launch {
-                            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Correo de $fullName copiado ($email)", email)))
-                        }
-                    }
-                )
-        )
+        EmailText(email, MaterialTheme.typography.labelSmall.copy(fontStyle = FontStyle.Italic))
     }
+}
+
+@Composable
+fun EmailText(email: String, style: TextStyle) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    Text(
+        text = buildAnnotatedString {
+            withStyle(
+                SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append(email)
+            }
+        },
+        style = style,
+        textAlign = TextAlign.Center,
+        fontWeight = FontWeight.Light,
+        modifier = Modifier
+            .clickable(
+                onClick = {
+                    scope.launch {
+                        clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Correo copiado ($email)", email)))
+                    }
+                }
+            )
+    )
+}
+
+@Composable
+fun TeamMemberFurtherInfoDialog(
+    photoID: Int,
+    fullName: String,
+    role: String,
+    email: String,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        modifier = modifier.wrapContentSize(),
+        onDismissRequest = { onDismiss() },
+        confirmButton = {},
+        title = {
+            Text(
+                text = fullName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(photoID),
+                    contentDescription = "Foto de $fullName",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = role,
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    EmailText(email, MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic))
+                }
+            }
+        },
+    )
 }
 
 /**

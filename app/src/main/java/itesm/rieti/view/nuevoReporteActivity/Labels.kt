@@ -114,6 +114,28 @@ fun DraftLabel(nuevoReporteVM: NuevoReporteVM, onBackFromBorrador: () -> Unit) {
 }
 
 @Composable
+fun InfoLabel() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.info),
+            contentDescription = "Información",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = "Información",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.padding(start = 8.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
 fun WarningLabel() {
     Row(
         verticalAlignment = Alignment.CenterVertically,

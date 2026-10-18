@@ -2,6 +2,7 @@ package itesm.rieti.view.nuevoReporteActivity
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -178,6 +179,72 @@ fun DeleteDraftDialog(
                 },
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    )
+}
+
+@Composable
+fun DetallesHelpDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = { },
+        title = {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                InfoLabel()
+                Text(
+                    text = "Observaciones",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        text = {
+            Text(
+                text = "Aquí puedes incorporar detalles adicionales sobre el reporte, casos específicos o brindar puntos de referencia del lugar",
+                textAlign = TextAlign.Justify,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    )
+}
+
+@Composable
+fun NombreCompletoHelpDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = { },
+        title = {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                InfoLabel()
+                Text(
+                    text = "Nombre Completo (o Anónimo)",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        text = {
+            Text(
+                text = "En RIETI, nos preocupamos por la privacidad de los datos de nuestros usuarios;" +
+                        " por ello, nuestra aplicación solo guarda su correo electrónico." +
+                        "\n\n" +
+                        "Tiene la libertad de decisión de mandar el reporte de manera anónima" +
+                        " (dejar este campo vacío) o, en su caso, enviarlo con su nombre completo.",
+                textAlign = TextAlign.Justify,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     )

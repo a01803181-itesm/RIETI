@@ -361,8 +361,7 @@ class NuevoReporteVM : ViewModel() {
                             Log.e("Draft", "Error deleting draft after creating report: ${e.message}")
                         }
                     }
-                    setSendState(if (_state.value.rawName == "") SendState.SUCCESS_AS_ANONYMOUS else SendState.SUCCESS)
-                    resetForm()
+                    setSendState(if (correoU == "anonymous@nowhere.com") SendState.SUCCESS_AS_ANONYMOUS else SendState.SUCCESS)
                 } else {
                     val newMap = _state.value.errors.toMutableMap()
                     newMap[FormError.ServerError] = "Error en el servidor: ${response.code()}. ${response.message()}"

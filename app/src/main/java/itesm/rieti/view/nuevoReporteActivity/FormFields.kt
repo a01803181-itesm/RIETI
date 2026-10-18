@@ -6,13 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -35,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import itesm.rieti.R
 import itesm.rieti.model.api.FormError
 import itesm.rieti.model.enums.RangoEdad
 import itesm.rieti.model.enums.TipoTrabajo
@@ -306,15 +307,33 @@ fun Detalles(
     nuevoReporteState: NuevoReporteState,
     modifier: Modifier = Modifier
 ) {
+    var showDetallesHelpDialog by remember { mutableStateOf(false) }
+
+    if (showDetallesHelpDialog) {
+        DetallesHelpDialog(onDismiss = { showDetallesHelpDialog = false })
+    }
+
     FormField(modifier = modifier) {
         OutlinedTextField(
             value = nuevoReporteState.reporte.detallesAdicionales ?: "",
             onValueChange = { nuevoReporteVM.setDetails(it) },
             label = {
-                Text(
-                    text = "Detalles",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Observaciones",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    IconButton(
+                        onClick = { showDetallesHelpDialog = true }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.info),
+                            contentDescription = "Información",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
             },
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -348,13 +367,12 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
                         text = "Nombre Completo (o Anónimo)",
                         style = MaterialTheme.typography.titleMedium
                     )
-                    IconButton(
-                        onClick = { showHelpDialog = true }
-                    ) {
+                    IconButton(onClick = { showHelpDialog = true }) {
                         Icon(
-                            imageVector = Icons.Default.Info,
+                            painter = painterResource(R.drawable.info),
                             contentDescription = "Ayuda",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }
@@ -376,31 +394,7 @@ fun NombreCompleto(nuevoReporteVM: NuevoReporteVM, nuevoReporteState: NuevoRepor
                 .padding(top = 4.dp)
         )
         if (showHelpDialog) {
-            AlertDialog(
-                onDismissRequest = { showHelpDialog = false },
-                confirmButton = {},
-                dismissButton = {},
-                title = {
-                    Text(
-                        text = "Nombre Completo (o Anónimo)",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                text = {
-                    Text(
-                        text = "En RIETI, nos preocupamos por la privacidad de los datos de nuestros usuarios;" +
-                                " por ello, nuestra aplicación solo guarda su correo electrónico." +
-                                "\nTiene la libertad de decisión de mandar el reporte de manera anónima" +
-                                " (dejar este campo vacío) o, en su caso, enviarlo con su nombre completo.",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            )
+            NombreCompletoHelpDialog { showHelpDialog = false }
         }
     }
 }
