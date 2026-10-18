@@ -24,6 +24,9 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
+import itesm.rieti.model.api.evidencias.Evidencias
+import itesm.rieti.model.api.evidencias.ManejadorEvidencia
+
 
 /**
  * ViewModel encargado de la lógica y la validación del formulario de 
@@ -34,6 +37,17 @@ class NuevoReporteVM : ViewModel() {
      * Interfaz con el manejador de la API de reportes.
      */
     private val reporteHandler = Manejador
+
+    /**
+     * Interfaz con el manejador de la API de evidencias.
+     */
+    private val evidenciaHandler = ManejadorEvidencia
+
+    /**
+     * Utilidad para preparar las fotografías antes de enviarlas al servidor.
+     * Se convierten las imágenes a datos multipart.
+     */
+    private val evidencias = Evidencias()
     
     /**
      * Utilidad para generar los folios de los reportes.
@@ -327,7 +341,7 @@ class NuevoReporteVM : ViewModel() {
      *
      * @param usuario El [Usuario] actual que envía el reporte, usado para relacionarlo por su correo.
      */
-    fun crearReporte(usuario: Usuario? = null) {
+    fun crearReporte(context: Context, usuario: Usuario? = null) {
         setSendState(SendState.SENDING)
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
@@ -353,6 +367,23 @@ class NuevoReporteVM : ViewModel() {
                 Log.i("Reporte", "ERROR BODY: ${response.errorBody()?.string()}")
                 if (response.isSuccessful) {
                     Log.i("Reporte", "Reporte creado exitosamente")
+                    val fotoUri = _state.value.imageUri
+                    if (fotoUri != null) {
+                        try {
+                            val foto = withContext(Dispatchers.IO) {
+                                evidencias.prepararEvidencia(context, fotoUri)
+                            }
+                            val respuestaEvidencia = evidenciaHandler.subirEvidencia(folio, foto)
+
+                            if(respuestaEvidencia.isSuccessful){
+                                Log.i("Evidencia", "Evidencia enviada exitosamente")
+                            } else {
+                                Log.e("Evidencia", "Error al enviar evidencia: ${respuestaEvidencia.code()}")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("Evidencia", "Error al subir evidencia: ${e.message}")
+                        }
+                    }
                     val currentSelectedBorrador = _state.value.selectedBorrador
                     if (currentSelectedBorrador != null) {
                         try {

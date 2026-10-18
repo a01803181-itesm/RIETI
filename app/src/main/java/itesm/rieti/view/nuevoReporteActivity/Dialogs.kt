@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ fun AnonymousDialog(
     nuevoReporteVM: NuevoReporteVM
 ) {
     val rememberCoroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
     AlertDialog(
         modifier = Modifier
             .padding(16.dp)
@@ -45,7 +47,7 @@ fun AnonymousDialog(
                 onClick = {
                     nuevoReporteVM.setDisplayAnonymousDialog(false)
                     rememberCoroutineScope.launch { preferences.saveAwareOfAnonymous(true) }
-                    nuevoReporteVM.crearReporte(authState.usuario)
+                    nuevoReporteVM.crearReporte(context= context,authState.usuario)
                 }
             ) {
                 Text(

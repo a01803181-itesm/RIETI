@@ -1,11 +1,15 @@
 package itesm.rieti.model.api.reportes
 
+import itesm.rieti.model.esquemas.Evidencia
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.ReporteResponse
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 /**
@@ -29,4 +33,6 @@ interface Peticiones {
      */
     @POST("v1/reportes")
     suspend fun crearReporte(@Body reporte: Reporte): Response<Reporte>
+
+
 }
