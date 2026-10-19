@@ -286,7 +286,7 @@ fun BotonEnviarReporte(
             ) {
                 nuevoReporteVM.setDisplayAnonymousDialog(true)
             } else {
-                nuevoReporteVM.crearReporte(context = context,usuario = authState.usuario)
+                nuevoReporteVM.crearReporte(context = context, usuario = authState.usuario)
             }
         },
         enabled = nuevoReporteState.sendState == SendState.IDLE && nuevoReporteState.saveState == SaveState.IDLE,

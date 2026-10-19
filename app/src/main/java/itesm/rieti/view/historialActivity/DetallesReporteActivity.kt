@@ -1,8 +1,9 @@
 package itesm.rieti.view.historialActivity
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
-import androidx.compose.foundation.Image
+import android.content.ClipData
+import android.graphics.Color.rgb
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,17 +27,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -47,7 +47,6 @@ import itesm.rieti.model.enums.TipoTrabajo
 import itesm.rieti.model.esquemas.Expediente
 import itesm.rieti.model.esquemas.Reporte
 import itesm.rieti.model.esquemas.ReporteResponse
-import itesm.rieti.view.nuevoReporteActivity.MapScreen
 import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import coil3.compose.AsyncImage
@@ -55,9 +54,21 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import itesm.rieti.model.api.evidencias.ManejadorEvidencia
 import itesm.rieti.model.esquemas.Evidencia
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.math.exp
 
 /**
  * Pantalla que muestra los detalles completos de un reporte seleccionado.
@@ -78,6 +89,9 @@ fun DetallesReporteActivity(
     val reporte = selectedReporte.reporte
 
     val estadoScroll = rememberScrollState()
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -112,27 +126,69 @@ fun DetallesReporteActivity(
                 modifier = modifier
                     .weight(1f)
                     .size(25.dp),
-                enabled = reporte.folioE != null // TODO: Adapt legacy logic to new DB structure: && selectedReporte.expediente?.status == Status.REGISTRADO
+                enabled = reporte.folioE != null
             ) {
                 Icon(
                     painter = painterResource(R.drawable.pencil),
                     contentDescription = "Edit Report Details",
-                    tint = if (reporte.folioE != null /* TODO: Adapt legacy logic to new DB structure: && selectedReporte.expediente?.status == Status.REGISTRADO*/) MaterialTheme.colorScheme.onSurface else Color.Transparent
+                    tint = if (reporte.folioE != null) MaterialTheme.colorScheme.onSurface else Color.Transparent
                 )
             }
         }
-        Spacer(modifier.height(14.dp))
+        Spacer(modifier.height(8.dp))
+        Text(
+            text = buildAnnotatedString {
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                ) { append("Estado: ") }
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = selectedReporte.expediente?.status?.color ?: Color(rgb(255, 62, 68))
+                    )
+                ) { append(selectedReporte.expediente?.status?.desc ?: "Pendiente") }
+            },
+            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.titleMedium,
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Folio: ${reporte.folio}",
+                text = buildAnnotatedString {
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ) {
+                        append(reporte.folio)
+                    }
+                },
                 fontWeight = FontWeight.Light,
-                modifier = modifier.padding(end = 8.dp),
-                textAlign = TextAlign.Center
+                modifier = modifier
+                    .padding(end = 8.dp)
+                    .clickable(
+                        onClick = {
+                            scope.launch {
+                                clipboard.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText("Folio de reporte copiado (${reporte.folio})", reporte.folio)
+                                    )
+                                )
+                            }
+                        }
+                    ),
+                textAlign = TextAlign.Center,
             )
             IconButton(
-                onClick = {},
+                onClick = {
+                    scope.launch {
+                        clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Folio de reporte copiado (${reporte.folio})", reporte.folio)))
+                    }
+                },
                 modifier = modifier.size(15.dp)
             ) {
                 Icon(
@@ -142,39 +198,136 @@ fun DetallesReporteActivity(
                 )
             }
         }
+        Spacer(modifier.height(8.dp))
         Column(
-            modifier = modifier.verticalScroll(estadoScroll)
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier.fillMaxSize().verticalScroll(estadoScroll)
         ) {
+            EvidenciasReporte(folio = reporte.folio)
+            DateLabel(reporte.dia)
+            NNALabel(reporte.numNinios)
+            RangoEdadLabel(reporte.rangoEdad!!)
+            TipoTrabajoLabel(reporte.tipoTrabajo!!)
+            if (reporte.detallesAdicionales != null) {
+                Spacer(modifier.height(14.dp))
+                Text(
+                    text = "Detalles adicionales:",
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = reporte.detallesAdicionales,
+                    fontWeight = FontWeight.Light,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+            if (selectedReporte.expediente != null) DetallesExpediente(selectedReporte.expediente)
             Spacer(modifier.height(14.dp))
             Text(
-                text = reporte.detallesAdicionales ?: "",
-                fontWeight = FontWeight.Normal,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            Spacer(modifier.height(14.dp))
-            reporte.folio?.let {folio -> EvidenciasReporte(folio = folio)}
-            ElementoLista("Fecha:", reporte.dia ?: "")
-            ElementoLista("Número de NNA:", reporte.numNinios.toString())
-            ElementoLista("Rango de edad:", reporte.rangoEdad?.toString() ?: "")
-            ElementoLista("Tipo de trabajo:", reporte.tipoTrabajo?.name ?: "")
-            // TODO: Adapt legacy logic to new DB structure: if (selectedReporte.expediente != null) DetallesExpediente(selectedReporte.expediente)
-            Spacer(modifier.height(14.dp))
-            Text(
-                text = "Ubicación",
-                fontWeight = FontWeight.Normal,
-                style = MaterialTheme.typography.titleSmall
-            )
-            Text(
-                text = reporte.municipio ?: "",
-                fontWeight = FontWeight.Medium,
+                text = buildAnnotatedString {
+                    withStyle(
+                        SpanStyle(fontWeight = FontWeight.Bold)
+                    ) { append("Ubicación: ") }
+                    withStyle(
+                        SpanStyle(fontWeight = FontWeight.Light)
+                    ) { append(" ${reporte.municipio ?: ""}") }
+                },
                 style = MaterialTheme.typography.titleMedium
             )
+            if (reporte.direccion != null) {
+                Text(
+                    text = reporte.direccion,
+                    fontWeight = FontWeight.Light,
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
             Spacer(modifier.height(8.dp))
             MapaEstatico(
                 latitud = reporte.latitud,
                 longitud = reporte.longitud
             )
         }
+    }
+}
+
+@Composable
+fun DateLabel(date: String?) {
+    val dateFormatted = try {
+        date?.let {
+            LocalDateTime.parse(it).format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
+        } ?: ""
+    } catch (_: Exception) { date ?: "" }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Fecha:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = dateFormatted,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+fun NNALabel(nna: Int) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Número de NNA:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = nna.toString(),
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+fun RangoEdadLabel(rangoEdad: RangoEdad) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Rango de edad:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = rangoEdad.desc,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+fun TipoTrabajoLabel(tipoTrabajo: TipoTrabajo) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Tipo de trabajo:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = tipoTrabajo.desc,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
 
@@ -199,7 +352,7 @@ fun EvidenciasReporte(folio: String, modifier: Modifier = Modifier) {
             } else {
                 error = true
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             error = true
         } finally {
             cargando = false
@@ -210,28 +363,20 @@ fun EvidenciasReporte(folio: String, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Fotografías",
-            style = MaterialTheme.typography.titleMedium
+            text = "Evidencias del reporte",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
         )
         when {
-            cargando -> {
-                CircularProgressIndicator()
-            }
-
-            error -> {
-                Text(text = "Error al cargar evidencias")
-            }
-
-            evidencias.isEmpty() -> {
-                Text(text = "Este reporte no tiene evidencias")
-            }
-
+            cargando -> { CircularProgressIndicator() }
+            error -> { Text(text = "Error al cargar evidencias") }
+            evidencias.isEmpty() -> { Text(text = "Este reporte no tiene evidencias") }
             else -> {
                 evidencias.forEach { evidencia ->
                     AsyncImage(
                         model = evidencia.url,
                         contentDescription = "Fotografía del reporte",
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .height(200.dp),
                         contentScale = ContentScale.Fit
                     )
@@ -307,19 +452,114 @@ fun MapaEstatico(
  */
 @Composable
 fun DetallesExpediente(expediente: Expediente, modifier: Modifier = Modifier) {
-    Spacer(modifier.height(14.dp))
+    Spacer(modifier = Modifier.height(16.dp))
     Text(
         text = "Detalles Expediente",
-        fontWeight = FontWeight.SemiBold,
-        style = MaterialTheme.typography.titleLarge
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        modifier = modifier.fillMaxWidth(),
+        textAlign = TextAlign.Left
     )
-    ElementoLista("Folio Expediente:", expediente.folioExpediente)
-    ElementoLista("Alimentador:", expediente.alimentador)
-    ElementoLista("Status:", expediente.status.name)
-    if (expediente.descripcion != null) ElementoLista("Descripción:", expediente.descripcion)
-    ElementoLista("Última Actualización:", expediente.ultimaActualizacion.toString())
+    Spacer(modifier = Modifier.height(2.dp))
+    Card(
+        elevation = CardDefaults.cardElevation(4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.outline,
+                shape = MaterialTheme.shapes.medium
+            )
+            .padding(8.dp)
+    ) {
+        FolioExpedienteLabel(expediente.folioExpediente)
+        AlimentadorLabel(expediente.alimentador)
+        if (expediente.descripcion != null) DescripcionExpedienteLabel(expediente.descripcion)
+        UltimaActualizacionLabel(expediente.ultimaActualizacion.toString())
+    }
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
+@Composable
+fun FolioExpedienteLabel(folio: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Folio Expediente:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = folio,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+fun AlimentadorLabel(alimentador: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Alimentador:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = alimentador,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+fun DescripcionExpedienteLabel(descripcion: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Descripción:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = descripcion,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+fun UltimaActualizacionLabel(date: String) {
+    val dateFormatted = try {
+        date.let {
+            LocalDateTime.parse(it).format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
+        } ?: ""
+    } catch (_: Exception) { date }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Última actualización:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = dateFormatted,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
 /**
  * Componente de interfaz de usuario que representa un elemento en una lista con una etiqueta y su valor.
  *
@@ -337,13 +577,11 @@ fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier
             text = etiqueta,
             fontWeight = FontWeight.Medium,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = modifier.weight(1f)
         )
         Text(
             text = valor,
             fontWeight = FontWeight.Normal,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = modifier.weight(2f)
         )
     }
 }
@@ -366,6 +604,12 @@ fun DetallesReportePreview(historialVM: HistorialVM = viewModel(), historialStat
             tipoTrabajo = TipoTrabajo.VENTA_AMBULANTE,
             detallesAdicionales = "Detalles de prueba para el reporte.",
             municipio = "Atizapán de Zaragoza"
+        ),
+        expediente = Expediente(
+            folioExpediente = "EXP-12345",
+            alimentador = "Alimentador de prueba",
+            descripcion = "Descripción del expediente de prueba.",
+            ultimaActualizacion = LocalDateTime.now()
         )
     )
     DetallesReporteActivity(historialVM, historialState, reporteResponse = sampleReporte)

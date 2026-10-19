@@ -378,7 +378,7 @@ class NuevoReporteVM : ViewModel() {
                             if(respuestaEvidencia.isSuccessful){
                                 Log.i("Evidencia", "Evidencia enviada exitosamente")
                             } else {
-                                Log.e("Evidencia", "Error al enviar evidencia: ${respuestaEvidencia.code()}")
+                                Log.e("Evidencia", "Error al enviar evidencia: ${respuestaEvidencia.code()}. ${respuestaEvidencia.message()}")
                             }
                         } catch (e: Exception) {
                             Log.e("Evidencia", "Error al subir evidencia: ${e.message}")

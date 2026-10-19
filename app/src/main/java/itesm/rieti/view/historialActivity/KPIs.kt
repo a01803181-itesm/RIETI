@@ -153,6 +153,7 @@ fun KPIDescriptionDialog(kpi: KPI, onDismiss: () -> Unit) {
                     text = kpi.desc,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(top = 8.dp),
+                    color = kpi.color,
                     fontWeight = FontWeight.SemiBold
                 )
             }
