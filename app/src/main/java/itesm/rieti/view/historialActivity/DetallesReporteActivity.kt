@@ -86,6 +86,7 @@ fun DetallesReporteActivity(
     reporteResponse: ReporteResponse? = historialState.selectedReporte
 ) {
     Log.i("Detalles", "Reporte Response: ${historialState.selectedReporte}")
+    Log.i("Detalles", "Status: ${historialState.selectedReporte?.expediente?.status?.desc}")
 
     val selectedReporte = reporteResponse ?: historialState.selectedReporte ?: return
     val reporte = selectedReporte.reporte
