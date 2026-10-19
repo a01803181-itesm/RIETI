@@ -346,7 +346,7 @@ class NuevoReporteVM : ViewModel() {
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
                 val municipio = _state.value.reporte.municipio ?: "Desconocido"
-                if (_state.value.reporte.municipio == "Ciudad López Mateos") 
+                if (_state.value.reporte.municipio == "Ciudad López Mateos" || _state.value.reporte.municipio == "Cdad. López Mateos")
                 {
                     _state.value = _state.value.copy(reporte = _state.value.reporte.copy(municipio = "ATIZAPAN"))
                 }
