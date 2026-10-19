@@ -346,6 +346,10 @@ class NuevoReporteVM : ViewModel() {
         if (assertFieldsCompletion()) {
             viewModelScope.launch {
                 val municipio = _state.value.reporte.municipio ?: "Desconocido"
+                if (_state.value.reporte.municipio == "Ciudad López Mateos") 
+                {
+                    _state.value = _state.value.copy(reporte = _state.value.reporte.copy(municipio = "ATIZAPAN"))
+                }
                 val dia = _state.value.reporte.dia ?: LocalDateTime.now().toString()
                 val folio = generadorFolios.reporte(municipio, dia)
                 val correoU = if (_state.value.rawName != "" && usuario != null) {
