@@ -52,6 +52,9 @@ import itesm.rieti.viewModel.history.HistorialState
 import itesm.rieti.viewModel.history.HistorialVM
 import coil3.compose.AsyncImage
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +69,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import itesm.rieti.model.api.evidencias.ManejadorEvidencia
 import itesm.rieti.model.esquemas.Evidencia
+import itesm.rieti.viewModel.config.FontSize
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -229,9 +233,7 @@ fun DetallesReporteActivity(
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
-            if (selectedReporte.expediente != null) {
-                DetallesExpediente(selectedReporte.expediente)
-            }
+            if (selectedReporte.expediente != null) DetallesExpediente(selectedReporte.expediente)
             Spacer(modifier.height(14.dp))
             Text(
                 text = buildAnnotatedString {
@@ -463,29 +465,29 @@ fun MapaEstatico(
 @Composable
 fun DetallesExpediente(expediente: Expediente, modifier: Modifier = Modifier) {
     Spacer(modifier = Modifier.height(16.dp))
-    Text(
-        text = "Detalles Expediente",
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
-        modifier = modifier.fillMaxWidth(),
-        textAlign = TextAlign.Left
-    )
-    Spacer(modifier = Modifier.height(2.dp))
-    Card(
-        elevation = CardDefaults.cardElevation(4.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                1.dp,
-                MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.medium
-            )
-            .padding(8.dp)
+    Column(
+        modifier = modifier.fillMaxWidth()
     ) {
-        FolioExpedienteLabel(expediente.folioE)
-        LugarLabel(expediente.lugar)
-        if (expediente.descripcion != null) DescripcionExpedienteLabel(expediente.descripcion)
-        if (expediente.correoAl != null) CorreoAlimentadorLabel(expediente.correoAl)
+        Text("Detalles Expediente", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(8.dp))
+        Card(
+            elevation = CardDefaults.cardElevation(4.dp),
+            modifier = Modifier
+                .padding()
+                .fillMaxWidth()
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.medium
+                )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                FolioExpedienteLabel(expediente.folioE)
+                LugarLabel(expediente.lugar)
+                if (expediente.descripcion != null) DescripcionExpedienteLabel(expediente.descripcion)
+                if (expediente.correoAl != null) CorreoAlimentadorLabel(expediente.correoAl)
+            }
+        }
     }
     Spacer(modifier = Modifier.height(16.dp))
 }
