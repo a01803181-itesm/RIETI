@@ -82,31 +82,24 @@ fun HistorialActivity(
             historialVM.cargarReportes(authState.usuario)
         }
     }
-
-    AnimatedContent(
-        targetState = historialState.selectedReporte,
-        transitionSpec = {
-            fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
-        },
-        label = "HistorialDetallesTransition"
-    ) { selectedReporte ->
-        if (selectedReporte == null) {
-            MuestraHistorial(
-                navController = navController,
-                nuevoReporteVM = nuevoReporteVM,
-                networkConnection = networkConnectionState,
-                historialVM = historialVM,
-                historialState = historialState,
-                modifier = modifier
-            )
-        } else {
-            DetallesReporteActivity(
-                historialVM = historialVM,
-                historialState = historialState,
-                reporteResponse = selectedReporte,
-                modifier = modifier
-            )
-        }
+    Log.i("Detalles", "Selected reporte: $historialState.selectedReporte")
+    if (historialState.selectedReporte == null) {
+        MuestraHistorial(
+            navController = navController,
+            nuevoReporteVM = nuevoReporteVM,
+            networkConnection = networkConnectionState,
+            historialVM = historialVM,
+            historialState = historialState,
+            modifier = modifier
+        )
+    } else {
+        Log.i("Detalles", "Calling DetallesReporteActivity function...")
+        DetallesReporteActivity(
+            historialVM = historialVM,
+            historialState = historialState,
+            reporteResponse = historialState.selectedReporte,
+            modifier = modifier
+        )
     }
 }
 
@@ -127,6 +120,45 @@ fun MuestraHistorial(
     historialState: HistorialState,
     modifier: Modifier = Modifier
 ) {
+    LaunchedEffect(
+        historialState.selectedView,
+        networkConnection,
+        historialState.reportes,
+        historialState.borradores,
+        historialState.stage
+    ) {
+        when (historialState.selectedView) {
+            HistoryView.REPORTES -> {
+                if (!networkConnection) {
+                    if (historialState.stage != HistorialStage.OFFLINE) {
+                        historialVM.setLoadingState(HistorialStage.OFFLINE)
+                    }
+                } else if (historialState.stage == HistorialStage.LOADING_REPORTS || historialState.stage == HistorialStage.ERROR_IN_REPORTS) {
+                    // Retain loading or error stage while async task runs or fails
+                } else if (historialState.reportes.isEmpty()) {
+                    if (historialState.stage != HistorialStage.EMPTY_REPORTS) {
+                        historialVM.setLoadingState(HistorialStage.EMPTY_REPORTS)
+                    }
+                } else {
+                    if (historialState.stage != HistorialStage.NON_EMPTY_REPORTS) {
+                        historialVM.setLoadingState(HistorialStage.NON_EMPTY_REPORTS)
+                    }
+                }
+            }
+            HistoryView.BORRADORES -> {
+                if (historialState.borradores.isEmpty()) {
+                    if (historialState.stage != HistorialStage.EMPTY_DRAFTS) {
+                        historialVM.setLoadingState(HistorialStage.EMPTY_DRAFTS)
+                    }
+                } else {
+                    if (historialState.stage != HistorialStage.NON_EMPTY_DRAFTS) {
+                        historialVM.setLoadingState(HistorialStage.NON_EMPTY_DRAFTS)
+                    }
+                }
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .padding(all = 14.dp)
@@ -146,24 +178,6 @@ fun MuestraHistorial(
         Spacer(Modifier.height(12.dp))
         BarraToggle(historialVM, historialState)
         Spacer(Modifier.height(6.dp))
-        when (historialState.selectedView) {
-            HistoryView.REPORTES -> {
-                if (!networkConnection) {
-                    historialVM.setLoadingState(HistorialStage.OFFLINE)
-                } else if (historialState.reportes.isEmpty() && historialState.stage != HistorialStage.ERROR_IN_REPORTS) {
-                    historialVM.setLoadingState(HistorialStage.EMPTY_REPORTS)
-                } else {
-                    historialVM.setLoadingState(HistorialStage.NON_EMPTY_REPORTS)
-                }
-            }
-            HistoryView.BORRADORES -> {
-                if (historialState.borradores.isEmpty()) {
-                    historialVM.setLoadingState(HistorialStage.EMPTY_DRAFTS)
-                } else {
-                    historialVM.setLoadingState(HistorialStage.NON_EMPTY_DRAFTS)
-                }
-            }
-        }
         ReportesContent(
             nuevoReporteVM,
             navController,
