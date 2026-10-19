@@ -35,8 +35,8 @@ object Validate {
         if (name.isEmpty()) onSuccess("", "", "")
         val nameParts = name.split(" ")
         when (nameParts.size) {
-            1 -> onError("Apellido paterno y materno es requerido")
-            2 -> onError("Apellido materno es requerido")
+            1 -> onSuccess(nameParts[0], "", "")
+            2 -> onSuccess(nameParts[0], nameParts[nameParts.size - 1], "")
             else -> onSuccess(nameParts[0], nameParts[nameParts.size - 2], nameParts[nameParts.size - 1])
         }
     }

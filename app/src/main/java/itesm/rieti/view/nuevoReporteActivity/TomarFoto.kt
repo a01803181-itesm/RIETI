@@ -113,13 +113,13 @@ fun CameraCaptureField(
                         modifier = Modifier.weight(2.5f)
                     ) {
                         Text(
-                            text = "Tomar una foto como evidencia",
+                            text = "Tomar una foto del lugar como evidencia",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "(Recuerda no tomar fotos a personas)",
+                            text = "(Recuerda NO tomar fotos a PERSONAS)",
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
