@@ -64,6 +64,7 @@ class HistorialVM : ViewModel() {
             } catch (e: Exception) {
                 Log.e("Reportes", "Error de conexión con el servidor: ${e.message}")
                 _state.value = _state.value.copy(errorReportes = "Error de conexión con el servidor: ${e.message}")
+                setLoadingState(HistorialStage.OFFLINE)
             }
         }
     }

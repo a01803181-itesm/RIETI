@@ -2,6 +2,7 @@ package itesm.rieti.view.historialActivity
 
 import android.content.ClipData
 import android.graphics.Color.rgb
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,7 +69,6 @@ import itesm.rieti.model.esquemas.Evidencia
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.math.exp
 
 /**
  * Pantalla que muestra los detalles completos de un reporte seleccionado.
@@ -85,6 +85,8 @@ fun DetallesReporteActivity(
     modifier: Modifier = Modifier,
     reporteResponse: ReporteResponse? = historialState.selectedReporte
 ) {
+    Log.i("Detalles", "Reporte Response: ${historialState.selectedReporte}")
+
     val selectedReporte = reporteResponse ?: historialState.selectedReporte ?: return
     val reporte = selectedReporte.reporte
 
@@ -175,7 +177,10 @@ fun DetallesReporteActivity(
                             scope.launch {
                                 clipboard.setClipEntry(
                                     ClipEntry(
-                                        ClipData.newPlainText("Folio de reporte copiado (${reporte.folio})", reporte.folio)
+                                        ClipData.newPlainText(
+                                            "Folio de reporte copiado (${reporte.folio})",
+                                            reporte.folio
+                                        )
                                     )
                                 )
                             }
@@ -201,7 +206,9 @@ fun DetallesReporteActivity(
         Spacer(modifier.height(8.dp))
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = modifier.fillMaxSize().verticalScroll(estadoScroll)
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(estadoScroll)
         ) {
             EvidenciasReporte(folio = reporte.folio)
             DateLabel(reporte.dia)
@@ -221,7 +228,9 @@ fun DetallesReporteActivity(
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
-            if (selectedReporte.expediente != null) DetallesExpediente(selectedReporte.expediente)
+            if (selectedReporte.expediente != null) {
+                DetallesExpediente(selectedReporte.expediente)
+            }
             Spacer(modifier.height(14.dp))
             Text(
                 text = buildAnnotatedString {
@@ -472,10 +481,10 @@ fun DetallesExpediente(expediente: Expediente, modifier: Modifier = Modifier) {
             )
             .padding(8.dp)
     ) {
-        FolioExpedienteLabel(expediente.folioExpediente)
-        AlimentadorLabel(expediente.alimentador)
+        FolioExpedienteLabel(expediente.folioE)
+        LugarLabel(expediente.lugar)
         if (expediente.descripcion != null) DescripcionExpedienteLabel(expediente.descripcion)
-        UltimaActualizacionLabel(expediente.ultimaActualizacion.toString())
+        if (expediente.correoAl != null) CorreoAlimentadorLabel(expediente.correoAl)
     }
     Spacer(modifier = Modifier.height(16.dp))
 }
@@ -500,24 +509,42 @@ fun FolioExpedienteLabel(folio: String) {
 }
 
 @Composable
-fun AlimentadorLabel(alimentador: String) {
+fun LugarLabel(lugar: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = "Alimentador:",
+            text = "Lugar:",
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleMedium
         )
         Text(
-            text = alimentador,
+            text = lugar,
             fontWeight = FontWeight.Light,
             style = MaterialTheme.typography.titleMedium
         )
     }
 }
 
+@Composable
+fun CorreoAlimentadorLabel(correo: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "Correo Alimentador:",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = correo,
+            fontWeight = FontWeight.Light,
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
 @Composable
 fun DescripcionExpedienteLabel(descripcion: String) {
     Row(
@@ -536,56 +563,6 @@ fun DescripcionExpedienteLabel(descripcion: String) {
         )
     }
 }
-
-@Composable
-fun UltimaActualizacionLabel(date: String) {
-    val dateFormatted = try {
-        date.let {
-            LocalDateTime.parse(it).format(DateTimeFormatter.ofPattern("d MMM uuuu, hh:mm a"))
-        } ?: ""
-    } catch (_: Exception) { date }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "Última actualización:",
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(
-            text = dateFormatted,
-            fontWeight = FontWeight.Light,
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
-}
-/**
- * Componente de interfaz de usuario que representa un elemento en una lista con una etiqueta y su valor.
- *
- * @param etiqueta Texto que describe el valor.
- * @param valor Texto del valor a mostrar.
- * @param modifier Modificador para la vista.
- */
-@Composable
-fun ElementoLista(etiqueta: String, valor: String, modifier: Modifier = Modifier) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        Text(
-            text = etiqueta,
-            fontWeight = FontWeight.Medium,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Text(
-            text = valor,
-            fontWeight = FontWeight.Normal,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-    }
-}
-
 /**
  * Vista previa de los detalles de un reporte.
  *
@@ -606,10 +583,10 @@ fun DetallesReportePreview(historialVM: HistorialVM = viewModel(), historialStat
             municipio = "Atizapán de Zaragoza"
         ),
         expediente = Expediente(
-            folioExpediente = "EXP-12345",
-            alimentador = "Alimentador de prueba",
+            folioE = "EXP-12345",
+            lugar = "Lugar del expediente de prueba",
             descripcion = "Descripción del expediente de prueba.",
-            ultimaActualizacion = LocalDateTime.now()
+            correoAl = "someone@somewhere.com",
         )
     )
     DetallesReporteActivity(historialVM, historialState, reporteResponse = sampleReporte)
