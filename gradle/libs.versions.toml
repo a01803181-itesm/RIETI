@@ -26,6 +26,8 @@ roomRuntime = "2.8.5"
 uiTestManifest = "1.12.1"
 
 datastorePreferences = "1.1.1"
+mockito = "5.12.0"
+mockitoKotlin = "5.4.0"
 
 [libraries]
 androidx-compose-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts" }
@@ -65,6 +67,8 @@ gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref 
 google-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "googlePSVer" }
 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
