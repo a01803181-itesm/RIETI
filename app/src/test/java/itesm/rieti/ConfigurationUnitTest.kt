@@ -6,32 +6,19 @@ import itesm.rieti.ui.theme.getTypography
 import itesm.rieti.viewModel.config.ConfigVM
 import itesm.rieti.viewModel.config.FontSize
 import itesm.rieti.viewModel.config.Theme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 
-/**
- * Test application subclass that provides a non-null context and temporary filesDir for DataStore.
- */
 class TestApplication(private val tempDir: File) : Application() {
     override fun getApplicationContext(): Context = this
     override fun getFilesDir(): File = tempDir
 }
 
-/**
- * Helper function replicating the deterministic dark theme decision logic used by [itesm.rieti.ui.theme.RIETITheme].
- */
 fun resolveDarkTheme(theme: Theme, isSystemInDark: Boolean): Boolean {
     return when (theme) {
         Theme.LIGHT -> false
@@ -40,26 +27,13 @@ fun resolveDarkTheme(theme: Theme, isSystemInDark: Boolean): Boolean {
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ConfigurationUnitTest {
 
     @get:Rule
     val tempFolder = TemporaryFolder()
 
-    private val testDispatcher = UnconfinedTestDispatcher()
-
-    @Before
-    fun setUp() {
-        Dispatchers.setMain(testDispatcher)
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun `ConfigVM initial state defaults to SYSTEM theme and MEDIUM font size`() {
+    fun `estado inicial de ConfigVM es por defecto tema SISTEMA y tamano de letra MEDIANO`() {
         val app = TestApplication(tempFolder.newFolder())
         val viewModel = ConfigVM(app)
 
@@ -68,7 +42,7 @@ class ConfigurationUnitTest {
     }
 
     @Test
-    fun `setTheme updates ConfigVM state to LIGHT, DARK, and SYSTEM`() {
+    fun `setTheme actualiza el estado de ConfigVM a CLARO, OSCURO y SISTEMA`() {
         val app = TestApplication(tempFolder.newFolder())
         val viewModel = ConfigVM(app)
 
@@ -83,7 +57,7 @@ class ConfigurationUnitTest {
     }
 
     @Test
-    fun `setFontSize updates ConfigVM state to SMALL, LARGE, and MEDIUM`() {
+    fun `setFontSize actualiza el estado de ConfigVM a PEQUENA, GRANDE y MEDIANA`() {
         val app = TestApplication(tempFolder.newFolder())
         val viewModel = ConfigVM(app)
 
@@ -98,39 +72,39 @@ class ConfigurationUnitTest {
     }
 
     @Test
-    fun `Theme enum descriptions match expected Spanish display strings`() {
+    fun `descripciones de enum Theme coinciden con los textos en espanol esperados`() {
         assertEquals("Claro", Theme.LIGHT.desc)
         assertEquals("Oscuro", Theme.DARK.desc)
         assertEquals("Sistema", Theme.SYSTEM.desc)
     }
 
     @Test
-    fun `FontSize enum descriptions match expected Spanish display strings`() {
+    fun `descripciones de enum FontSize coinciden con los textos en espanol esperados`() {
         assertEquals("Pequeña", FontSize.SMALL.desc)
         assertEquals("Mediana", FontSize.MEDIUM.desc)
         assertEquals("Grande", FontSize.LARGE.desc)
     }
 
     @Test
-    fun `resolveDarkTheme returns false when Theme is LIGHT regardless of system mode`() {
+    fun `resolveDarkTheme devuelve false cuando el tema es CLARO independientemente del sistema`() {
         assertFalse(resolveDarkTheme(Theme.LIGHT, isSystemInDark = true))
         assertFalse(resolveDarkTheme(Theme.LIGHT, isSystemInDark = false))
     }
 
     @Test
-    fun `resolveDarkTheme returns true when Theme is DARK regardless of system mode`() {
+    fun `resolveDarkTheme devuelve true cuando el tema es OSCURO independientemente del sistema`() {
         assertTrue(resolveDarkTheme(Theme.DARK, isSystemInDark = true))
         assertTrue(resolveDarkTheme(Theme.DARK, isSystemInDark = false))
     }
 
     @Test
-    fun `resolveDarkTheme delegates to system mode when Theme is SYSTEM`() {
+    fun `resolveDarkTheme delega al modo del sistema cuando el tema es SISTEMA`() {
         assertTrue(resolveDarkTheme(Theme.SYSTEM, isSystemInDark = true))
         assertFalse(resolveDarkTheme(Theme.SYSTEM, isSystemInDark = false))
     }
 
     @Test
-    fun `getTypography for MEDIUM font size matches baseline typography`() {
+    fun `getTypography para tamano MEDIANO coincide con la tipografia base`() {
         val typography = getTypography(FontSize.MEDIUM)
         val defaultTypography = getTypography(FontSize.MEDIUM)
 
@@ -140,7 +114,7 @@ class ConfigurationUnitTest {
     }
 
     @Test
-    fun `getTypography for SMALL font size scales text styles by 0,85x`() {
+    fun `getTypography para tamano PEQUENA escala los estilos de texto al 85 por ciento`() {
         val mediumTypography = getTypography(FontSize.MEDIUM)
         val smallTypography = getTypography(FontSize.SMALL)
 
@@ -152,7 +126,7 @@ class ConfigurationUnitTest {
     }
 
     @Test
-    fun `getTypography for LARGE font size scales text styles by 1,15x`() {
+    fun `getTypography para tamano GRANDE escala los estilos de texto al 115 por ciento`() {
         val mediumTypography = getTypography(FontSize.MEDIUM)
         val largeTypography = getTypography(FontSize.LARGE)
 

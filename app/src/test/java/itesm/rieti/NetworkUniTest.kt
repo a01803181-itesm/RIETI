@@ -63,7 +63,7 @@ class NetworkUniTest {
     }
 
     @Test
-    fun `NetworkVM initial state is true when monitor is online`() = runTest(testDispatcher) {
+    fun `estado inicial de NetworkVM es verdadero cuando el monitor esta en linea`() = runTest(testDispatcher) {
         val fakeMonitor = FakeNetworkMonitor(initialConnected = true)
         val viewModel = NetworkVM(testContext, fakeMonitor)
 
@@ -76,7 +76,7 @@ class NetworkUniTest {
     }
 
     @Test
-    fun `NetworkVM initial state becomes false when monitor is offline`() = runTest(testDispatcher) {
+    fun `estado inicial de NetworkVM es falso cuando el monitor esta fuera de linea`() = runTest(testDispatcher) {
         val fakeMonitor = FakeNetworkMonitor(initialConnected = false)
         val viewModel = NetworkVM(testContext, fakeMonitor)
 
@@ -89,7 +89,7 @@ class NetworkUniTest {
     }
 
     @Test
-    fun `NetworkVM reacts to dynamic online and offline status changes`() = runTest(testDispatcher) {
+    fun `NetworkVM reacciona a cambios dinamicos de estado en linea y fuera de linea`() = runTest(testDispatcher) {
         val fakeMonitor = FakeNetworkMonitor(initialConnected = true)
         val viewModel = NetworkVM(testContext, fakeMonitor)
 
@@ -113,7 +113,7 @@ class NetworkUniTest {
     }
 
     @Test
-    fun `NetworkVM exposes networkMonitor reference correctly`() {
+    fun `NetworkVM expone la referencia de networkMonitor correctamente`() {
         val fakeMonitor = FakeNetworkMonitor(initialConnected = true)
         val viewModel = NetworkVM(testContext, fakeMonitor)
 

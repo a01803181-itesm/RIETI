@@ -26,14 +26,14 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `setRawName updates state and clears InvalidName error`() {
+    fun `setRawName actualiza el estado y elimina el error InvalidName`() {
         viewModel.setRawName("Alexander Mejia")
         assertEquals("Alexander Mejia", viewModel.state.value.rawName)
         assertFalse(viewModel.state.value.errors.containsKey(FormError.InvalidName))
     }
 
     @Test
-    fun `assertFieldsCompletion correctly parses three-part full name`() {
+    fun `assertFieldsCompletion parsea correctamente un nombre completo de tres partes`() {
         viewModel.setRawName("Giancarlo Moreno Vázquez")
         viewModel.setNNAs("2")
         viewModel.setRangoEdad(RangoEdad.INFANTES)
@@ -49,7 +49,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `assertFieldsCompletion correctly parses two-part full name`() {
+    fun `assertFieldsCompletion parsea correctamente un nombre completo de dos partes`() {
         viewModel.setRawName("César Rodríguez")
         viewModel.setNNAs("1")
         viewModel.setRangoEdad(RangoEdad.PUBERTOS)
@@ -65,7 +65,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `assertFieldsCompletion correctly parses single-part name`() {
+    fun `assertFieldsCompletion parsea correctamente un nombre de una sola parte`() {
         viewModel.setRawName("Santiago")
         viewModel.setNNAs("1")
         viewModel.setRangoEdad(RangoEdad.JOVENES)
@@ -81,14 +81,14 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `setNNAs with valid integer updates numNinios and removes NNAMissing error`() {
+    fun `setNNAs con un entero valido actualiza numNinios y remueve error NNAMissing`() {
         viewModel.setNNAs("3")
         assertEquals(3, viewModel.state.value.reporte.numNinios)
         assertFalse(viewModel.state.value.errors.containsKey(FormError.NNAMissing))
     }
 
     @Test
-    fun `setNNAs with non-integer string adds NNAMissing error`() {
+    fun `setNNAs con una cadena no entera agrega error NNAMissing`() {
         viewModel.setNNAs("abc")
         assertTrue(viewModel.state.value.errors.containsKey(FormError.NNAMissing))
         assertEquals(
@@ -98,7 +98,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `assertFieldsCompletion fails when numNinios is less than 1`() {
+    fun `assertFieldsCompletion falla cuando numNinios es menor a 1`() {
         viewModel.setNNAs("0")
         viewModel.setRangoEdad(RangoEdad.INFANTES)
         viewModel.setWorkType(TipoTrabajo.VENTA_AMBULANTE)
@@ -115,14 +115,14 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `setRangoEdad updates state and clears AgeRangeMissing error`() {
+    fun `setRangoEdad actualiza el estado y remueve error AgeRangeMissing`() {
         viewModel.setRangoEdad(RangoEdad.PUBERTOS)
         assertEquals(RangoEdad.PUBERTOS, viewModel.state.value.reporte.rangoEdad)
         assertFalse(viewModel.state.value.errors.containsKey(FormError.AgeRangeMissing))
     }
 
     @Test
-    fun `assertFieldsCompletion fails when rangoEdad is missing`() {
+    fun `assertFieldsCompletion falla cuando falta el rangoEdad`() {
         viewModel.setNNAs("2")
         viewModel.setWorkType(TipoTrabajo.VENTA_AMBULANTE)
         viewModel.setMunicipio("Monterrey")
@@ -138,7 +138,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `setHoraYFecha with valid ISO datetime updates dia and date`() {
+    fun `setHoraYFecha con un formato ISO valido actualiza dia y date`() {
         val isoDateTime = "2026-05-10T14:30:00"
         viewModel.setHoraYFecha(isoDateTime)
 
@@ -148,7 +148,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `assertFieldsCompletion sets default dia when blank`() {
+    fun `assertFieldsCompletion asigna un dia por defecto cuando esta en blanco`() {
         viewModel.setNNAs("1")
         viewModel.setRangoEdad(RangoEdad.MIXTO)
         viewModel.setWorkType(TipoTrabajo.LIMPIEZA_DE_PARABRISAS)
@@ -162,14 +162,14 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `setMunicipio updates state and removes InvalidLocation error`() {
+    fun `setMunicipio actualiza el estado y remueve el error InvalidLocation`() {
         viewModel.setMunicipio("Monterrey")
         assertEquals("Monterrey", viewModel.state.value.reporte.municipio)
         assertFalse(viewModel.state.value.errors.containsKey(FormError.InvalidLocation))
     }
 
     @Test
-    fun `setLocation updates direccion and removes InvalidLocation error`() {
+    fun `setLocation actualiza la direccion y remueve el error InvalidLocation`() {
         val address = "Av. Eugenio Garza Sada 2501"
         viewModel.setLocation(address)
         assertEquals(address, viewModel.state.value.reporte.direccion)
@@ -177,7 +177,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `assertFieldsCompletion fails when municipio is missing`() {
+    fun `assertFieldsCompletion falla cuando falta el municipio`() {
         viewModel.setNNAs("1")
         viewModel.setRangoEdad(RangoEdad.INFANTES)
         viewModel.setWorkType(TipoTrabajo.VENTA_AMBULANTE)
@@ -193,14 +193,14 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `setWorkType updates state and removes WorkTypeMissing error`() {
+    fun `setWorkType actualiza el estado y remueve el error WorkTypeMissing`() {
         viewModel.setWorkType(TipoTrabajo.CARGA_Y_DESCARGA)
         assertEquals(TipoTrabajo.CARGA_Y_DESCARGA, viewModel.state.value.reporte.tipoTrabajo)
         assertFalse(viewModel.state.value.errors.containsKey(FormError.WorkTypeMissing))
     }
 
     @Test
-    fun `assertFieldsCompletion fails when tipoTrabajo is missing`() {
+    fun `assertFieldsCompletion falla cuando falta el tipoTrabajo`() {
         viewModel.setNNAs("2")
         viewModel.setRangoEdad(RangoEdad.JOVENES)
         viewModel.setMunicipio("Monterrey")
@@ -216,58 +216,58 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `setCoords updates latitud and longitud`() {
+    fun `setCoords actualiza la latitud y la longitud`() {
         viewModel.setCoords(25.65f, -100.29f)
         assertEquals(25.65f, viewModel.state.value.reporte.latitud)
         assertEquals(-100.29f, viewModel.state.value.reporte.longitud)
     }
 
     @Test
-    fun `setDetails updates detallesAdicionales`() {
+    fun `setDetails actualiza detallesAdicionales`() {
         val details = "NNA vendiendo dulces en el crucero vehicular"
         viewModel.setDetails(details)
         assertEquals(details, viewModel.state.value.reporte.detallesAdicionales)
     }
 
     @Test
-    fun `setDisplayAnonymousDialog updates state`() {
+    fun `setDisplayAnonymousDialog actualiza el estado`() {
         viewModel.setDisplayAnonymousDialog(true)
         assertTrue(viewModel.state.value.displayAnonymousDialog)
     }
 
     @Test
-    fun `setSendState updates state`() {
+    fun `setSendState actualiza el estado`() {
         viewModel.setSendState(SendState.SENDING)
         assertEquals(SendState.SENDING, viewModel.state.value.sendState)
     }
 
     @Test
-    fun `setSaveState updates state`() {
+    fun `setSaveState actualiza el estado`() {
         viewModel.setSaveState(SaveState.SUCCESS)
         assertEquals(SaveState.SUCCESS, viewModel.state.value.saveState)
     }
 
     @Test
-    fun `setSelectedBorrador updates state`() {
+    fun `setSelectedBorrador actualiza el estado`() {
         val borrador = Borrador(idBorrador = 1, municipio = "Monterrey")
         viewModel.setSelectedBorrador(borrador)
         assertEquals(borrador, viewModel.state.value.selectedBorrador)
     }
 
     @Test
-    fun `setDisplayConfirmDraftDeletion updates state`() {
+    fun `setDisplayConfirmDraftDeletion actualiza el estado`() {
         viewModel.setDisplayConfirmDraftDeletion(true)
         assertTrue(viewModel.state.value.displayConfirmDraftDeletion)
     }
 
     @Test
-    fun `setDraftDeletionStage updates state`() {
+    fun `setDraftDeletionStage actualiza el estado`() {
         viewModel.setDraftDeletionStage(DraftDeletionStage.LOADING)
         assertEquals(DraftDeletionStage.LOADING, viewModel.state.value.draftDeletionStage)
     }
 
     @Test
-    fun `assertFieldsCompletion fails on initial empty state and reports all missing fields`() {
+    fun `assertFieldsCompletion falla en el estado inicial vacio e informa todos los campos faltantes`() {
         val isValid = viewModel.assertFieldsCompletion()
 
         assertFalse(isValid)
@@ -279,7 +279,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `assertFieldsCompletion succeeds when all required fields are provided`() {
+    fun `assertFieldsCompletion tiene exito cuando se proporcionan todos los campos requeridos`() {
         viewModel.setRawName("Cassandra Padilla")
         viewModel.setNNAs("2")
         viewModel.setRangoEdad(RangoEdad.INFANTES)
@@ -304,7 +304,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `fillFieldsWithBorrador correctly populates state from draft`() {
+    fun `fillFieldsWithBorrador puebla correctamente el estado a partir de un borrador`() {
         val borrador = Borrador(
             idBorrador = 10,
             correoU = "user@test.com",
@@ -334,7 +334,7 @@ class NuevoReporteTest {
     }
 
     @Test
-    fun `resetForm resets all fields to default state`() {
+    fun `resetForm reinicia todos los campos al estado por defecto`() {
         viewModel.setRawName("Noel")
         viewModel.setNNAs("5")
         viewModel.setMunicipio("Guadalajara")
